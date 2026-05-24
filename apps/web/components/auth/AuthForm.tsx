@@ -49,6 +49,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
         ? envBase
         : window.location.origin
       : envBase ?? "";
+  // Base path only — Supabase allow-list must include this URL (or https://yoursite.com/**)
   const redirectTo = `${appBase}/auth/callback?next=/onboarding`;
 
   async function sendMagicLink(event: React.FormEvent) {
@@ -84,7 +85,10 @@ export function AuthForm({ mode }: { mode: Mode }) {
     const supabase = createClient();
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo },
+      options: {
+        redirectTo,
+        queryParams: { prompt: "select_account" },
+      },
     });
     if (error) {
       setMessage(error.message);
