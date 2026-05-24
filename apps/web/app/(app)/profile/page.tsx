@@ -2,7 +2,16 @@
 
 import { ProfileTabs, type ProfileTabId } from "@/components/ProfileTabs";
 import { PushRegistration } from "@/components/PushRegistration";
-import { GOAL_CATEGORIES } from "@goalpost/shared";
+import {
+  SocialLinksEditor,
+  socialLinksToFormState,
+} from "@/components/SocialLinksEditor";
+import { SocialLinksDisplay } from "@/components/SocialLinksDisplay";
+import {
+  GOAL_CATEGORIES,
+  type SocialLinkPlatformId,
+  type SocialLinks,
+} from "@goalpost/shared";
 import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -14,6 +23,7 @@ interface Profile {
   bio: string | null;
   timezone: string;
   region: string | null;
+  socialLinks: SocialLinks;
 }
 
 function profileTabFromParam(value: string | null): ProfileTabId {
@@ -32,6 +42,9 @@ function ProfilePageContent() {
   const [bio, setBio] = useState("");
   const [timezone, setTimezone] = useState("UTC");
   const [region, setRegion] = useState("");
+  const [socialLinks, setSocialLinks] = useState<
+    Record<SocialLinkPlatformId, string>
+  >(socialLinksToFormState({}));
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -41,18 +54,21 @@ function ProfilePageContent() {
       .then((data) => {
         const p = data.profile;
         if (!p) return;
+        const links = (p.socialLinks ?? {}) as SocialLinks;
         setProfile({
           displayName: p.displayName,
           username: p.username,
           bio: p.bio ?? null,
           timezone: p.timezone,
           region: p.region ?? null,
+          socialLinks: links,
         });
         setDisplayName(p.displayName ?? "");
         setUsername(p.username ?? "");
         setBio(p.bio ?? "");
         setTimezone(p.timezone ?? "UTC");
         setRegion(p.region ?? "");
+        setSocialLinks(socialLinksToFormState(links));
       });
   }
 
@@ -72,6 +88,7 @@ function ProfilePageContent() {
         displayName: displayName.trim(),
         username: username.trim().toLowerCase(),
         bio: bio.trim() || null,
+        socialLinks,
       }),
     });
     const data = await res.json();
@@ -152,6 +169,7 @@ function ProfilePageContent() {
               <p className="text-zinc-500 text-sm italic">No bio yet.</p>
             )}
             <p className="text-xs text-zinc-500">Timezone: {profile.timezone}</p>
+            <SocialLinksDisplay links={profile.socialLinks} />
           </div>
           <div className="flex flex-col gap-2 text-sm">
             <Link
@@ -222,6 +240,7 @@ function ProfilePageContent() {
             />
             <p className="text-xs text-zinc-600 mt-1 text-right">{bio.length}/300</p>
           </div>
+          <SocialLinksEditor values={socialLinks} onChange={setSocialLinks} />
           <button
             type="submit"
             className="rounded-lg bg-emerald-500 text-zinc-950 font-semibold px-6 py-2"

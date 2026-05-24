@@ -144,6 +144,7 @@ export default function CommunityFeedPage() {
             <FeedPostCard
               key={post.id}
               post={post}
+              openMessagingOnClick
               onDeleted={(id) => setPosts((prev) => prev.filter((p) => p.id !== id))}
             />
           ))}

@@ -1,0 +1,76 @@
+import { sendMessageSchema } from "@goalpost/shared";
+import { jsonError, jsonOk, toCamelCase } from "@/lib/api/response";
+import { getAuthUserFromRequest, getSupabaseForRequest } from "@/lib/supabase/auth";
+import { NextRequest } from "next/server";
+
+type Params = { params: Promise<{ id: string }> };
+
+export async function GET(request: NextRequest, { params }: Params) {
+  const user = await getAuthUserFromRequest(request);
+  if (!user) return jsonError("Unauthorized", "UNAUTHORIZED", 401);
+
+  const { id } = await params;
+  const supabase = await getSupabaseForRequest(request);
+  const { searchParams } = new URL(request.url);
+  const before = searchParams.get("before");
+
+  let query = supabase
+    .from("messages")
+    .select("id, conversation_id, sender_id, body, created_at")
+    .eq("conversation_id", id)
+    .order("created_at", { ascending: false })
+    .limit(50);
+
+  if (before) {
+    query = query.lt("created_at", before);
+  }
+
+  const { data, error } = await query;
+  if (error) return jsonError(error.message, "DB_ERROR", 500);
+
+  const messages = (data ?? []).reverse();
+  return jsonOk({
+    messages: messages.map((m) => toCamelCase(m)),
+    nextBefore:
+      messages.length > 0 ? (messages[0].created_at as string) : null,
+  });
+}
+
+export async function POST(request: NextRequest, { params }: Params) {
+  const user = await getAuthUserFromRequest(request);
+  if (!user) return jsonError("Unauthorized", "UNAUTHORIZED", 401);
+
+  const { id } = await params;
+  const body = await request.json();
+  const parsed = sendMessageSchema.safeParse(body);
+  if (!parsed.success) {
+    return jsonError(parsed.error.message, "VALIDATION_ERROR", 400);
+  }
+
+  const supabase = await getSupabaseForRequest(request);
+
+  const { data: membership } = await supabase
+    .from("conversation_participants")
+    .select("conversation_id")
+    .eq("conversation_id", id)
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (!membership) {
+    return jsonError("Conversation not found", "NOT_FOUND", 404);
+  }
+
+  const { data, error } = await supabase
+    .from("messages")
+    .insert({
+      conversation_id: id,
+      sender_id: user.id,
+      body: parsed.data.body.trim(),
+    })
+    .select()
+    .single();
+
+  if (error) return jsonError(error.message, "DB_ERROR", 500);
+
+  return jsonOk({ message: toCamelCase(data) }, 201);
+}

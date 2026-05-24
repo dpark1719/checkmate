@@ -117,19 +117,19 @@ export default function GoalsPage() {
 
       {error && <p className="text-sm text-red-400">{error}</p>}
 
-      <form onSubmit={createGoal} className="space-y-4 rounded-xl border border-zinc-800 p-4">
+      <form onSubmit={createGoal} className="space-y-4 rounded-xl border border-zinc-800 bg-zinc-900/30 p-4">
         <h2 className="text-sm font-medium text-zinc-400">Add goal</h2>
         <input
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Goal title"
           required
-          className="w-full rounded-lg bg-zinc-900 border border-zinc-700 px-4 py-2"
+          className="gp-input"
         />
         <select
           value={category}
           onChange={(e) => setCategory(e.target.value as GoalCategory)}
-          className="w-full rounded-lg bg-zinc-900 border border-zinc-700 px-4 py-2"
+          className="gp-input"
         >
           {GOAL_CATEGORIES.map((c) => (
             <option key={c} value={c}>
@@ -157,12 +157,12 @@ export default function GoalsPage() {
                   value={editTitle}
                   onChange={(e) => setEditTitle(e.target.value)}
                   required
-                  className="w-full rounded-lg bg-zinc-900 border border-zinc-700 px-3 py-2"
+                  className="gp-input"
                 />
                 <select
                   value={editCategory}
                   onChange={(e) => setEditCategory(e.target.value as GoalCategory)}
-                  className="w-full rounded-lg bg-zinc-900 border border-zinc-700 px-3 py-2"
+                  className="gp-input"
                 >
                   {GOAL_CATEGORIES.map((c) => (
                     <option key={c} value={c}>
@@ -175,7 +175,7 @@ export default function GoalsPage() {
                   type="time"
                   value={editTime}
                   onChange={(e) => setEditTime(e.target.value)}
-                  className="w-full rounded-lg bg-zinc-900 border border-zinc-700 px-3 py-2"
+                  className="gp-input"
                 />
                 <div className="flex gap-2">
                   <button

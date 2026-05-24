@@ -1,5 +1,7 @@
 "use client";
 
+import { SocialLinksDisplay } from "@/components/SocialLinksDisplay";
+import type { SocialLinks } from "@goalpost/shared";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -11,6 +13,7 @@ export default function PublicProfilePage() {
     username: string;
     bio: string | null;
     timezone: string;
+    socialLinks: SocialLinks;
   } | null>(null);
   const [streaks, setStreaks] = useState<
     { goalId: string; currentCount: number; goals?: { title: string } }[]
@@ -27,6 +30,7 @@ export default function PublicProfilePage() {
             username: d.profile.username,
             bio: d.profile.bio ?? null,
             timezone: d.profile.timezone,
+            socialLinks: (d.profile.socialLinks ?? {}) as SocialLinks,
           });
           setStreaks(d.streaks ?? []);
         }
@@ -48,6 +52,7 @@ export default function PublicProfilePage() {
         {profile.bio && (
           <p className="text-zinc-300 whitespace-pre-wrap max-w-lg">{profile.bio}</p>
         )}
+        <SocialLinksDisplay links={profile.socialLinks} />
       </header>
 
       <section>

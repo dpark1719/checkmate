@@ -4,3 +4,4 @@ export * from "./post";
 export * from "./user";
 export * from "./social";
 export * from "./misc";
+export * from "./message";

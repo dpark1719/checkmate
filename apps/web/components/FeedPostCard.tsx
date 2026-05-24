@@ -6,6 +6,7 @@ import {
   reactionEmoji,
   type ReactionType,
 } from "@goalpost/shared";
+import { PostDetailModal } from "@/components/PostDetailModal";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -34,15 +35,19 @@ function reactionMatches(type: ReactionType, stored: string) {
 export function FeedPostCard({
   post,
   onDeleted,
+  openMessagingOnClick = false,
 }: {
   post: FeedPost;
   onDeleted?: (postId: string) => void;
+  /** Community feed: tap post to view and message author */
+  openMessagingOnClick?: boolean;
 }) {
   const [reactions, setReactions] = useState(post.reactions);
   const [following, setFollowing] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [removed, setRemoved] = useState(false);
+  const [detailOpen, setDetailOpen] = useState(false);
 
   const isOwner = currentUserId === post.userId;
 
@@ -156,7 +161,26 @@ export function FeedPostCard({
           )}
         </div>
       </div>
-      <img src={post.photoUrl} alt="" className="w-full aspect-square object-cover bg-zinc-900" />
+      {openMessagingOnClick ? (
+        <button
+          type="button"
+          onClick={() => setDetailOpen(true)}
+          className="block w-full text-left"
+          aria-label="View post and message"
+        >
+          <img
+            src={post.photoUrl}
+            alt=""
+            className="w-full aspect-square object-cover bg-zinc-900"
+          />
+        </button>
+      ) : (
+        <img
+          src={post.photoUrl}
+          alt=""
+          className="w-full aspect-square object-cover bg-zinc-900"
+        />
+      )}
       {post.caption && <p className="px-4 py-2 text-sm">{post.caption}</p>}
       <div className="px-4 pb-2 flex gap-2 flex-wrap items-center">
         {REACTION_TYPES.map((type) => {
@@ -193,6 +217,13 @@ export function FeedPostCard({
         )}
       </div>
       <CommentsSection postId={post.id} />
+      {detailOpen && (
+        <PostDetailModal
+          post={post}
+          currentUserId={currentUserId}
+          onClose={() => setDetailOpen(false)}
+        />
+      )}
     </article>
   );
 }

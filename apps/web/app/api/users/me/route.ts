@@ -1,4 +1,4 @@
-import { updateProfileSchema } from "@goalpost/shared";
+import { sanitizeSocialLinks, updateProfileSchema } from "@goalpost/shared";
 import { NextRequest } from "next/server";
 import { jsonError, jsonOk, toCamelCase } from "@/lib/api/response";
 import { getAuthUserFromRequest, getSupabaseForRequest } from "@/lib/supabase/auth";
@@ -38,6 +38,9 @@ export async function PATCH(request: NextRequest) {
   if (d.region !== undefined) updates.region = d.region;
   if (d.notificationPreferences !== undefined) {
     updates.notification_preferences = d.notificationPreferences;
+  }
+  if (d.socialLinks !== undefined) {
+    updates.social_links = sanitizeSocialLinks(d.socialLinks);
   }
 
   const supabase = await getSupabaseForRequest(request);

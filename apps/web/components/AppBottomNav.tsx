@@ -7,12 +7,16 @@ const tabs = [
   { href: "/feed", label: "Home", icon: "⌂" },
   { href: "/post", label: "Post", icon: "＋" },
   { href: "/discover", label: "Discover", icon: "◇" },
+  { href: "/messages", label: "Messages", icon: "✉" },
   { href: "/goals", label: "Goals", icon: "◎" },
   { href: "/profile", label: "Profile", icon: "☺" },
 ] as const;
 
 function isActive(pathname: string, href: string) {
   if (href === "/feed") return pathname === "/feed";
+  if (href === "/messages") {
+    return pathname === "/messages" || pathname.startsWith("/messages/");
+  }
   if (href === "/profile") {
     return pathname === "/profile" || pathname.startsWith("/settings");
   }
