@@ -1,0 +1,27 @@
+{
+  "name": "goalpost",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "inngest"
+  ],
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "dev:web": "npm run dev --workspace=@goalpost/web",
+    "dev:mobile": "npm run dev --workspace=@goalpost/mobile"
+  },
+  "devDependencies": {
+    "turbo": "^2.5.4",
+    "typescript": "^5.8.3"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "overrides": {
+    "react": "19.2.3",
+    "react-dom": "19.2.3"
+  }
+}

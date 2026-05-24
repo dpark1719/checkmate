@@ -1,0 +1,126 @@
+# GoalPost — Cursor Rules
+# Read this entire file before writing any code.
+
+## What This App Is
+GoalPost is a cross-platform social accountability app (web + iOS + Android).
+Users set personal goals, receive a daily randomized notification (5am–10pm local time),
+commit to a "promise time" to post a photo, and share progress with followers and goal communities.
+Think: BeReal mechanic + Strava social layer, for ANY life goal.
+
+## Monorepo Structure
+```
+goalpost/
+├── apps/
+│   ├── mobile/          # Expo (React Native) app
+│   └── web/             # Next.js 14 App Router
+├── packages/
+│   ├── shared/          # Shared types, utils, validation (Zod schemas)
+│   └── ui/              # Shared UI components (used in both apps)
+├── supabase/
+│   ├── migrations/      # SQL migration files — never edit directly, create new ones
+│   └── functions/       # Supabase Edge Functions
+└── inngest/             # Inngest job definitions (trigger scheduling, streak calc)
+```
+
+## Tech Stack — Never Suggest Alternatives
+- **Mobile:** Expo SDK (React Native). Use Expo Router for navigation.
+- **Web:** Next.js 14 App Router. Use server components by default, client components only when needed.
+- **Database:** Supabase (PostgreSQL). Use Supabase client, never raw SQL in app code.
+- **Auth:** Supabase Auth (email magic link, Google OAuth, Apple Sign In, phone OTP).
+- **Storage:** Supabase Storage for photos.
+- **Jobs/Scheduling:** Inngest for all background jobs (trigger notifications, streak calc, leaderboard refresh).
+- **Caching:** Upstash Redis for feed and leaderboard caching.
+- **Push notifications:** Expo Push Notifications (abstracts APNs + FCM).
+- **Validation:** Zod for all schemas, shared between web and mobile.
+- **State management:** Zustand (lightweight, works in both Expo and Next.js).
+- **Styling (web):** Tailwind CSS. Styling (mobile): NativeWind (Tailwind for React Native).
+- **Hosting:** Vercel for web. Expo EAS for mobile builds.
+- **Error tracking:** Sentry (use @sentry/nextjs and @sentry/react-native).
+- **Analytics:** PostHog (use posthog-js for web, posthog-react-native for mobile).
+
+## Database Schema — Core Tables
+Always reference these exact table and column names. Never invent new ones without asking.
+
+```sql
+users (id uuid, display_name, username, avatar_url, timezone, region, auth_methods[], created_at, notification_preferences jsonb)
+goals (id uuid, user_id, title, category, description, default_promise_time time, is_active bool, created_at, archived_at)
+daily_challenges (id uuid, user_id, goal_id, date, trigger_fired_at, promise_time timestamptz, leeway_expires_at timestamptz, posted_at timestamptz, is_late bool, streak_credited bool)
+posts (id uuid, user_id, goal_id, daily_challenge_id, photo_url, caption, is_late bool, created_at, deleted_at)
+reactions (id, post_id, user_id, type [fire|clap|heart|mind_blown], created_at)
+comments (id, post_id, user_id, body, created_at, deleted_at)
+follows (follower_id, following_id, created_at)
+goal_communities (id, category, member_count, created_at)
+community_memberships (user_id, community_id, joined_at)
+streaks (id, user_id, goal_id, current_count, longest_count, last_credited_date)
+leaderboards (id, user_id, goal_id, category, region, period [weekly|all_time], week_start, streak_count, post_count, score, updated_at)
+```
+
+Goal categories (fixed enum): fitness | diet | career | study | finance | relationship | creative | other
+
+## Critical Business Rules — Never Break These
+1. **Streak logic is ALWAYS server-side.** Never calculate streaks on the client. Streaks are calculated by an Inngest job at midnight local time per user.
+2. **is_late** is set server-side when leeway_expires_at passes and posted_at is null or after leeway.
+3. **streak_credited** is only true if posted_at is before leeway_expires_at.
+4. **Trigger time** is randomized between 5am–10pm in the user's timezone, calculated server-side at midnight each day.
+5. **Promise time** must be set within 2 hours of trigger_fired_at. Validate this server-side.
+6. **leeway_expires_at** = promise_time + 1 hour. Always calculated server-side.
+7. **Max 5 active goals per user.** Enforce this at the API level, not just the UI.
+8. **Leaderboard data is read from the leaderboards table** (denormalized). Never calculate it on the fly in a user-facing request.
+9. **All photo URLs** are signed URLs from Supabase Storage. Never store or expose public bucket URLs.
+10. **Regional leaderboards** fall back to global if fewer than 3 users exist in that region + category.
+
+## API Conventions
+- All API routes live in `apps/web/app/api/`
+- Use Next.js Route Handlers (not pages/api)
+- Always validate request bodies with Zod before touching the database
+- Return consistent error shape: `{ error: string, code: string }`
+- All list endpoints support `cursor` and `limit` query params for pagination
+- All responses use camelCase JSON
+- Authenticate all protected routes using Supabase Auth session (use `createServerClient` from @supabase/ssr)
+
+## Code Style Rules
+- TypeScript everywhere. No `any` types — use proper types or `unknown`.
+- All shared types live in `packages/shared/types/`. Import from there, never redefine.
+- Use Zod schemas in `packages/shared/schemas/` for validation — these are the source of truth.
+- Prefer async/await over .then() chains.
+- Always handle errors explicitly. No silent catches.
+- Use descriptive variable names. No abbreviations except `id`, `url`, `db`.
+- Components: one component per file. File name matches component name.
+- No `console.log` in committed code — use a logger utility.
+
+## Supabase Patterns
+```typescript
+// Server-side (Next.js API routes, Server Components)
+import { createServerClient } from '@supabase/ssr'
+
+// Client-side (React components, Expo)
+import { createBrowserClient } from '@supabase/ssr'
+
+// Never use the service role key in client-side code
+// Never bypass RLS policies — always let Supabase handle auth
+
+// Prefer Supabase RLS (Row Level Security) over manual auth checks in API routes
+```
+
+## Inngest Job Names (don't rename these)
+- `goalpost/daily-trigger.schedule`   — fires at midnight UTC, schedules per-user triggers
+- `goalpost/trigger.send`             — sends push notification to one user
+- `goalpost/streak.calculate`         — runs at midnight local per user, updates streaks table
+- `goalpost/leaderboard.refresh`      — runs hourly, recalculates leaderboard table
+- `goalpost/leaderboard.weekly-reset` — runs every Monday midnight UTC
+
+## What NOT To Do
+- Do not use `getServerSideProps` or `getStaticProps` — this is App Router only
+- Do not use Redux — use Zustand
+- Do not use styled-components or emotion — use Tailwind / NativeWind
+- Do not write raw SQL in app code — use Supabase client methods
+- Do not run streak or leaderboard calculations in API routes — these are Inngest jobs only
+- Do not use `fetch` directly for Supabase — always use the Supabase client
+- Do not hardcode timezone logic on the client — always get timezone from user.timezone in the database
+- Do not show leaderboards with fewer than 3 community members
+- Do not allow more than 5 active goals per user
+
+## When You're Unsure
+If a task could be done multiple ways, always ask which approach before writing code.
+Prefer the simpler implementation — this is a v1 solo-built app, not a production system at scale.
+When in doubt, add a TODO comment rather than inventing a solution.

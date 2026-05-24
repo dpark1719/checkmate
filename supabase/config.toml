@@ -1,0 +1,8 @@
+# Supabase local dev — run `supabase init` / `supabase start` when using CLI
+project_id = "goalpost"
+
+[api]
+enabled = true
+
+[db]
+major_version = 15
