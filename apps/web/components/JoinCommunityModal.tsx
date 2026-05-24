@@ -78,8 +78,9 @@ export function JoinCommunityModal({
           {existingGoalId ? "Change" : "Share a"} {category} goal
         </h2>
         <p className="text-sm text-zinc-400">
-          Only posts for this goal appear in the {category} community feed. Pick the
-          goal you want to share with others.
+          Pick the goal you want to highlight in this community. Your posts for any{" "}
+          <span className="capitalize">{category}</span> goal appear in the feed;
+          this choice is shown on your profile in Discover.
         </p>
 
         {goals.length === 0 ? (

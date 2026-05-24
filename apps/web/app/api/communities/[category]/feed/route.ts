@@ -2,7 +2,7 @@ import { goalCategorySchema } from "@goalpost/shared";
 import { getCommunityFeed } from "@goalpost/server";
 import { NextRequest } from "next/server";
 import { jsonError, jsonOk } from "@/lib/api/response";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 type Params = { params: Promise<{ category: string }> };
 
@@ -19,9 +19,8 @@ export async function GET(request: NextRequest, { params }: Params) {
     ? parseInt(searchParams.get("limit")!, 10)
     : undefined;
 
-  const supabase = await createClient();
-
   try {
+    const supabase = createAdminClient();
     const feed = await getCommunityFeed(supabase, parsed.data, { cursor, limit });
     return jsonOk(feed);
   } catch (e) {
