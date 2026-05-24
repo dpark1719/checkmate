@@ -34,3 +34,7 @@ export const ageGateSchema = z.object({
   birthYear: z.number().int().min(1900).max(new Date().getFullYear()),
   region: z.enum(["us", "eu", "other"]).default("us"),
 });
+
+export const joinCommunitySchema = z.object({
+  goalId: z.string().uuid(),
+});

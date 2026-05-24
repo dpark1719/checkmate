@@ -8,6 +8,100 @@ function normalizeRelation<T>(value: T | T[] | null): T | null {
   return Array.isArray(value) ? value[0] ?? null : value;
 }
 
+type PostRow = {
+  id: string;
+  user_id: string;
+  goal_id: string;
+  photo_url: string;
+  caption: string | null;
+  is_late: boolean;
+  created_at: string;
+  profiles: unknown;
+  goals: unknown;
+  reactions: { type: string; user_id: string }[] | null;
+};
+
+function mapPostRows(
+  supabase: SupabaseClient,
+  posts: PostRow[],
+  limit: number
+) {
+  return signPhotoUrls(
+    supabase,
+    posts.map((p) => p.photo_url as string)
+  ).then((signed) => {
+    const items = posts.map((post) => {
+      const profile = normalizeRelation(post.profiles) as {
+        display_name: string;
+        username: string;
+        avatar_url: string | null;
+      } | null;
+      const goal = normalizeRelation(post.goals) as {
+        title: string;
+        category: string;
+      } | null;
+      return {
+        id: post.id,
+        userId: post.user_id,
+        goalId: post.goal_id,
+        photoUrl: signed.get(post.photo_url as string) ?? post.photo_url,
+        caption: post.caption,
+        isLate: post.is_late,
+        createdAt: post.created_at,
+        author: profile
+          ? {
+              displayName: profile.display_name,
+              username: profile.username,
+              avatarUrl: profile.avatar_url,
+            }
+          : null,
+        goal: goal ? { title: goal.title, category: goal.category } : null,
+        reactions: post.reactions ?? [],
+      };
+    });
+
+    const nextCursor =
+      items.length === limit ? items[items.length - 1]?.createdAt : null;
+
+    return { posts: items, nextCursor };
+  });
+}
+
+async function sharedGoalIdsForCommunity(
+  supabase: SupabaseClient,
+  category: string
+): Promise<string[]> {
+  const { data: community } = await supabase
+    .from("goal_communities")
+    .select("id")
+    .eq("category", category)
+    .single();
+
+  if (!community) return [];
+
+  const { data: memberships } = await supabase
+    .from("community_memberships")
+    .select("shared_goal_id")
+    .eq("community_id", community.id)
+    .not("shared_goal_id", "is", null);
+
+  return (memberships ?? [])
+    .map((m) => m.shared_goal_id as string)
+    .filter(Boolean);
+}
+
+async function mySharedGoalIds(supabase: SupabaseClient, userId: string) {
+  const { data: memberships } = await supabase
+    .from("community_memberships")
+    .select("shared_goal_id")
+    .eq("user_id", userId)
+    .not("shared_goal_id", "is", null);
+
+  return (memberships ?? [])
+    .map((m) => m.shared_goal_id as string)
+    .filter(Boolean);
+}
+
 export async function getHomeFeed(
   supabase: SupabaseClient,
   userId: string,
@@ -29,6 +123,9 @@ export async function getHomeFeed(
 
   const followingIds = (following ?? []).map((f) => f.following_id);
   followingIds.push(userId);
+
+  const sharedGoalIds = await mySharedGoalIds(supabase, userId);
+  const sharedGoalSet = new Set(sharedGoalIds);
 
   const { data: memberships } = await supabase
     .from("community_memberships")
@@ -58,7 +155,7 @@ export async function getHomeFeed(
     )
     .is("deleted_at", null)
     .order("created_at", { ascending: false })
-    .limit(limit);
+    .limit(limit * 3);
 
   if (options.cursor) {
     query = query.lt("created_at", options.cursor);
@@ -70,49 +167,13 @@ export async function getHomeFeed(
   const filtered = (posts ?? []).filter((post) => {
     if (blockedIds.has(post.user_id)) return false;
     if (followingIds.includes(post.user_id)) return true;
+    if (sharedGoalSet.has(post.goal_id as string)) return true;
     const goal = normalizeRelation(post.goals) as { category: string } | null;
     return goal?.category && categories.includes(goal.category);
   });
 
-  const paths = filtered.map((p) => p.photo_url as string);
-  const signed = await signPhotoUrls(supabase, paths);
-
-  const items = filtered.map((post) => {
-    const profile = normalizeRelation(post.profiles) as {
-      display_name: string;
-      username: string;
-      avatar_url: string | null;
-    } | null;
-    const goal = normalizeRelation(post.goals) as {
-      title: string;
-      category: string;
-    } | null;
-    return {
-      id: post.id,
-      userId: post.user_id,
-      goalId: post.goal_id,
-      photoUrl: signed.get(post.photo_url as string) ?? post.photo_url,
-      caption: post.caption,
-      isLate: post.is_late,
-      createdAt: post.created_at,
-      author: profile
-        ? {
-            displayName: profile.display_name,
-            username: profile.username,
-            avatarUrl: profile.avatar_url,
-          }
-        : null,
-      goal: goal
-        ? { title: goal.title, category: goal.category }
-        : null,
-      reactions: post.reactions ?? [],
-    };
-  });
-
-  const nextCursor =
-    items.length === limit ? items[items.length - 1]?.createdAt : null;
-
-  return { posts: items, nextCursor };
+  const sliced = filtered.slice(0, limit);
+  return mapPostRows(supabase, sliced as PostRow[], limit);
 }
 
 export async function getCommunityFeed(
@@ -121,8 +182,13 @@ export async function getCommunityFeed(
   options: { cursor?: string; limit?: number } = {}
 ) {
   const limit = Math.min(options.limit ?? DEFAULT_LIMIT, 50);
+  const goalIds = await sharedGoalIdsForCommunity(supabase, category);
 
-  const { data: posts, error } = await supabase
+  if (goalIds.length === 0) {
+    return { posts: [], nextCursor: null };
+  }
+
+  let query = supabase
     .from("posts")
     .select(
       `
@@ -132,49 +198,17 @@ export async function getCommunityFeed(
       reactions(type, user_id)
     `
     )
-    .eq("goals.category", category)
+    .in("goal_id", goalIds)
     .is("deleted_at", null)
     .order("created_at", { ascending: false })
     .limit(limit);
 
+  if (options.cursor) {
+    query = query.lt("created_at", options.cursor);
+  }
+
+  const { data: posts, error } = await query;
   if (error) throw error;
 
-  const signed = await signPhotoUrls(
-    supabase,
-    (posts ?? []).map((p) => p.photo_url as string)
-  );
-
-  const items = (posts ?? []).map((post) => {
-    const profile = normalizeRelation(post.profiles) as {
-      display_name: string;
-      username: string;
-      avatar_url: string | null;
-    } | null;
-    const goal = normalizeRelation(post.goals) as {
-      title: string;
-      category: string;
-    } | null;
-    return {
-      id: post.id,
-      userId: post.user_id,
-      photoUrl: signed.get(post.photo_url as string) ?? post.photo_url,
-      caption: post.caption,
-      isLate: post.is_late,
-      createdAt: post.created_at,
-      author: profile
-        ? {
-            displayName: profile.display_name,
-            username: profile.username,
-            avatarUrl: profile.avatar_url,
-          }
-        : null,
-      goal: goal ? { title: goal.title, category: goal.category } : null,
-      reactions: post.reactions ?? [],
-    };
-  });
-
-  return {
-    posts: items,
-    nextCursor: items.length === limit ? items[items.length - 1]?.createdAt : null,
-  };
+  return mapPostRows(supabase, (posts ?? []) as PostRow[], limit);
 }

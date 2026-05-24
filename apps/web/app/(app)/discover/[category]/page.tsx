@@ -2,6 +2,7 @@
 
 import { FeedPostCard } from "@/components/FeedPostCard";
 import { goalCategorySchema } from "@goalpost/shared";
+import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -25,10 +26,19 @@ export default function CommunityFeedPage() {
   const params = useParams();
   const category = params.category as string;
   const [posts, setPosts] = useState<FeedPost[]>([]);
+  const [mySharedGoal, setMySharedGoal] = useState<string | null>(null);
   const valid = goalCategorySchema.safeParse(category).success;
 
   useEffect(() => {
     if (!valid) return;
+    fetch("/api/communities")
+      .then((r) => r.json())
+      .then((data) => {
+        const m = (data.myMemberships ?? []).find(
+          (x: { category: string }) => x.category === category
+        );
+        setMySharedGoal(m?.sharedGoalTitle ?? null);
+      });
     fetch(`/api/communities/${category}/feed`)
       .then((r) => r.json())
       .then((data) => setPosts(data.posts ?? []));
@@ -41,8 +51,25 @@ export default function CommunityFeedPage() {
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold capitalize">{category}</h1>
+      {mySharedGoal ? (
+        <p className="text-sm text-zinc-500">
+          Showing posts for goals members chose to share, including your{" "}
+          <span className="text-emerald-400">{mySharedGoal}</span>.
+        </p>
+      ) : (
+        <p className="text-sm text-amber-400/90">
+          Join this community and pick a goal to share — your posts only appear
+          here when they match that goal.{" "}
+          <Link href="/discover" className="underline text-emerald-400">
+            Join on Discover
+          </Link>
+        </p>
+      )}
       {posts.length === 0 ? (
-        <p className="text-zinc-500">No posts in this community yet.</p>
+        <p className="text-zinc-500">
+          No posts yet. Post a photo for your shared {category} goal after you
+          join.
+        </p>
       ) : (
         <div className="space-y-6">
           {posts.map((post) => (
