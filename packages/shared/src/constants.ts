@@ -9,12 +9,20 @@ export const GOAL_CATEGORIES = [
   "other",
 ] as const;
 
-export const REACTION_TYPES = [
-  "fire",
-  "clap",
-  "heart",
-  "mind_blown",
-] as const;
+export const REACTION_TYPES = ["heart", "fire", "clap", "cheers"] as const;
+
+/** Display emoji for each reaction (DB still stores snake_case keys). */
+export const REACTION_EMOJI: Record<(typeof REACTION_TYPES)[number] | "mind_blown", string> = {
+  heart: "❤️",
+  fire: "🔥",
+  clap: "👏",
+  cheers: "🎉",
+  mind_blown: "🎉",
+};
+
+export function reactionEmoji(type: string): string {
+  return REACTION_EMOJI[type as keyof typeof REACTION_EMOJI] ?? type;
+}
 
 export const LEADERBOARD_PERIODS = ["weekly", "all_time"] as const;
 

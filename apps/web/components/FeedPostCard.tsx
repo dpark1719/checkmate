@@ -1,7 +1,11 @@
 "use client";
 
 import { CommentsSection } from "@/components/CommentsSection";
-import { REACTION_TYPES, type ReactionType } from "@goalpost/shared";
+import {
+  REACTION_TYPES,
+  reactionEmoji,
+  type ReactionType,
+} from "@goalpost/shared";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -21,12 +25,18 @@ interface FeedPost {
   reactions: { type: string; user_id: string }[];
 }
 
+function reactionMatches(type: ReactionType, stored: string) {
+  if (stored === type) return true;
+  if (type === "cheers" && stored === "mind_blown") return true;
+  return false;
+}
+
 export function FeedPostCard({ post }: { post: FeedPost }) {
   const [reactions, setReactions] = useState(post.reactions);
   const [following, setFollowing] = useState(false);
 
   async function toggleReaction(type: ReactionType) {
-    const has = reactions.some((r) => r.type === type);
+    const has = reactions.some((r) => reactionMatches(type, r.type));
     const res = await fetch(
       `/api/posts/${post.id}/reactions${has ? `?type=${type}` : ""}`,
       {
@@ -37,7 +47,9 @@ export function FeedPostCard({ post }: { post: FeedPost }) {
     );
     if (res.ok) {
       setReactions((prev) =>
-        has ? prev.filter((r) => r.type !== type) : [...prev, { type, user_id: "me" }]
+        has
+          ? prev.filter((r) => !reactionMatches(type, r.type))
+          : [...prev, { type, user_id: "me" }]
       );
     }
   }
@@ -95,20 +107,29 @@ export function FeedPostCard({ post }: { post: FeedPost }) {
       <img src={post.photoUrl} alt="" className="w-full aspect-square object-cover bg-zinc-900" />
       {post.caption && <p className="px-4 py-2 text-sm">{post.caption}</p>}
       <div className="px-4 pb-2 flex gap-2 flex-wrap items-center">
-        {REACTION_TYPES.map((type) => (
-          <button
-            key={type}
-            type="button"
-            onClick={() => toggleReaction(type)}
-            className={`text-xs rounded-full px-3 py-1 border ${
-              reactions.some((r) => r.type === type)
-                ? "border-emerald-500 text-emerald-400"
-                : "border-zinc-700 text-zinc-400"
-            }`}
-          >
-            {type}
-          </button>
-        ))}
+        {REACTION_TYPES.map((type) => {
+          const active = reactions.some((r) => reactionMatches(type, r.type));
+          const count = reactions.filter((r) => reactionMatches(type, r.type)).length;
+          return (
+            <button
+              key={type}
+              type="button"
+              title={type}
+              aria-label={type}
+              onClick={() => toggleReaction(type)}
+              className={`text-xl rounded-full min-w-[2.5rem] h-10 px-2 border flex items-center justify-center gap-1 ${
+                active
+                  ? "border-emerald-500 bg-emerald-500/10"
+                  : "border-zinc-700 opacity-80 hover:opacity-100"
+              }`}
+            >
+              <span aria-hidden>{reactionEmoji(type)}</span>
+              {count > 0 && (
+                <span className="text-xs text-zinc-400 tabular-nums">{count}</span>
+              )}
+            </button>
+          );
+        })}
         <button
           type="button"
           onClick={reportPost}
