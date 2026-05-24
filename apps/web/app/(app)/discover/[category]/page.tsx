@@ -66,10 +66,17 @@ export default function CommunityFeedPage() {
         </p>
       )}
       {posts.length === 0 ? (
-        <p className="text-zinc-500">
-          No posts yet. Post a photo for your shared {category} goal after you
-          join.
-        </p>
+        <div className="text-zinc-500 text-sm space-y-2">
+          <p>No posts in this feed yet.</p>
+          <ul className="list-disc list-inside text-zinc-600 space-y-1">
+            <li>Join and pick a goal via Discover → Join / Change goal</li>
+            <li>Post a photo for that same goal (Post tab, today&apos;s challenge)</li>
+            <li>
+              The goal category must match this community (
+              <span className="capitalize">{category}</span>)
+            </li>
+          </ul>
+        </div>
       ) : (
         <div className="space-y-6">
           {posts.map((post) => (

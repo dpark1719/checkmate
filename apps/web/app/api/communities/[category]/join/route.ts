@@ -66,15 +66,7 @@ export async function POST(request: Request, { params }: Params) {
 
   if (error) return jsonError(error.message, "DB_ERROR", 500);
 
-  const { count } = await supabase
-    .from("community_memberships")
-    .select("*", { count: "exact", head: true })
-    .eq("community_id", community.id);
-
-  await supabase
-    .from("goal_communities")
-    .update({ member_count: count ?? 0 })
-    .eq("id", community.id);
+  // member_count is updated by DB trigger (sync_community_member_count)
 
   return jsonOk(
     {

@@ -67,29 +67,6 @@ function mapPostRows(
   });
 }
 
-async function sharedGoalIdsForCommunity(
-  supabase: SupabaseClient,
-  category: string
-): Promise<string[]> {
-  const { data: community } = await supabase
-    .from("goal_communities")
-    .select("id")
-    .eq("category", category)
-    .single();
-
-  if (!community) return [];
-
-  const { data: memberships } = await supabase
-    .from("community_memberships")
-    .select("shared_goal_id")
-    .eq("community_id", community.id)
-    .not("shared_goal_id", "is", null);
-
-  return (memberships ?? [])
-    .map((m) => m.shared_goal_id as string)
-    .filter(Boolean);
-}
-
 async function mySharedGoalIds(supabase: SupabaseClient, userId: string) {
   const { data: memberships } = await supabase
     .from("community_memberships")
@@ -176,39 +153,123 @@ export async function getHomeFeed(
   return mapPostRows(supabase, sliced as PostRow[], limit);
 }
 
+const POST_SELECT = `
+  id, user_id, goal_id, photo_url, caption, is_late, created_at,
+  profiles(display_name, username, avatar_url),
+  goals!inner(title, category),
+  reactions(type, user_id)
+`;
+
+async function fetchCommunityPosts(
+  supabase: SupabaseClient,
+  options: {
+    goalIds?: string[];
+    memberUserIds?: string[];
+    category: string;
+    cursor?: string;
+    fetchLimit: number;
+  }
+): Promise<PostRow[]> {
+  const rows: PostRow[] = [];
+
+  if (options.goalIds?.length) {
+    let query = supabase
+      .from("posts")
+      .select(POST_SELECT)
+      .in("goal_id", options.goalIds)
+      .is("deleted_at", null)
+      .order("created_at", { ascending: false })
+      .limit(options.fetchLimit);
+
+    if (options.cursor) {
+      query = query.lt("created_at", options.cursor);
+    }
+
+    const { data, error } = await query;
+    if (error) throw error;
+    rows.push(...((data ?? []) as PostRow[]));
+  }
+
+  if (options.memberUserIds?.length) {
+    let query = supabase
+      .from("posts")
+      .select(POST_SELECT)
+      .in("user_id", options.memberUserIds)
+      .eq("goals.category", options.category)
+      .is("deleted_at", null)
+      .order("created_at", { ascending: false })
+      .limit(options.fetchLimit);
+
+    if (options.cursor) {
+      query = query.lt("created_at", options.cursor);
+    }
+
+    const { data, error } = await query;
+    if (error) throw error;
+    rows.push(...((data ?? []) as PostRow[]));
+  }
+
+  return rows;
+}
+
 export async function getCommunityFeed(
   supabase: SupabaseClient,
   category: string,
   options: { cursor?: string; limit?: number } = {}
 ) {
   const limit = Math.min(options.limit ?? DEFAULT_LIMIT, 50);
-  const goalIds = await sharedGoalIdsForCommunity(supabase, category);
 
-  if (goalIds.length === 0) {
+  const { data: community } = await supabase
+    .from("goal_communities")
+    .select("id")
+    .eq("category", category)
+    .single();
+
+  if (!community) {
     return { posts: [], nextCursor: null };
   }
 
-  let query = supabase
-    .from("posts")
-    .select(
-      `
-      id, user_id, goal_id, photo_url, caption, is_late, created_at,
-      profiles(display_name, username, avatar_url),
-      goals!inner(title, category),
-      reactions(type, user_id)
-    `
-    )
-    .in("goal_id", goalIds)
-    .is("deleted_at", null)
-    .order("created_at", { ascending: false })
-    .limit(limit);
+  const { data: memberships } = await supabase
+    .from("community_memberships")
+    .select("user_id, shared_goal_id")
+    .eq("community_id", community.id);
 
-  if (options.cursor) {
-    query = query.lt("created_at", options.cursor);
+  if (!memberships?.length) {
+    return { posts: [], nextCursor: null };
   }
 
-  const { data: posts, error } = await query;
-  if (error) throw error;
+  const sharedGoalIds = [
+    ...new Set(
+      memberships
+        .map((m) => m.shared_goal_id as string | null)
+        .filter((id): id is string => Boolean(id))
+    ),
+  ];
 
-  return mapPostRows(supabase, (posts ?? []) as PostRow[], limit);
+  const legacyMemberIds = memberships
+    .filter((m) => !m.shared_goal_id)
+    .map((m) => m.user_id as string);
+
+  const fetchLimit = limit * 2;
+  const rawPosts = await fetchCommunityPosts(supabase, {
+    goalIds: sharedGoalIds.length > 0 ? sharedGoalIds : undefined,
+    memberUserIds: legacyMemberIds.length > 0 ? legacyMemberIds : undefined,
+    category,
+    cursor: options.cursor,
+    fetchLimit,
+  });
+
+  const byId = new Map<string, PostRow>();
+  for (const post of rawPosts) {
+    byId.set(post.id, post);
+  }
+
+  const merged = [...byId.values()].sort(
+    (a, b) =>
+      new Date(b.created_at as string).getTime() -
+      new Date(a.created_at as string).getTime()
+  );
+
+  const sliced = merged.slice(0, limit);
+  return mapPostRows(supabase, sliced, limit);
 }

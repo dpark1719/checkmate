@@ -12,6 +12,22 @@ export async function GET() {
 
   if (error) return jsonError(error.message, "DB_ERROR", 500);
 
+  const { data: membershipRows } = await supabase
+    .from("community_memberships")
+    .select("community_id");
+
+  const liveCountByCommunity = new Map<string, number>();
+  for (const row of membershipRows ?? []) {
+    const id = row.community_id as string;
+    liveCountByCommunity.set(id, (liveCountByCommunity.get(id) ?? 0) + 1);
+  }
+
+  const communities = (data ?? []).map((c) => {
+    const row = toCamelCase(c) as Record<string, unknown>;
+    row.memberCount = liveCountByCommunity.get(c.id as string) ?? 0;
+    return row;
+  });
+
   let myMemberships: {
     category: string;
     sharedGoalId: string | null;
@@ -31,7 +47,7 @@ export async function GET() {
         .map((m) => m.shared_goal_id)
         .filter((id): id is string => Boolean(id));
 
-      const [{ data: communities }, { data: goals }] = await Promise.all([
+      const [{ data: memberCommunities }, { data: goals }] = await Promise.all([
         supabase.from("goal_communities").select("id, category").in("id", communityIds),
         goalIds.length
           ? supabase.from("goals").select("id, title").in("id", goalIds)
@@ -39,7 +55,7 @@ export async function GET() {
       ]);
 
       const categoryByCommunity = new Map(
-        (communities ?? []).map((c) => [c.id, c.category as string])
+        (memberCommunities ?? []).map((c) => [c.id, c.category as string])
       );
       const titleByGoal = new Map((goals ?? []).map((g) => [g.id, g.title]));
 
@@ -55,7 +71,7 @@ export async function GET() {
   }
 
   return jsonOk({
-    communities: (data ?? []).map((c) => toCamelCase(c)),
+    communities,
     myMemberships,
   });
 }
