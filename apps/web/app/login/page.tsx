@@ -4,17 +4,28 @@ import Link from "next/link";
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; reason?: string }>;
 }) {
-  const { error } = await searchParams;
+  const { error, reason } = await searchParams;
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-6">
       {error === "auth" && (
         <p className="mb-4 max-w-md text-center text-sm text-red-400">
-          Sign-in link expired or could not be verified. Request a new magic link
-          and open it on the same computer where GoalPost is running (
-          {process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3001"}).
+          Sign-in could not be completed.
+          {reason ? (
+            <>
+              {" "}
+              <span className="block mt-2 text-zinc-500 text-xs">{reason}</span>
+            </>
+          ) : (
+            <>
+              {" "}
+              Check that Supabase redirect URLs include your site (
+              {process.env.NEXT_PUBLIC_APP_URL ?? "your Vercel URL"})
+              /auth/callback and that Google OAuth is enabled.
+            </>
+          )}
         </p>
       )}
       <AuthForm mode="login" />

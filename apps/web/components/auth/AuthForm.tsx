@@ -40,9 +40,15 @@ export function AuthForm({ mode }: { mode: Mode }) {
     return () => clearInterval(timer);
   }, [cooldownSec]);
 
+  // Prefer live browser origin on deployed site so OAuth isn't sent to localhost
+  // if NEXT_PUBLIC_APP_URL wasn't updated in Vercel yet.
+  const envBase = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "");
   const appBase =
-    process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") ||
-    (typeof window !== "undefined" ? window.location.origin : "");
+    typeof window !== "undefined"
+      ? envBase && !envBase.includes("localhost")
+        ? envBase
+        : window.location.origin
+      : envBase ?? "";
   const redirectTo = `${appBase}/auth/callback?next=/onboarding`;
 
   async function sendMagicLink(event: React.FormEvent) {
@@ -73,19 +79,31 @@ export function AuthForm({ mode }: { mode: Mode }) {
   }
 
   async function signInWithGoogle() {
+    setMessage(null);
+    setMessageIsError(false);
     const supabase = createClient();
-    await supabase.auth.signInWithOAuth({
+    const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: { redirectTo },
     });
+    if (error) {
+      setMessage(error.message);
+      setMessageIsError(true);
+    }
   }
 
   async function signInWithApple() {
+    setMessage(null);
+    setMessageIsError(false);
     const supabase = createClient();
-    await supabase.auth.signInWithOAuth({
+    const { error } = await supabase.auth.signInWithOAuth({
       provider: "apple",
       options: { redirectTo },
     });
+    if (error) {
+      setMessage(error.message);
+      setMessageIsError(true);
+    }
   }
 
   async function sendPhoneOtp(event: React.FormEvent) {

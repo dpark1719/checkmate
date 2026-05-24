@@ -1,5 +1,4 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
-import { cookies } from "next/headers";
 import { NextResponse, type NextRequest } from "next/server";
 
 function safeNextPath(next: string | null): string {
@@ -9,49 +8,72 @@ function safeNextPath(next: string | null): string {
   return next;
 }
 
+function loginErrorRedirect(origin: string, reason?: string) {
+  const errorUrl = new URL("/login", origin);
+  errorUrl.searchParams.set("error", "auth");
+  if (reason) errorUrl.searchParams.set("reason", reason.slice(0, 200));
+  return NextResponse.redirect(errorUrl);
+}
+
 export async function GET(request: NextRequest) {
-  const { searchParams, origin } = new URL(request.url);
+  const { searchParams } = new URL(request.url);
+  const origin = request.nextUrl.origin;
+  const next = safeNextPath(searchParams.get("next"));
+
+  const oauthError = searchParams.get("error");
+  const oauthDescription = searchParams.get("error_description");
+  if (oauthError) {
+    return loginErrorRedirect(
+      origin,
+      oauthDescription ?? oauthError
+    );
+  }
+
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!supabaseUrl || !supabaseAnonKey) {
+    return loginErrorRedirect(origin, "missing_supabase_env");
+  }
+
   const code = searchParams.get("code");
   const tokenHash = searchParams.get("token_hash");
   const type = searchParams.get("type");
-  const next = safeNextPath(searchParams.get("next"));
 
-  const cookieStore = await cookies();
-  let response = NextResponse.redirect(`${origin}${next}`);
+  let response = NextResponse.redirect(new URL(next, origin));
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll();
-        },
-        setAll(cookiesToSet: { name: string; value: string; options: CookieOptions }[]) {
-          cookiesToSet.forEach(({ name, value }) => cookieStore.set(name, value));
-          response = NextResponse.redirect(`${origin}${next}`);
-          cookiesToSet.forEach(({ name, value, options }) =>
-            response.cookies.set(name, value, options)
-          );
-        },
+  const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
+    cookies: {
+      getAll() {
+        return request.cookies.getAll();
       },
+      setAll(cookiesToSet: { name: string; value: string; options: CookieOptions }[]) {
+        response = NextResponse.redirect(new URL(next, origin));
+        cookiesToSet.forEach(({ name, value, options }) =>
+          response.cookies.set(name, value, options)
+        );
+      },
+    },
+  });
+
+  try {
+    if (code) {
+      const { error } = await supabase.auth.exchangeCodeForSession(code);
+      if (!error) return response;
+      return loginErrorRedirect(origin, error.message);
     }
-  );
 
-  if (code) {
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
-    if (!error) return response;
+    if (tokenHash && type) {
+      const { error } = await supabase.auth.verifyOtp({
+        token_hash: tokenHash,
+        type: type as "email" | "signup" | "magiclink" | "recovery" | "invite",
+      });
+      if (!error) return response;
+      return loginErrorRedirect(origin, error.message);
+    }
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "callback_failed";
+    return loginErrorRedirect(origin, message);
   }
 
-  if (tokenHash && type) {
-    const { error } = await supabase.auth.verifyOtp({
-      token_hash: tokenHash,
-      type: type as "email" | "signup" | "magiclink" | "recovery" | "invite",
-    });
-    if (!error) return response;
-  }
-
-  const errorUrl = new URL("/login", origin);
-  errorUrl.searchParams.set("error", "auth");
-  return NextResponse.redirect(errorUrl);
+  return loginErrorRedirect(origin, "missing_code");
 }

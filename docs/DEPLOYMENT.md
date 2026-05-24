@@ -174,5 +174,6 @@ Apple/Google sign-in for mobile need extra OAuth client IDs and redirect URIs in
 | Build fails on Vercel | Enable “include files outside root”; check `apps/web/vercel.json` |
 | Auth redirect error | Supabase redirect URL must match `NEXT_PUBLIC_APP_URL/auth/callback` |
 | Google works locally but not prod | Add production URL to Supabase; consent screen test users |
+| **Internal Server Error** on Google login | Fix: redeploy latest `auth/callback`; set `NEXT_PUBLIC_APP_URL` to Vercel URL; add `https://YOUR.vercel.app/auth/callback` in Supabase redirect URLs |
 | Jobs never run | Inngest serve URL + `INNGEST_*` keys on Vercel |
 | Email rate limit | Custom SMTP in Supabase |
