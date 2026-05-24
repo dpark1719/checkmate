@@ -36,3 +36,6 @@ goalpost/
 
 ## Current Task
 v1 feature-complete in repo. Connect Supabase + run migrations + deploy web to Vercel + EAS build for mobile.
+
+## Agent workflow
+After code changes: commit → `git push origin main` → Vercel auto-redeploys (~1–2 min). Rule: `.cursor/rules/git-commit-deploy.mdc`.

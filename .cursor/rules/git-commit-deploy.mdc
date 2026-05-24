@@ -1,0 +1,43 @@
+---
+description: After code changes, commit, push to GitHub, and trigger Vercel redeploy
+alwaysApply: true
+---
+
+# Git commit, push, and deploy
+
+When you **finish a task that changed project files** (not docs-only Q&A), do this before ending your response:
+
+## 1. Commit and push
+
+```bash
+cd /Users/dpark/Documents/P4
+git status
+git diff
+git add <relevant files>   # never .env or secrets
+git commit -m "$(cat <<'EOF'
+<concise message: why, not just what>
+EOF
+)"
+git push origin main
+```
+
+- **Never** commit `.env`, `apps/web/.env`, or keys.
+- Use complete-sentence commit messages.
+- Only skip commit/push if the user said not to, or there are zero file changes.
+
+## 2. Redeploy (Vercel)
+
+Production web app: **dpark1719/GoalPost** → root `apps/web`.
+
+- **Default:** `git push` to `main` triggers Vercel auto-deploy if the repo is connected. Say: “Pushed to GitHub — Vercel should redeploy in ~1–2 min.”
+- **If auto-deploy is off or user asks to redeploy now:** `vercel --prod` from repo root (requires `vercel link`).
+
+## 3. Tell the user
+
+Briefly confirm: commit hash or message, that push succeeded, and that Vercel is building (or run `vercel ls` if CLI is available).
+
+## Do not
+
+- Force-push `main` unless explicitly requested.
+- Amend commits that were already pushed.
+- Update git config.
