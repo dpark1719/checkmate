@@ -32,8 +32,10 @@ export async function PATCH(request: NextRequest) {
   const d = parsed.data;
   if (d.displayName !== undefined) updates.display_name = d.displayName;
   if (d.username !== undefined) updates.username = d.username;
+  if (d.bio !== undefined) updates.bio = d.bio;
   if (d.avatarUrl !== undefined) updates.avatar_url = d.avatarUrl;
   if (d.timezone !== undefined) updates.timezone = d.timezone;
+  if (d.region !== undefined) updates.region = d.region;
   if (d.notificationPreferences !== undefined) {
     updates.notification_preferences = d.notificationPreferences;
   }

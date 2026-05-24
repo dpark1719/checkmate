@@ -8,6 +8,7 @@ export interface Profile {
   id: string;
   displayName: string;
   username: string;
+  bio: string | null;
   avatarUrl: string | null;
   timezone: string;
   region: string | null;

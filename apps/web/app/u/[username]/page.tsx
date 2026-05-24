@@ -9,6 +9,7 @@ export default function PublicProfilePage() {
   const [profile, setProfile] = useState<{
     displayName: string;
     username: string;
+    bio: string | null;
     timezone: string;
   } | null>(null);
   const [streaks, setStreaks] = useState<
@@ -24,6 +25,7 @@ export default function PublicProfilePage() {
           setProfile({
             displayName: d.profile.displayName,
             username: d.profile.username,
+            bio: d.profile.bio ?? null,
             timezone: d.profile.timezone,
           });
           setStreaks(d.streaks ?? []);
@@ -43,6 +45,9 @@ export default function PublicProfilePage() {
       <header className="space-y-2">
         <h1 className="text-3xl font-bold">{profile.displayName}</h1>
         <p className="text-zinc-400">@{profile.username}</p>
+        {profile.bio && (
+          <p className="text-zinc-300 whitespace-pre-wrap max-w-lg">{profile.bio}</p>
+        )}
       </header>
 
       <section>
