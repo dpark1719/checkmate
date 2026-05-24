@@ -31,10 +31,21 @@ export async function GET(request: NextRequest) {
   const date = todayInTimezone(timezone);
   const { data, error } = await supabase
     .from("daily_challenges")
-    .select("*, goals(title, category)")
+    .select("*, goals(title, category), posts(id)")
     .eq("user_id", user.id)
     .eq("date", date);
 
   if (error) return jsonError(error.message, "DB_ERROR", 500);
-  return jsonOk({ challenges: (data ?? []).map((c) => toCamelCase(c)) });
+
+  const challenges = (data ?? []).map((row) => {
+    const challenge = toCamelCase(row) as Record<string, unknown>;
+    const postRow = Array.isArray(row.posts) ? row.posts[0] : row.posts;
+    if (postRow && typeof postRow === "object" && "id" in postRow) {
+      challenge.postId = postRow.id as string;
+    }
+    delete challenge.posts;
+    return challenge;
+  });
+
+  return jsonOk({ challenges });
 }

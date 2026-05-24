@@ -141,7 +141,11 @@ export default function CommunityFeedPage() {
       ) : (
         <div className="space-y-6">
           {posts.map((post) => (
-            <FeedPostCard key={post.id} post={post} />
+            <FeedPostCard
+              key={post.id}
+              post={post}
+              onDeleted={(id) => setPosts((prev) => prev.filter((p) => p.id !== id))}
+            />
           ))}
         </div>
       )}

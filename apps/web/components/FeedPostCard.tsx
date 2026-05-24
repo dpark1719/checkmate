@@ -7,7 +7,7 @@ import {
   type ReactionType,
 } from "@goalpost/shared";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface FeedPost {
   id: string;
@@ -31,9 +31,30 @@ function reactionMatches(type: ReactionType, stored: string) {
   return false;
 }
 
-export function FeedPostCard({ post }: { post: FeedPost }) {
+export function FeedPostCard({
+  post,
+  onDeleted,
+}: {
+  post: FeedPost;
+  onDeleted?: (postId: string) => void;
+}) {
   const [reactions, setReactions] = useState(post.reactions);
   const [following, setFollowing] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [removed, setRemoved] = useState(false);
+
+  const isOwner = currentUserId === post.userId;
+
+  useEffect(() => {
+    fetch("/api/users/me")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.userId) setCurrentUserId(data.userId);
+        else if (data.profile?.id) setCurrentUserId(data.profile.id);
+      })
+      .catch(() => {});
+  }, []);
 
   async function toggleReaction(type: ReactionType) {
     const has = reactions.some((r) => reactionMatches(type, r.type));
@@ -51,6 +72,23 @@ export function FeedPostCard({ post }: { post: FeedPost }) {
           ? prev.filter((r) => !reactionMatches(type, r.type))
           : [...prev, { type, user_id: "me" }]
       );
+    }
+  }
+
+  async function deletePost() {
+    if (
+      !window.confirm(
+        "Delete this post? It will be removed from feeds. Your streak for this day may still count."
+      )
+    ) {
+      return;
+    }
+    setDeleting(true);
+    const res = await fetch(`/api/posts/${post.id}`, { method: "DELETE" });
+    setDeleting(false);
+    if (res.ok) {
+      setRemoved(true);
+      onDeleted?.(post.id);
     }
   }
 
@@ -77,6 +115,8 @@ export function FeedPostCard({ post }: { post: FeedPost }) {
     if (res.ok) setFollowing(true);
   }
 
+  if (removed) return null;
+
   return (
     <article className="rounded-xl border border-zinc-800 overflow-hidden">
       <div className="p-4 flex items-center justify-between gap-2">
@@ -94,15 +134,27 @@ export function FeedPostCard({ post }: { post: FeedPost }) {
             )}
           </p>
         </div>
-        {!following && (
-          <button
-            type="button"
-            onClick={followAuthor}
-            className="text-xs rounded-full border border-zinc-600 px-3 py-1 hover:bg-zinc-900"
-          >
-            Follow
-          </button>
-        )}
+        <div className="flex items-center gap-2 shrink-0">
+          {isOwner && (
+            <button
+              type="button"
+              onClick={deletePost}
+              disabled={deleting}
+              className="text-xs text-red-400 hover:underline disabled:opacity-50"
+            >
+              {deleting ? "Deleting…" : "Delete"}
+            </button>
+          )}
+          {!isOwner && !following && (
+            <button
+              type="button"
+              onClick={followAuthor}
+              className="text-xs rounded-full border border-zinc-600 px-3 py-1 hover:bg-zinc-900"
+            >
+              Follow
+            </button>
+          )}
+        </div>
       </div>
       <img src={post.photoUrl} alt="" className="w-full aspect-square object-cover bg-zinc-900" />
       {post.caption && <p className="px-4 py-2 text-sm">{post.caption}</p>}
@@ -130,13 +182,15 @@ export function FeedPostCard({ post }: { post: FeedPost }) {
             </button>
           );
         })}
-        <button
-          type="button"
-          onClick={reportPost}
-          className="text-xs text-zinc-600 hover:text-zinc-400 ml-auto"
-        >
-          Report
-        </button>
+        {!isOwner && (
+          <button
+            type="button"
+            onClick={reportPost}
+            className="text-xs text-zinc-600 hover:text-zinc-400 ml-auto"
+          >
+            Report
+          </button>
+        )}
       </div>
       <CommentsSection postId={post.id} />
     </article>

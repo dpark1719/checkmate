@@ -1,7 +1,7 @@
 "use client";
 
 import { PromiseCountdown } from "@/components/PromiseCountdown";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface Challenge {
   id: string;
@@ -10,6 +10,7 @@ interface Challenge {
   promiseTime: string | null;
   leewayExpiresAt: string | null;
   postedAt: string | null;
+  postId?: string;
   goals?: { title: string; category: string };
 }
 
@@ -26,9 +27,18 @@ export function PostChallengeCard({
   const [error, setError] = useState<string | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [photoPath, setPhotoPath] = useState<string | null>(null);
+  const [postedPostId, setPostedPostId] = useState<string | null>(
+    challenge.postId ?? null
+  );
+  const [deleting, setDeleting] = useState(false);
 
   const title = challenge.goals?.title ?? "Goal";
   const done = Boolean(challenge.postedAt);
+  const canDelete = Boolean(postedPostId);
+
+  useEffect(() => {
+    if (challenge.postId) setPostedPostId(challenge.postId);
+  }, [challenge.postId]);
 
   async function handleFile(file: File) {
     setUploading(true);
@@ -73,6 +83,24 @@ export function PostChallengeCard({
       setError(data.error ?? "Post failed");
       return;
     }
+    const postId = data.post?.id as string | undefined;
+    if (postId) setPostedPostId(postId);
+    onPosted();
+  }
+
+  async function deletePost() {
+    if (!postedPostId) return;
+    if (!window.confirm("Delete this post?")) return;
+    setDeleting(true);
+    setError(null);
+    const res = await fetch(`/api/posts/${postedPostId}`, { method: "DELETE" });
+    setDeleting(false);
+    if (!res.ok) {
+      const data = await res.json();
+      setError(data.error ?? "Could not delete");
+      return;
+    }
+    setPostedPostId(null);
     onPosted();
   }
 
@@ -114,7 +142,21 @@ export function PostChallengeCard({
       )}
 
       {done ? (
-        <p className="text-emerald-400 text-sm font-medium">Posted ✓</p>
+        <div className="flex items-center justify-between gap-2 flex-wrap">
+          <p className="text-emerald-400 text-sm font-medium">Posted ✓</p>
+          {canDelete ? (
+            <button
+              type="button"
+              onClick={deletePost}
+              disabled={deleting}
+              className="text-sm text-red-400 hover:underline disabled:opacity-50"
+            >
+              {deleting ? "Deleting…" : "Delete post"}
+            </button>
+          ) : (
+            <p className="text-xs text-zinc-500">Refresh page to delete this post</p>
+          )}
+        </div>
       ) : (
         <>
           {preview && (

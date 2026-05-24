@@ -30,6 +30,18 @@ export async function DELETE(_request: Request, { params }: Params) {
   const { id } = await params;
   const supabase = await createClient();
 
+  const { data: existing, error: fetchError } = await supabase
+    .from("posts")
+    .select("id, daily_challenge_id")
+    .eq("id", id)
+    .eq("user_id", user.id)
+    .is("deleted_at", null)
+    .single();
+
+  if (fetchError || !existing) {
+    return jsonError("Post not found", "NOT_FOUND", 404);
+  }
+
   const { error } = await supabase
     .from("posts")
     .update({ deleted_at: new Date().toISOString() })
@@ -37,5 +49,16 @@ export async function DELETE(_request: Request, { params }: Params) {
     .eq("user_id", user.id);
 
   if (error) return jsonError(error.message, "DB_ERROR", 500);
+
+  await supabase
+    .from("daily_challenges")
+    .update({
+      posted_at: null,
+      is_late: false,
+      streak_credited: false,
+    })
+    .eq("id", existing.daily_challenge_id)
+    .eq("user_id", user.id);
+
   return jsonOk({ success: true });
 }

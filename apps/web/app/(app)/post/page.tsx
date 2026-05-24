@@ -11,6 +11,7 @@ interface Challenge {
   promiseTime: string | null;
   leewayExpiresAt: string | null;
   postedAt: string | null;
+  postId?: string;
   goals?: { title: string; category: string };
 }
 

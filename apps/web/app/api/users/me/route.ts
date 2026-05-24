@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
     .single();
 
   if (error) return jsonError(error.message, "DB_ERROR", 500);
-  return jsonOk({ profile: toCamelCase(data) });
+  return jsonOk({ userId: user.id, profile: toCamelCase(data) });
 }
 
 export async function PATCH(request: NextRequest) {
