@@ -70,7 +70,7 @@ export function PostDetailModal({
             >
               {post.author?.displayName ?? "User"}
             </Link>
-            <p className="text-xs text-zinc-500 truncate">
+            <p className="text-xs gp-text-muted truncate">
               @{post.author?.username}
               {post.goal?.title ? ` · ${post.goal.title}` : ""}
             </p>
@@ -78,7 +78,7 @@ export function PostDetailModal({
           <button
             type="button"
             onClick={onClose}
-            className="text-zinc-400 hover:text-zinc-100 px-2 py-1 text-sm"
+            className="gp-text-muted hover:text-[var(--gp-fg)] px-2 py-1 text-sm"
           >
             Close
           </button>
@@ -86,21 +86,21 @@ export function PostDetailModal({
         <img
           src={post.photoUrl}
           alt=""
-          className="w-full aspect-square object-cover bg-zinc-900"
+          className="w-full aspect-square object-cover bg-[var(--gp-card)]"
         />
         {post.caption && (
-          <p className="px-4 py-3 text-sm text-zinc-200">{post.caption}</p>
+          <p className="px-4 py-3 text-sm text-[var(--gp-fg)]">{post.caption}</p>
         )}
         <div className="p-4 border-t border-[var(--gp-border)] space-y-3">
           {error && <p className="text-sm text-red-400">{error}</p>}
           {isOwner ? (
-            <p className="text-sm text-zinc-500">This is your post.</p>
+            <p className="text-sm gp-text-muted">This is your post.</p>
           ) : (
             <button
               type="button"
               onClick={startMessage}
               disabled={starting || !currentUserId}
-              className="w-full rounded-lg bg-emerald-500 text-zinc-950 font-semibold py-3 disabled:opacity-50"
+              className="w-full rounded-lg bg-accent text-accent-foreground font-semibold py-3 disabled:opacity-50"
             >
               {starting ? "Opening chat…" : "Message about this post"}
             </button>

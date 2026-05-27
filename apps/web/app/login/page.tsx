@@ -16,7 +16,7 @@ export default async function LoginPage({
           {reason ? (
             <>
               {" "}
-              <span className="block mt-2 text-zinc-500 text-xs">{reason}</span>
+              <span className="block mt-2 gp-text-muted text-xs">{reason}</span>
             </>
           ) : (
             <>
@@ -29,9 +29,9 @@ export default async function LoginPage({
         </p>
       )}
       <AuthForm mode="login" />
-      <p className="mt-8 text-sm text-zinc-500">
+      <p className="mt-8 text-sm gp-text-muted">
         New here?{" "}
-        <Link href="/signup" className="text-emerald-400 hover:underline">
+        <Link href="/signup" className="text-accent hover:underline">
           Sign up
         </Link>
       </p>

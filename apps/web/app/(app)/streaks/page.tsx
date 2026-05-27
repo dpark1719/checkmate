@@ -45,25 +45,25 @@ export default function StreaksPage() {
       <section className="space-y-4">
         <h1 className="text-2xl font-bold">Your streaks</h1>
         {streaks.length === 0 ? (
-          <p className="text-zinc-500">Post daily to build streaks.</p>
+          <p className="gp-text-muted">Post daily to build streaks.</p>
         ) : (
           <ul className="space-y-3">
             {streaks.map((s) => (
               <li
                 key={s.id}
-                className="rounded-xl border border-zinc-800 px-4 py-3 flex justify-between"
+                className="rounded-xl border border-[var(--gp-border)] px-4 py-3 flex justify-between"
               >
                 <div>
                   <p className="font-medium">{s.goals?.title ?? "Goal"}</p>
-                  <p className="text-sm text-zinc-500 capitalize">
+                  <p className="text-sm gp-text-muted capitalize">
                     {s.goals?.category}
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="text-2xl font-bold text-emerald-400">
+                  <p className="text-2xl font-bold text-accent">
                     {s.currentCount}
                   </p>
-                  <p className="text-xs text-zinc-500">
+                  <p className="text-xs gp-text-muted">
                     best {s.longestCount}
                   </p>
                 </div>
@@ -79,7 +79,7 @@ export default function StreaksPage() {
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value as GoalCategory)}
-            className="rounded-lg bg-zinc-900 border border-zinc-700 px-3 py-2 text-sm"
+            className="rounded-lg bg-[var(--gp-card)] border border-[var(--gp-border)] px-3 py-2 text-sm"
           >
             {GOAL_CATEGORIES.map((c) => (
               <option key={c} value={c}>
@@ -92,7 +92,7 @@ export default function StreaksPage() {
             onChange={(e) =>
               setPeriod(e.target.value as "weekly" | "all_time")
             }
-            className="rounded-lg bg-zinc-900 border border-zinc-700 px-3 py-2 text-sm"
+            className="rounded-lg bg-[var(--gp-card)] border border-[var(--gp-border)] px-3 py-2 text-sm"
           >
             <option value="weekly">Weekly</option>
             <option value="all_time">All-time</option>
@@ -102,14 +102,14 @@ export default function StreaksPage() {
             onChange={(e) =>
               setScope(e.target.value as "global" | "regional")
             }
-            className="rounded-lg bg-zinc-900 border border-zinc-700 px-3 py-2 text-sm"
+            className="rounded-lg bg-[var(--gp-card)] border border-[var(--gp-border)] px-3 py-2 text-sm"
           >
             <option value="global">Global</option>
             <option value="regional">Regional</option>
           </select>
         </div>
         {entries.length === 0 ? (
-          <p className="text-zinc-500 text-sm">
+          <p className="gp-text-muted text-sm">
             Leaderboard appears when enough members are active in this category.
           </p>
         ) : (
@@ -117,16 +117,16 @@ export default function StreaksPage() {
             {entries.map((e) => (
               <li
                 key={`${e.rank}-${e.username}`}
-                className="flex items-center gap-3 rounded-lg border border-zinc-800 px-4 py-2"
+                className="flex items-center gap-3 rounded-lg border border-[var(--gp-border)] px-4 py-2"
               >
-                <span className="text-zinc-500 w-6">#{e.rank}</span>
+                <span className="gp-text-muted w-6">#{e.rank}</span>
                 <div className="flex-1">
                   <p className="font-medium">{e.displayName}</p>
-                  <p className="text-xs text-zinc-500">
+                  <p className="text-xs gp-text-muted">
                     {e.goalTitle} · @{e.username}
                   </p>
                 </div>
-                <span className="text-emerald-400 font-bold">{e.score}</span>
+                <span className="text-accent font-bold">{e.score}</span>
               </li>
             ))}
           </ol>

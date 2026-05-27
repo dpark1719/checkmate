@@ -156,7 +156,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
         <h1 className="text-2xl font-bold">
           {mode === "login" ? "Welcome back" : "Create your account"}
         </h1>
-        <p className="text-zinc-400 mt-1">
+        <p className="gp-text-muted mt-1">
           {mode === "login"
             ? "Sign in to continue your streak."
             : "Start documenting your goals today."}
@@ -164,19 +164,19 @@ export function AuthForm({ mode }: { mode: Mode }) {
       </div>
 
       <form onSubmit={sendMagicLink} className="space-y-4">
-        <label className="block text-sm text-zinc-400">Email</label>
+        <label className="block text-sm gp-text-muted">Email</label>
         <input
           type="email"
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full rounded-lg bg-zinc-900 border border-zinc-700 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+          className="w-full gp-input focus:outline-none focus:ring-2 focus:ring-accent"
           placeholder="you@example.com"
         />
         <button
           type="submit"
           disabled={loading || cooldownSec > 0}
-          className="w-full rounded-lg bg-emerald-500 text-zinc-950 font-semibold py-3 hover:bg-emerald-400 disabled:opacity-50"
+          className="w-full rounded-lg bg-accent text-accent-foreground font-semibold py-3 hover:opacity-90 disabled:opacity-50"
         >
           {loading
             ? "Sending…"
@@ -188,10 +188,10 @@ export function AuthForm({ mode }: { mode: Mode }) {
 
       <div className="relative">
         <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-zinc-800" />
+          <div className="w-full border-t border-[var(--gp-border)]" />
         </div>
         <div className="relative flex justify-center text-sm">
-          <span className="bg-zinc-950 px-2 text-zinc-500">or</span>
+          <span className="bg-[var(--background)] px-2 gp-text-muted">or</span>
         </div>
       </div>
 
@@ -199,14 +199,14 @@ export function AuthForm({ mode }: { mode: Mode }) {
         <button
           type="button"
           onClick={signInWithGoogle}
-          className="w-full rounded-lg border border-zinc-700 py-3 hover:bg-zinc-900"
+          className="w-full rounded-lg border border-[var(--gp-border)] py-3 hover:bg-[var(--gp-card)]"
         >
           Continue with Google
         </button>
         <button
           type="button"
           onClick={signInWithApple}
-          className="w-full rounded-lg border border-zinc-700 py-3 hover:bg-zinc-900"
+          className="w-full rounded-lg border border-[var(--gp-border)] py-3 hover:bg-[var(--gp-card)]"
         >
           Continue with Apple
         </button>
@@ -214,15 +214,15 @@ export function AuthForm({ mode }: { mode: Mode }) {
 
       <form
         onSubmit={phoneStep === "sent" ? verifyPhoneOtp : sendPhoneOtp}
-        className="space-y-3 pt-2 border-t border-zinc-800"
+        className="space-y-3 pt-2 border-t border-[var(--gp-border)]"
       >
-        <label className="block text-sm text-zinc-400">Phone (SMS)</label>
+        <label className="block text-sm gp-text-muted">Phone (SMS)</label>
         <input
           type="tel"
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
           placeholder="+15551234567"
-          className="w-full rounded-lg bg-zinc-900 border border-zinc-700 px-4 py-3"
+          className="w-full rounded-lg bg-[var(--gp-card)] border border-[var(--gp-border)] px-4 py-3"
         />
         {phoneStep === "sent" && (
           <input
@@ -230,13 +230,13 @@ export function AuthForm({ mode }: { mode: Mode }) {
             value={otp}
             onChange={(e) => setOtp(e.target.value)}
             placeholder="6-digit code"
-            className="w-full rounded-lg bg-zinc-900 border border-zinc-700 px-4 py-3"
+            className="w-full rounded-lg bg-[var(--gp-card)] border border-[var(--gp-border)] px-4 py-3"
           />
         )}
         <button
           type="submit"
           disabled={loading || !phone}
-          className="w-full rounded-lg border border-zinc-600 py-2.5 text-sm hover:bg-zinc-900 disabled:opacity-50"
+          className="w-full rounded-lg border border-[var(--gp-border)] py-2.5 text-sm hover:bg-[var(--gp-card)] disabled:opacity-50"
         >
           {phoneStep === "sent" ? "Verify code" : "Send SMS code"}
         </button>
@@ -245,7 +245,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
       {message && (
         <p
           className={`text-sm text-center ${
-            messageIsError ? "text-amber-400" : "text-emerald-400"
+            messageIsError ? "text-amber-400" : "text-accent"
           }`}
         >
           {message}

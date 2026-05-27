@@ -28,7 +28,7 @@ export function SocialLinksDisplay({ links }: { links: SocialLinks | null | unde
             {...(isEmail
               ? {}
               : { target: "_blank", rel: "noopener noreferrer" })}
-            className="text-sm rounded-full border border-[var(--gp-border)] px-3 py-1 text-emerald-500 hover:bg-[var(--gp-surface)] hover:border-emerald-500/50"
+            className="text-sm rounded-full border border-[var(--gp-border)] px-3 py-1 text-accent hover:bg-[var(--gp-surface)] hover:border-accent/50"
           >
             {isEmail ? `✉ ${label}` : label}
           </a>

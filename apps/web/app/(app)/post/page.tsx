@@ -38,15 +38,15 @@ export default function PostPage() {
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">Today&apos;s post</h1>
       {loading ? (
-        <p className="text-zinc-400">Loading challenges…</p>
+        <p className="gp-text-muted">Loading challenges…</p>
       ) : challenges.length === 0 ? (
         <div className="space-y-4">
-          <p className="text-zinc-400">
+          <p className="gp-text-muted">
             No challenges for today. Add a goal to get started.
           </p>
           <Link
             href="/goals"
-            className="inline-block rounded-lg bg-emerald-500 text-zinc-950 font-semibold px-6 py-2"
+            className="inline-block rounded-lg bg-accent text-accent-foreground font-semibold px-6 py-2"
           >
             Manage goals
           </Link>

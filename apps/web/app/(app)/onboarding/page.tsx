@@ -64,7 +64,7 @@ export default function OnboardingPage() {
   return (
     <div className="max-w-md mx-auto space-y-6">
       <h1 className="text-2xl font-bold">Set your first goal</h1>
-      <p className="text-zinc-400">
+      <p className="gp-text-muted">
         You&apos;ll get a daily trigger between 5am and 10pm. After that, you
         confirm when you&apos;ll post today.
       </p>
@@ -75,12 +75,12 @@ export default function OnboardingPage() {
           onChange={(e) => setTitle(e.target.value)}
           placeholder="What are you working toward?"
           required
-          className="w-full rounded-lg bg-zinc-900 border border-zinc-700 px-4 py-3"
+          className="w-full rounded-lg bg-[var(--gp-card)] border border-[var(--gp-border)] px-4 py-3"
         />
         <select
           value={category}
           onChange={(e) => setCategory(e.target.value as GoalCategory)}
-          className="w-full rounded-lg bg-zinc-900 border border-zinc-700 px-4 py-3"
+          className="w-full rounded-lg bg-[var(--gp-card)] border border-[var(--gp-border)] px-4 py-3"
         >
           {GOAL_CATEGORIES.map((c) => (
             <option key={c} value={c}>
@@ -88,37 +88,37 @@ export default function OnboardingPage() {
             </option>
           ))}
         </select>
-        <label className="block text-sm text-zinc-400">Birth year</label>
+        <label className="block text-sm gp-text-muted">Birth year</label>
         <input
           type="number"
           value={birthYear}
           onChange={(e) => setBirthYear(e.target.value)}
           required
-          className="w-full rounded-lg bg-zinc-900 border border-zinc-700 px-4 py-3"
+          className="w-full rounded-lg bg-[var(--gp-card)] border border-[var(--gp-border)] px-4 py-3"
         />
-        <label className="block text-sm text-zinc-400">Region (for age rules)</label>
+        <label className="block text-sm gp-text-muted">Region (for age rules)</label>
         <select
           value={region}
           onChange={(e) => setRegion(e.target.value as "us" | "eu" | "other")}
-          className="w-full rounded-lg bg-zinc-900 border border-zinc-700 px-4 py-3"
+          className="w-full rounded-lg bg-[var(--gp-card)] border border-[var(--gp-border)] px-4 py-3"
         >
           <option value="us">United States (13+)</option>
           <option value="eu">EU / UK (16+)</option>
           <option value="other">Other (13+)</option>
         </select>
-        <label className="block text-sm text-zinc-400">
+        <label className="block text-sm gp-text-muted">
           Default promise time (if you skip after trigger, 8pm is used)
         </label>
         <input
           type="time"
           value={promiseTime}
           onChange={(e) => setPromiseTime(e.target.value)}
-          className="w-full rounded-lg bg-zinc-900 border border-zinc-700 px-4 py-3"
+          className="w-full rounded-lg bg-[var(--gp-card)] border border-[var(--gp-border)] px-4 py-3"
         />
         {error && <p className="text-red-400 text-sm">{error}</p>}
         <button
           type="submit"
-          className="w-full rounded-lg bg-emerald-500 text-zinc-950 font-semibold py-3"
+          className="w-full rounded-lg bg-accent text-accent-foreground font-semibold py-3"
         >
           Continue
         </button>
@@ -126,7 +126,7 @@ export default function OnboardingPage() {
       <button
         type="button"
         onClick={skip}
-        className="w-full text-sm text-zinc-500 hover:text-zinc-300"
+        className="w-full text-sm gp-text-muted hover:text-[var(--gp-fg)]"
       >
         Skip for now
       </button>

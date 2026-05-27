@@ -51,7 +51,7 @@ export function CommentsSection({ postId }: { postId: string }) {
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="text-xs text-zinc-500 hover:text-zinc-300"
+        className="text-xs gp-text-muted hover:text-[var(--gp-fg)]"
       >
         {open ? "Hide" : "Show"} comments ({comments.length || "…"})
       </button>
@@ -59,7 +59,7 @@ export function CommentsSection({ postId }: { postId: string }) {
         <div className="mt-3 space-y-3">
           {comments.map((c) => (
             <p key={c.id} className="text-sm">
-              <span className="text-zinc-400">
+              <span className="gp-text-muted">
                 @{c.profiles?.username ?? "user"}{" "}
               </span>
               {c.body}
@@ -70,11 +70,11 @@ export function CommentsSection({ postId }: { postId: string }) {
               value={body}
               onChange={(e) => setBody(e.target.value)}
               placeholder="Add a comment…"
-              className="flex-1 rounded-lg bg-zinc-900 border border-zinc-700 px-3 py-2 text-sm"
+              className="flex-1 rounded-lg bg-[var(--gp-card)] border border-[var(--gp-border)] px-3 py-2 text-sm"
             />
             <button
               type="submit"
-              className="rounded-lg bg-zinc-800 px-3 py-2 text-sm"
+              className="rounded-lg bg-[var(--gp-surface)] px-3 py-2 text-sm"
             >
               Send
             </button>

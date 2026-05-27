@@ -32,7 +32,7 @@ export function PromiseCountdown({ expiresAt }: { expiresAt: string | null }) {
 
   return (
     <p
-      className={`text-sm font-mono ${late ? "text-amber-500" : "text-emerald-400"}`}
+      className={`text-sm font-mono ${late ? "text-amber-500" : "text-accent"}`}
     >
       {remaining}
     </p>

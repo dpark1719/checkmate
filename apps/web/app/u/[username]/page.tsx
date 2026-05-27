@@ -66,16 +66,16 @@ export default function PublicProfilePage() {
   }, [username]);
 
   if (!profile) {
-    return <p className="text-zinc-400">Loading profile…</p>;
+    return <p className="gp-text-muted">Loading profile…</p>;
   }
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-8 space-y-8">
       <header className="space-y-2">
         <h1 className="text-3xl font-bold">{profile.displayName}</h1>
-        <p className="text-zinc-400">@{profile.username}</p>
+        <p className="gp-text-muted">@{profile.username}</p>
         {profile.bio ? (
-          <p className="text-zinc-300 whitespace-pre-wrap max-w-lg">{profile.bio}</p>
+          <p className="text-[var(--gp-fg)] whitespace-pre-wrap max-w-lg">{profile.bio}</p>
         ) : (
           <p className="text-sm text-[var(--gp-muted)] italic">No bio yet.</p>
         )}
@@ -104,7 +104,7 @@ export default function PublicProfilePage() {
       <section>
         <h2 className="text-lg font-semibold mb-4">Posts</h2>
         {posts.length === 0 ? (
-          <p className="text-zinc-500">No posts yet.</p>
+          <p className="gp-text-muted">No posts yet.</p>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             {posts.map((p) => (
@@ -112,7 +112,7 @@ export default function PublicProfilePage() {
                 key={p.id}
                 src={p.photoUrl}
                 alt=""
-                className="aspect-square object-cover rounded-lg bg-zinc-900"
+                className="aspect-square object-cover rounded-lg bg-[var(--gp-card)]"
               />
             ))}
           </div>

@@ -2,16 +2,29 @@
 
 import { NavBadge } from "@/components/NavBadge";
 import { formatBadgeCount, useUnreadCounts } from "@/hooks/useUnreadCounts";
+import {
+  Compass,
+  Home,
+  MessageCircle,
+  PlusCircle,
+  Target,
+  User,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const tabs = [
-  { href: "/feed", label: "Home", icon: "⌂", badge: "comments" as const },
-  { href: "/post", label: "Post", icon: "＋" },
-  { href: "/discover", label: "Discover", icon: "◇" },
-  { href: "/messages", label: "Messages", icon: "✉", badge: "messages" as const },
-  { href: "/goals", label: "Goals", icon: "◎" },
-  { href: "/profile", label: "Profile", icon: "☺" },
+  { href: "/feed", label: "Home", icon: Home, badge: "comments" as const },
+  { href: "/post", label: "Post", icon: PlusCircle },
+  { href: "/discover", label: "Discover", icon: Compass },
+  {
+    href: "/messages",
+    label: "Messages",
+    icon: MessageCircle,
+    badge: "messages" as const,
+  },
+  { href: "/goals", label: "Goals", icon: Target },
+  { href: "/profile", label: "Profile", icon: User },
 ] as const;
 
 function isActive(pathname: string, href: string) {
@@ -31,12 +44,13 @@ export function AppBottomNav() {
 
   return (
     <nav
-      className="fixed bottom-0 inset-x-0 z-30 border-t border-[var(--gp-border)] bg-[var(--gp-nav-bg)] backdrop-blur pb-[env(safe-area-inset-bottom)]"
+      className="fixed bottom-0 inset-x-0 z-30 border-t border-[var(--gp-border)] bg-[var(--gp-nav-bg)] backdrop-blur-md pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_24px_rgba(0,0,0,0.12)]"
       aria-label="Main"
     >
-      <div className="max-w-3xl mx-auto flex items-stretch justify-around h-14">
+      <div className="max-w-3xl mx-auto flex items-stretch justify-around gap-0.5 px-1 h-16">
         {tabs.map((tab) => {
           const active = isActive(pathname, tab.href);
+          const Icon = tab.icon;
           const badgeKey = "badge" in tab ? tab.badge : undefined;
           const badgeCount =
             badgeKey === "messages"
@@ -50,17 +64,20 @@ export function AppBottomNav() {
             <Link
               key={tab.href}
               href={tab.href}
-              className={`relative flex flex-1 flex-col items-center justify-center gap-0.5 text-xs transition-colors ${
-                active
-                  ? "text-emerald-500"
-                  : "text-[var(--gp-muted)] hover:text-[var(--gp-fg)]"
-              }`}
+              className={active ? "gp-nav-item-active" : "gp-nav-item"}
+              aria-current={active ? "page" : undefined}
             >
-              <span className="relative text-lg leading-none" aria-hidden>
-                {tab.icon}
+              <span className="relative flex items-center justify-center">
+                <Icon
+                  className="h-5 w-5 shrink-0"
+                  strokeWidth={active ? 2.25 : 2}
+                  aria-hidden
+                />
                 {badgeLabel && <NavBadge count={badgeCount} />}
               </span>
-              <span className="font-medium">{tab.label}</span>
+              <span className="text-[10px] font-medium leading-tight truncate max-w-full">
+                {tab.label}
+              </span>
             </Link>
           );
         })}

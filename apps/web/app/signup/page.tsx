@@ -5,9 +5,9 @@ export default function SignupPage() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-6">
       <AuthForm mode="signup" />
-      <p className="mt-8 text-sm text-zinc-500">
+      <p className="mt-8 text-sm gp-text-muted">
         Already have an account?{" "}
-        <Link href="/login" className="text-emerald-400 hover:underline">
+        <Link href="/login" className="text-accent hover:underline">
           Log in
         </Link>
       </p>

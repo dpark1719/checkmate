@@ -133,7 +133,7 @@ export function FeedPostCard({
   if (removed) return null;
 
   return (
-    <article className="rounded-xl border border-zinc-800 overflow-hidden">
+    <article className="rounded-xl border border-[var(--gp-border)] overflow-hidden">
       <div className="p-4 flex items-center justify-between gap-2">
         <div>
           <Link
@@ -142,7 +142,7 @@ export function FeedPostCard({
           >
             {post.author?.displayName ?? "User"}
           </Link>
-          <p className="text-xs text-zinc-500">
+          <p className="text-xs gp-text-muted">
             @{post.author?.username} · {post.goal?.title}
             {post.isLate && (
               <span className="ml-2 text-amber-500">Late</span>
@@ -164,7 +164,7 @@ export function FeedPostCard({
             <button
               type="button"
               onClick={followAuthor}
-              className="text-xs rounded-full border border-zinc-600 px-3 py-1 hover:bg-zinc-900"
+              className="text-xs rounded-full border border-[var(--gp-border)] px-3 py-1 hover:bg-[var(--gp-card)]"
             >
               Follow
             </button>
@@ -184,14 +184,14 @@ export function FeedPostCard({
           <img
             src={post.photoUrl}
             alt=""
-            className="w-full aspect-square object-cover bg-zinc-900"
+            className="w-full aspect-square object-cover bg-[var(--gp-card)]"
           />
         </button>
       ) : (
         <img
           src={post.photoUrl}
           alt=""
-          className="w-full aspect-square object-cover bg-zinc-900"
+          className="w-full aspect-square object-cover bg-[var(--gp-card)]"
         />
       )}
       {post.caption &&
@@ -219,13 +219,13 @@ export function FeedPostCard({
               onClick={() => toggleReaction(type)}
               className={`text-xl rounded-full min-w-[2.5rem] h-10 px-2 border flex items-center justify-center gap-1 ${
                 active
-                  ? "border-emerald-500 bg-emerald-500/10"
-                  : "border-zinc-700 opacity-80 hover:opacity-100"
+                  ? "border-accent bg-[var(--gp-accent-subtle)]"
+                  : "border-[var(--gp-border)] opacity-80 hover:opacity-100"
               }`}
             >
               <span aria-hidden>{reactionEmoji(type)}</span>
               {count > 0 && (
-                <span className="text-xs text-zinc-400 tabular-nums">{count}</span>
+                <span className="text-xs gp-text-muted tabular-nums">{count}</span>
               )}
             </button>
           );
@@ -234,7 +234,7 @@ export function FeedPostCard({
           <button
             type="button"
             onClick={reportPost}
-            className="text-xs text-zinc-600 hover:text-zinc-400 ml-auto"
+            className="text-xs gp-text-subtle hover:gp-text-muted ml-auto"
           >
             Report
           </button>

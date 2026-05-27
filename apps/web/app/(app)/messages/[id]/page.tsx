@@ -81,7 +81,7 @@ export default function ConversationPage() {
   return (
     <div className="flex flex-col min-h-[calc(100dvh-10rem)] -mx-4 pb-[calc(4.5rem+env(safe-area-inset-bottom))]">
       <div className="px-4 pb-3 border-b border-[var(--gp-border)] space-y-2">
-        <Link href="/messages" className="text-sm text-emerald-400 hover:underline">
+        <Link href="/messages" className="text-sm text-accent hover:underline">
           ← Messages
         </Link>
         {otherUser && (
@@ -92,7 +92,7 @@ export default function ConversationPage() {
             >
               {otherUser.displayName}
             </Link>
-            <p className="text-xs text-zinc-500">@{otherUser.username}</p>
+            <p className="text-xs gp-text-muted">@{otherUser.username}</p>
           </div>
         )}
         {postContext && (
@@ -102,7 +102,7 @@ export default function ConversationPage() {
               alt=""
               className="h-14 w-14 rounded object-cover shrink-0"
             />
-            <p className="text-xs text-zinc-400 line-clamp-2">
+            <p className="text-xs gp-text-muted line-clamp-2">
               {postContext.caption ?? "About this post"}
             </p>
           </div>
@@ -120,7 +120,7 @@ export default function ConversationPage() {
               <div
                 className={`max-w-[85%] rounded-2xl px-4 py-2 text-sm ${
                   mine
-                    ? "bg-emerald-500 text-zinc-950"
+                    ? "bg-accent text-accent-foreground"
                     : "bg-[var(--gp-surface)] text-[var(--gp-fg)]"
                 }`}
               >
@@ -146,7 +146,7 @@ export default function ConversationPage() {
         <button
           type="submit"
           disabled={sending || !body.trim()}
-          className="rounded-lg bg-emerald-500 text-zinc-950 font-semibold px-4 disabled:opacity-50 shrink-0"
+          className="rounded-lg bg-accent text-accent-foreground font-semibold px-4 disabled:opacity-50 shrink-0"
         >
           Send
         </button>

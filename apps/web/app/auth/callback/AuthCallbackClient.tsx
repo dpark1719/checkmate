@@ -113,13 +113,13 @@ export function AuthCallbackClient() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center gap-3 px-6 max-w-md text-center">
-      <p className="text-zinc-300">{status}</p>
+      <p className="text-[var(--gp-fg)]">{status}</p>
       {errorDetail && (
         <p className="text-sm text-red-400 break-words">{errorDetail}</p>
       )}
-      <p className="text-xs text-zinc-500">
+      <p className="text-xs gp-text-muted">
         Check{" "}
-        <a href="/api/auth/health" className="text-emerald-400 underline">
+        <a href="/api/auth/health" className="text-accent underline">
           /api/auth/health
         </a>{" "}
         on this site — all flags should be true. After changing Vercel env vars,

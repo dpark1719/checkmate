@@ -7,30 +7,40 @@
 :root,
 html.dark {
   --background: #09090b;
-  --foreground: #fafafa;
-  --gp-fg: #fafafa;
-  --gp-muted: #a1a1aa;
+  --foreground: #f4f4f5;
+  --gp-fg: #f4f4f5;
+  --gp-muted: #cbd5e1;
+  --gp-subtle: #94a3b8;
   --gp-border: #3f3f46;
   --gp-surface: #18181b;
   --gp-card: #18181b;
-  --gp-nav-bg: rgba(9, 9, 11, 0.9);
+  --gp-nav-bg: rgba(9, 9, 11, 0.95);
   --gp-input-bg: #18181b;
-  --gp-input-fg: #fafafa;
-  --gp-placeholder: #71717a;
+  --gp-input-fg: #f4f4f5;
+  --gp-placeholder: #94a3b8;
+  --gp-accent: #1d4ed8;
+  --gp-accent-hover: #2563eb;
+  --gp-accent-subtle: rgba(37, 99, 235, 0.18);
+  --gp-accent-fg: #ffffff;
 }
 
 html.light {
   --background: #fafafa;
   --foreground: #18181b;
   --gp-fg: #18181b;
-  --gp-muted: #71717a;
+  --gp-muted: #52525b;
+  --gp-subtle: #71717a;
   --gp-border: #d4d4d8;
   --gp-surface: #f4f4f5;
   --gp-card: #ffffff;
-  --gp-nav-bg: rgba(250, 250, 250, 0.95);
+  --gp-nav-bg: rgba(250, 250, 250, 0.98);
   --gp-input-bg: #ffffff;
   --gp-input-fg: #18181b;
-  --gp-placeholder: #a1a1aa;
+  --gp-placeholder: #71717a;
+  --gp-accent: #1e40af;
+  --gp-accent-hover: #1d4ed8;
+  --gp-accent-subtle: rgba(30, 64, 175, 0.12);
+  --gp-accent-fg: #ffffff;
   color-scheme: light;
 }
 
@@ -41,6 +51,9 @@ html.dark {
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-accent: var(--gp-accent);
+  --color-accent-foreground: var(--gp-accent-fg);
+  --color-muted-foreground: var(--gp-muted);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -82,5 +95,52 @@ select option {
     @apply rounded-xl border;
     background-color: var(--gp-card);
     border-color: var(--gp-border);
+  }
+  .gp-text-muted {
+    color: var(--gp-muted);
+  }
+  .gp-text-subtle {
+    color: var(--gp-subtle);
+  }
+  .gp-link {
+    color: var(--gp-accent);
+    font-weight: 500;
+  }
+  .gp-link:hover {
+    color: var(--gp-accent-hover);
+    text-decoration: underline;
+  }
+  .gp-btn-primary {
+    @apply rounded-lg font-semibold px-6 py-2 transition-colors disabled:opacity-50;
+    background-color: var(--gp-accent);
+    color: var(--gp-accent-fg);
+  }
+  .gp-btn-primary:hover:not(:disabled) {
+    background-color: var(--gp-accent-hover);
+  }
+  .gp-btn-secondary {
+    @apply rounded-lg border px-6 py-2 transition-colors;
+    border-color: var(--gp-border);
+    color: var(--gp-fg);
+    background-color: transparent;
+  }
+  .gp-btn-secondary:hover {
+    background-color: var(--gp-surface);
+  }
+  .gp-nav-item {
+    @apply flex flex-1 flex-col items-center justify-center gap-0.5 min-w-0 px-1 py-1.5 rounded-xl transition-colors;
+    color: var(--gp-muted);
+  }
+  .gp-nav-item:hover {
+    color: var(--gp-fg);
+    background-color: var(--gp-surface);
+  }
+  .gp-nav-item-active {
+    color: var(--gp-accent);
+    background-color: var(--gp-accent-subtle);
+  }
+  .gp-nav-item-active:hover {
+    color: var(--gp-accent-hover);
+    background-color: var(--gp-accent-subtle);
   }
 }

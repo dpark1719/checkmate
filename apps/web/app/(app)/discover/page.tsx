@@ -63,7 +63,7 @@ export default function DiscoverPage() {
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">Discover</h1>
-      <p className="text-zinc-400">
+      <p className="gp-text-muted">
         Join a community and choose which goal to share. Only posts for that goal
         show in the community feed.
       </p>
@@ -76,13 +76,13 @@ export default function DiscoverPage() {
           return (
             <div
               key={c.id}
-              className="rounded-xl border border-zinc-800 p-4 flex flex-col gap-3"
+              className="rounded-xl border border-[var(--gp-border)] p-4 flex flex-col gap-3"
             >
               <div className="capitalize">
                 <p className="font-semibold text-lg">{c.category}</p>
-                <p className="text-sm text-zinc-500">{c.memberCount} members</p>
+                <p className="text-sm gp-text-muted">{c.memberCount} members</p>
                 {isJoined && membership?.sharedGoalTitle && (
-                  <p className="text-sm text-emerald-400/90 mt-1">
+                  <p className="text-sm text-accent/90 mt-1">
                     Sharing: {membership.sharedGoalTitle}
                   </p>
                 )}
@@ -99,7 +99,7 @@ export default function DiscoverPage() {
                       type="button"
                       disabled={loading === c.category}
                       onClick={() => openJoin(c.category as GoalCategory)}
-                      className="flex-1 min-w-[7rem] rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 py-2 text-sm font-medium hover:bg-emerald-500/20 disabled:opacity-50"
+                      className="flex-1 min-w-[7rem] rounded-lg bg-[var(--gp-accent-subtle)] text-accent border border-accent/40 py-2 text-sm font-medium hover:bg-accent/20 disabled:opacity-50"
                     >
                       Change goal
                     </button>
@@ -107,7 +107,7 @@ export default function DiscoverPage() {
                       type="button"
                       disabled={loading === c.category}
                       onClick={() => leave(c.category as GoalCategory)}
-                      className="rounded-lg border border-zinc-700 px-3 py-2 text-sm text-zinc-400 hover:bg-zinc-900 disabled:opacity-50"
+                      className="rounded-lg border border-[var(--gp-border)] px-3 py-2 text-sm gp-text-muted hover:bg-[var(--gp-card)] disabled:opacity-50"
                     >
                       Leave
                     </button>
@@ -117,14 +117,14 @@ export default function DiscoverPage() {
                     type="button"
                     disabled={loading === c.category}
                     onClick={() => openJoin(c.category as GoalCategory)}
-                    className="flex-1 rounded-lg bg-emerald-500 text-zinc-950 py-2 text-sm font-semibold hover:bg-emerald-400 disabled:opacity-50"
+                    className="flex-1 rounded-lg bg-accent text-accent-foreground py-2 text-sm font-semibold hover:opacity-90 disabled:opacity-50"
                   >
                     Join
                   </button>
                 )}
                 <Link
                   href={`/discover/${c.category}`}
-                  className="rounded-lg border border-zinc-700 px-3 py-2 text-sm hover:bg-zinc-900"
+                  className="rounded-lg border border-[var(--gp-border)] px-3 py-2 text-sm hover:bg-[var(--gp-card)]"
                 >
                   Feed
                 </Link>
@@ -136,7 +136,7 @@ export default function DiscoverPage() {
 
       {communities.length === 0 &&
         GOAL_CATEGORIES.map((cat) => (
-          <p key={cat} className="text-zinc-600 text-sm capitalize">
+          <p key={cat} className="gp-text-subtle text-sm capitalize">
             {cat}
           </p>
         ))}

@@ -126,10 +126,10 @@ export function PostChallengeCard({
   }
 
   return (
-    <li className="rounded-xl border border-zinc-800 p-4 space-y-4">
+    <li className="rounded-xl border border-[var(--gp-border)] p-4 space-y-4">
       <div>
         <p className="font-semibold">{title}</p>
-        <p className="text-sm text-zinc-500 capitalize">{challenge.goals?.category}</p>
+        <p className="text-sm gp-text-muted capitalize">{challenge.goals?.category}</p>
       </div>
 
       {!done && (
@@ -138,7 +138,7 @@ export function PostChallengeCard({
 
       {!done && challenge.triggerFiredAt && (
         <div>
-          <label className="text-sm text-zinc-400 block mb-1">Promise time today</label>
+          <label className="text-sm gp-text-muted block mb-1">Promise time today</label>
           <input
             type="datetime-local"
             defaultValue={
@@ -147,14 +147,14 @@ export function PostChallengeCard({
                 : undefined
             }
             onChange={(e) => updatePromiseTime(e.target.value)}
-            className="w-full rounded-lg bg-zinc-900 border border-zinc-700 px-3 py-2 text-sm"
+            className="w-full rounded-lg bg-[var(--gp-card)] border border-[var(--gp-border)] px-3 py-2 text-sm"
           />
         </div>
       )}
 
       {done ? (
         <div className="flex items-center justify-between gap-2 flex-wrap">
-          <p className="text-emerald-400 text-sm font-medium">Posted ✓</p>
+          <p className="text-accent text-sm font-medium">Posted ✓</p>
           {canDelete ? (
             <button
               type="button"
@@ -178,7 +178,7 @@ export function PostChallengeCard({
                     else setError("Post id not found. Try refreshing the page.");
                   });
               }}
-              className="text-xs text-emerald-500 hover:underline"
+              className="text-xs text-accent hover:underline"
             >
               Load delete
             </button>
@@ -200,20 +200,20 @@ export function PostChallengeCard({
               const f = e.target.files?.[0];
               if (f) handleFile(f);
             }}
-            className="text-sm text-zinc-400"
+            className="text-sm gp-text-muted"
           />
           <textarea
             value={caption}
             onChange={(e) => setCaption(e.target.value)}
             placeholder="Caption (optional)"
             maxLength={280}
-            className="w-full rounded-lg bg-zinc-900 border border-zinc-700 px-3 py-2 text-sm min-h-[72px]"
+            className="w-full rounded-lg bg-[var(--gp-card)] border border-[var(--gp-border)] px-3 py-2 text-sm min-h-[72px]"
           />
           <button
             type="button"
             disabled={uploading || posting || !photoPath}
             onClick={submitPost}
-            className="w-full rounded-lg bg-emerald-500 text-zinc-950 font-semibold py-2.5 disabled:opacity-50"
+            className="w-full rounded-lg bg-accent text-accent-foreground font-semibold py-2.5 disabled:opacity-50"
           >
             {uploading ? "Uploading…" : posting ? "Posting…" : "Post"}
           </button>

@@ -4,7 +4,11 @@ export function NavBadge({ count }: { count: number }) {
 
   return (
     <span
-      className="absolute -top-1 -right-2 min-w-[1.1rem] h-[1.1rem] px-1 rounded-full bg-emerald-500 text-zinc-950 text-[10px] font-bold flex items-center justify-center leading-none"
+      className="absolute -top-1.5 -right-2 min-w-[1.1rem] h-[1.1rem] px-1 rounded-full text-[10px] font-bold flex items-center justify-center leading-none border-2 border-[var(--gp-nav-bg)]"
+      style={{
+        backgroundColor: "var(--gp-accent)",
+        color: "var(--gp-accent-fg)",
+      }}
       aria-label={`${count} unread`}
     >
       {label}

@@ -81,7 +81,7 @@ export default function CommunityFeedPage() {
         <button
           type="button"
           onClick={load}
-          className="text-sm text-emerald-400 hover:underline"
+          className="text-sm text-accent hover:underline"
         >
           Refresh
         </button>
@@ -91,24 +91,24 @@ export default function CommunityFeedPage() {
         <div
           className={`rounded-lg border px-4 py-3 text-sm ${
             status.willShowInFeed
-              ? "border-emerald-500/30 bg-emerald-500/5 text-zinc-300"
-              : "border-amber-500/30 bg-amber-500/5 text-zinc-300"
+              ? "border-accent/40 bg-[var(--gp-accent-subtle)] text-[var(--gp-fg)]"
+              : "border-amber-500/30 bg-amber-500/5 text-[var(--gp-fg)]"
           }`}
         >
           <p>{status.hint}</p>
           {status.sharedGoal && (
-            <p className="text-zinc-500 mt-1">
-              Sharing: <span className="text-emerald-400">{status.sharedGoal.title}</span>
+            <p className="gp-text-muted mt-1">
+              Sharing: <span className="text-accent">{status.sharedGoal.title}</span>
             </p>
           )}
           {status.yourPostsInThisCommunity.length > 0 && (
-            <p className="text-zinc-500 mt-1">
+            <p className="gp-text-muted mt-1">
               You have {status.yourPostsInThisCommunity.length} post(s) in this
               community category.
             </p>
           )}
           {!status.joined && (
-            <Link href="/discover" className="text-emerald-400 underline mt-2 inline-block">
+            <Link href="/discover" className="text-accent underline mt-2 inline-block">
               Join on Discover →
             </Link>
           )}
@@ -118,19 +118,19 @@ export default function CommunityFeedPage() {
       {feedError && <p className="text-red-400 text-sm">{feedError}</p>}
 
       {loading ? (
-        <p className="text-zinc-500">Loading feed…</p>
+        <p className="gp-text-muted">Loading feed…</p>
       ) : posts.length === 0 ? (
-        <div className="text-zinc-500 text-sm space-y-2">
+        <div className="gp-text-muted text-sm space-y-2">
           <p>No posts in this feed yet.</p>
-          <ul className="list-disc list-inside text-zinc-600 space-y-1">
+          <ul className="list-disc list-inside gp-text-subtle space-y-1">
             <li>
-              <Link href="/discover" className="text-emerald-400 underline">
+              <Link href="/discover" className="text-accent underline">
                 Join
               </Link>{" "}
               the community and pick a goal
             </li>
             <li>
-              <Link href="/post" className="text-emerald-400 underline">
+              <Link href="/post" className="text-accent underline">
                 Post
               </Link>{" "}
               a photo for a <span className="capitalize">{category}</span> goal

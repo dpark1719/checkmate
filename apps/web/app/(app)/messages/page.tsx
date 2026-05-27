@@ -41,11 +41,11 @@ export default function MessagesPage() {
       </p>
 
       {loading ? (
-        <p className="text-zinc-500">Loading…</p>
+        <p className="gp-text-muted">Loading…</p>
       ) : conversations.length === 0 ? (
-        <p className="text-zinc-500 text-sm">
+        <p className="gp-text-muted text-sm">
           No conversations yet.{" "}
-          <Link href="/discover" className="text-emerald-400 underline">
+          <Link href="/discover" className="text-accent underline">
             Browse communities
           </Link>{" "}
           and tap a post to message someone.
@@ -56,10 +56,10 @@ export default function MessagesPage() {
             <li key={c.id}>
               <Link
                 href={`/messages/${c.id}`}
-                className={`block rounded-xl border px-4 py-3 hover:bg-zinc-900/50 ${
+                className={`block rounded-xl border px-4 py-3 hover:bg-[var(--gp-card)]/50 ${
                   c.unread
-                    ? "border-emerald-500/40 bg-emerald-500/5"
-                    : "border-zinc-800"
+                    ? "border-accent/50 bg-[var(--gp-accent-subtle)]"
+                    : "border-[var(--gp-border)]"
                 }`}
               >
                 <div className="flex items-center justify-between gap-2">
@@ -67,12 +67,12 @@ export default function MessagesPage() {
                     {c.otherUser?.displayName ?? "User"}
                   </p>
                   {c.unread && (
-                    <span className="shrink-0 h-2 w-2 rounded-full bg-emerald-400" />
+                    <span className="shrink-0 h-2 w-2 rounded-full bg-accent" />
                   )}
                 </div>
-                <p className="text-xs text-zinc-500">@{c.otherUser?.username}</p>
+                <p className="text-xs gp-text-muted">@{c.otherUser?.username}</p>
                 {c.lastMessage && (
-                  <p className="text-sm text-zinc-400 mt-1 truncate">
+                  <p className="text-sm gp-text-muted mt-1 truncate">
                     {c.lastMessage.body}
                   </p>
                 )}

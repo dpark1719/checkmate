@@ -113,12 +113,12 @@ export default function GoalsPage() {
   return (
     <div className="space-y-8">
       <h1 className="text-2xl font-bold">Your goals</h1>
-      <p className="text-sm text-zinc-500">Up to 5 active goals. Tap a goal to edit or remove.</p>
+      <p className="text-sm gp-text-muted">Up to 5 active goals. Tap a goal to edit or remove.</p>
 
       {error && <p className="text-sm text-red-400">{error}</p>}
 
       <form onSubmit={createGoal} className="space-y-4 gp-card p-4">
-        <h2 className="text-sm font-medium text-zinc-400">Add goal</h2>
+        <h2 className="text-sm font-medium gp-text-muted">Add goal</h2>
         <input
           value={title}
           onChange={(e) => setTitle(e.target.value)}
@@ -139,7 +139,7 @@ export default function GoalsPage() {
         </select>
         <button
           type="submit"
-          className="rounded-lg bg-emerald-500 text-zinc-950 font-semibold px-6 py-2"
+          className="rounded-lg bg-accent text-accent-foreground font-semibold px-6 py-2"
         >
           Add goal
         </button>
@@ -147,12 +147,12 @@ export default function GoalsPage() {
 
       <ul className="space-y-3">
         {goals.length === 0 && (
-          <li className="text-zinc-500 text-sm py-4">No active goals yet.</li>
+          <li className="gp-text-muted text-sm py-4">No active goals yet.</li>
         )}
         {goals.map((g) => (
-          <li key={g.id} className="rounded-xl border border-zinc-800 overflow-hidden">
+          <li key={g.id} className="rounded-xl border border-[var(--gp-border)] overflow-hidden">
             {editingId === g.id ? (
-              <form onSubmit={saveEdit} className="p-4 space-y-3 bg-zinc-900/50">
+              <form onSubmit={saveEdit} className="p-4 space-y-3 bg-[var(--gp-card)]/50">
                 <input
                   value={editTitle}
                   onChange={(e) => setEditTitle(e.target.value)}
@@ -170,7 +170,7 @@ export default function GoalsPage() {
                     </option>
                   ))}
                 </select>
-                <label className="block text-xs text-zinc-500">Default promise time</label>
+                <label className="block text-xs gp-text-muted">Default promise time</label>
                 <input
                   type="time"
                   value={editTime}
@@ -180,14 +180,14 @@ export default function GoalsPage() {
                 <div className="flex gap-2">
                   <button
                     type="submit"
-                    className="flex-1 rounded-lg bg-emerald-500 text-zinc-950 font-semibold py-2 text-sm"
+                    className="flex-1 rounded-lg bg-accent text-accent-foreground font-semibold py-2 text-sm"
                   >
                     Save
                   </button>
                   <button
                     type="button"
                     onClick={cancelEdit}
-                    className="flex-1 rounded-lg border border-zinc-600 py-2 text-sm"
+                    className="flex-1 rounded-lg border border-[var(--gp-border)] py-2 text-sm"
                   >
                     Cancel
                   </button>
@@ -201,14 +201,14 @@ export default function GoalsPage() {
                   className="flex-1 text-left min-w-0"
                 >
                   <p className="font-medium truncate">{g.title}</p>
-                  <p className="text-sm text-zinc-500 capitalize">
+                  <p className="text-sm gp-text-muted capitalize">
                     {g.category} · {formatTimeForInput(g.defaultPromiseTime)}
                   </p>
                 </button>
                 <button
                   type="button"
                   onClick={() => startEdit(g)}
-                  className="text-sm text-emerald-400 hover:underline shrink-0"
+                  className="text-sm text-accent hover:underline shrink-0"
                 >
                   Edit
                 </button>

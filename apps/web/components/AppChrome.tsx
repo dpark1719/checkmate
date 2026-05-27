@@ -22,7 +22,7 @@ export function AppChrome({ children }: { children: React.ReactNode }) {
   return (
     <>
       <AppNav />
-      <main className="max-w-3xl mx-auto px-4 pt-6 pb-[calc(6rem+env(safe-area-inset-bottom))]">
+      <main className="max-w-3xl mx-auto px-4 pt-6 pb-[calc(5.5rem+env(safe-area-inset-bottom))]">
         {children}
       </main>
       <AppBottomNav />

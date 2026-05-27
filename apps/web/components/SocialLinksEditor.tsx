@@ -14,16 +14,16 @@ export function SocialLinksEditor({
   onChange: (values: Record<SocialLinkPlatformId, string>) => void;
 }) {
   return (
-    <div className="space-y-3 border-t border-zinc-800 pt-4">
+    <div className="space-y-3 border-t border-[var(--gp-border)] pt-4">
       <div>
-        <h3 className="text-sm font-medium text-zinc-300">Connect accounts</h3>
-        <p className="text-xs text-zinc-500 mt-1">
+        <h3 className="text-sm font-medium text-[var(--gp-fg)]">Connect accounts</h3>
+        <p className="text-xs gp-text-muted mt-1">
           Paste a profile link so others can find you on Instagram, Strava, and more.
         </p>
       </div>
       {SOCIAL_LINK_PLATFORMS.map((platform) => (
         <div key={platform.id}>
-          <label className="text-sm text-zinc-400">{platform.label}</label>
+          <label className="text-sm gp-text-muted">{platform.label}</label>
           <input
             type={platform.kind === "email" ? "email" : "url"}
             inputMode={platform.kind === "email" ? "email" : "url"}

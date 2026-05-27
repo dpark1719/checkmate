@@ -17,7 +17,7 @@ export function ProfileTabs({ active }: { active: ProfileTabId }) {
 
   return (
     <div
-      className="flex gap-1 p-1 rounded-xl bg-zinc-900 border border-zinc-800 mb-6"
+      className="flex gap-1 p-1 rounded-xl bg-[var(--gp-surface)] border border-[var(--gp-border)] mb-6"
       role="tablist"
     >
       {tabs.map((tab) => {
@@ -34,8 +34,8 @@ export function ProfileTabs({ active }: { active: ProfileTabId }) {
             aria-selected={isActive}
             className={`flex-1 text-center rounded-lg py-2 text-sm font-medium transition-colors ${
               isActive
-                ? "bg-zinc-800 text-emerald-400"
-                : "text-zinc-500 hover:text-zinc-200"
+                ? "bg-[var(--gp-accent-subtle)] text-accent"
+                : "gp-text-muted hover:text-[var(--gp-fg)]"
             }`}
           >
             {tab.label}

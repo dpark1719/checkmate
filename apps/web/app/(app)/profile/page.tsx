@@ -158,7 +158,7 @@ function ProfilePageContent() {
   }
 
   if (!profile) {
-    return <p className="text-zinc-400">Loading profile…</p>;
+    return <p className="gp-text-muted">Loading profile…</p>;
   }
 
   return (
@@ -166,38 +166,38 @@ function ProfilePageContent() {
       <h1 className="text-2xl font-bold">Profile</h1>
       <ProfileTabs active={tab} />
 
-      {message && <p className="text-sm text-emerald-400">{message}</p>}
+      {message && <p className="text-sm text-accent">{message}</p>}
       {error && <p className="text-sm text-red-400">{error}</p>}
 
       {tab === "overview" && (
         <div className="space-y-6">
           <PushRegistration />
-          <div className="rounded-xl border border-zinc-800 p-4 space-y-2">
+          <div className="rounded-xl border border-[var(--gp-border)] p-4 space-y-2">
             <h2 className="text-xl font-semibold">{profile.displayName}</h2>
-            <p className="text-emerald-400">@{profile.username}</p>
+            <p className="text-accent">@{profile.username}</p>
             {profile.bio ? (
-              <p className="text-zinc-300 whitespace-pre-wrap">{profile.bio}</p>
+              <p className="text-[var(--gp-fg)] whitespace-pre-wrap">{profile.bio}</p>
             ) : (
-              <p className="text-zinc-500 text-sm italic">No bio yet.</p>
+              <p className="gp-text-muted text-sm italic">No bio yet.</p>
             )}
-            <p className="text-xs text-zinc-500">Timezone: {profile.timezone}</p>
+            <p className="text-xs gp-text-muted">Timezone: {profile.timezone}</p>
             <SocialLinksDisplay links={profile.socialLinks} />
           </div>
           <div className="flex flex-col gap-2 text-sm">
             <Link
               href={`/u/${profile.username}`}
-              className="text-emerald-400 hover:underline"
+              className="text-accent hover:underline"
             >
               View public profile →
             </Link>
-            <Link href="/goals" className="text-emerald-400 hover:underline">
+            <Link href="/goals" className="text-accent hover:underline">
               Manage goals →
             </Link>
           </div>
           <button
             type="button"
             onClick={signOut}
-            className="rounded-lg border border-zinc-700 px-6 py-2 text-sm hover:bg-zinc-900"
+            className="rounded-lg border border-[var(--gp-border)] px-6 py-2 text-sm hover:bg-[var(--gp-card)]"
           >
             Log out
           </button>
@@ -206,24 +206,24 @@ function ProfilePageContent() {
 
       {tab === "edit" && (
         <form onSubmit={saveEditProfile} className="space-y-4 max-w-md">
-          <p className="text-sm text-zinc-500">
+          <p className="text-sm gp-text-muted">
             Choose how you appear to others — like Instagram. Your public link is
             goalpost.app/u/yourname (on this site: /u/{username || "…"}).
           </p>
           <div>
-            <label className="text-sm text-zinc-400">Display name</label>
+            <label className="text-sm gp-text-muted">Display name</label>
             <input
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
               required
               maxLength={80}
-              className="w-full mt-1 rounded-lg bg-zinc-900 border border-zinc-700 px-4 py-2"
+              className="w-full mt-1 rounded-lg bg-[var(--gp-card)] border border-[var(--gp-border)] px-4 py-2"
             />
           </div>
           <div>
-            <label className="text-sm text-zinc-400">Username</label>
-            <div className="flex mt-1 items-center rounded-lg bg-zinc-900 border border-zinc-700 overflow-hidden">
-              <span className="pl-3 text-zinc-500 text-sm">@</span>
+            <label className="text-sm gp-text-muted">Username</label>
+            <div className="flex mt-1 items-center rounded-lg bg-[var(--gp-card)] border border-[var(--gp-border)] overflow-hidden">
+              <span className="pl-3 gp-text-muted text-sm">@</span>
               <input
                 value={username}
                 onChange={(e) =>
@@ -236,26 +236,26 @@ function ProfilePageContent() {
                 className="flex-1 bg-transparent px-2 py-2 outline-none"
               />
             </div>
-            <p className="text-xs text-zinc-600 mt-1">
+            <p className="text-xs gp-text-subtle mt-1">
               Lowercase letters, numbers, underscores only (3–30 chars).
             </p>
           </div>
           <div>
-            <label className="text-sm text-zinc-400">Bio</label>
+            <label className="text-sm gp-text-muted">Bio</label>
             <textarea
               value={bio}
               onChange={(e) => setBio(e.target.value)}
               maxLength={300}
               rows={4}
               placeholder="What are you working toward? Share what you want followers to know."
-              className="w-full mt-1 rounded-lg bg-zinc-900 border border-zinc-700 px-4 py-2 resize-none"
+              className="w-full mt-1 rounded-lg bg-[var(--gp-card)] border border-[var(--gp-border)] px-4 py-2 resize-none"
             />
-            <p className="text-xs text-zinc-600 mt-1 text-right">{bio.length}/300</p>
+            <p className="text-xs gp-text-subtle mt-1 text-right">{bio.length}/300</p>
           </div>
           <SocialLinksEditor values={socialLinks} onChange={setSocialLinks} />
           <button
             type="submit"
-            className="rounded-lg bg-emerald-500 text-zinc-950 font-semibold px-6 py-2"
+            className="rounded-lg bg-accent text-accent-foreground font-semibold px-6 py-2"
           >
             Save profile
           </button>
@@ -266,7 +266,7 @@ function ProfilePageContent() {
         <div className="max-w-md space-y-8">
           <form onSubmit={saveSettings} className="space-y-4">
             <div>
-              <label className="text-sm text-zinc-400">Timezone</label>
+              <label className="text-sm gp-text-muted">Timezone</label>
               <input
                 value={timezone}
                 onChange={(e) => setTimezone(e.target.value)}
@@ -274,7 +274,7 @@ function ProfilePageContent() {
               />
             </div>
             <div>
-              <label className="text-sm text-zinc-400">Country (region code)</label>
+              <label className="text-sm gp-text-muted">Country (region code)</label>
               <input
                 value={region}
                 onChange={(e) => setRegion(e.target.value)}
@@ -309,21 +309,21 @@ function ProfilePageContent() {
             </div>
             <button
               type="submit"
-              className="rounded-lg bg-emerald-500 text-zinc-950 font-semibold px-6 py-2"
+              className="rounded-lg bg-accent text-accent-foreground font-semibold px-6 py-2"
             >
               Save settings
             </button>
           </form>
 
-          <div className="space-y-2 text-sm text-zinc-500">
+          <div className="space-y-2 text-sm gp-text-muted">
             <p>Goal categories: {GOAL_CATEGORIES.join(", ")}</p>
-            <Link href="/goals" className="text-emerald-400 hover:underline block">
+            <Link href="/goals" className="text-accent hover:underline block">
               Manage goals →
             </Link>
           </div>
 
-          <div className="border-t border-zinc-800 pt-6 space-y-3">
-            <p className="text-sm text-zinc-400">
+          <div className="border-t border-[var(--gp-border)] pt-6 space-y-3">
+            <p className="text-sm gp-text-muted">
               GDPR / CCPA: request account deletion below.
             </p>
             <button
@@ -335,7 +335,7 @@ function ProfilePageContent() {
             </button>
             <a
               href="mailto:support@goalpost.app?subject=Report%20a%20problem"
-              className="text-sm text-zinc-500 hover:text-zinc-300 block"
+              className="text-sm gp-text-muted hover:text-[var(--gp-fg)] block"
             >
               Report a problem
             </a>
@@ -348,7 +348,7 @@ function ProfilePageContent() {
 
 export default function ProfilePage() {
   return (
-    <Suspense fallback={<p className="text-zinc-400">Loading profile…</p>}>
+    <Suspense fallback={<p className="gp-text-muted">Loading profile…</p>}>
       <ProfilePageContent />
     </Suspense>
   );
