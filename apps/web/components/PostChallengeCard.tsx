@@ -2,6 +2,7 @@
 
 import { PromiseCountdown } from "@/components/PromiseCountdown";
 import { compressImageForUpload } from "@/lib/compress-image";
+import { formatDefaultPromiseTime } from "@/lib/goal-titles";
 import { useEffect, useState } from "react";
 
 interface Challenge {
@@ -12,15 +13,22 @@ interface Challenge {
   leewayExpiresAt: string | null;
   postedAt: string | null;
   postId?: string;
-  goals?: { title: string; category: string };
+  goals?: {
+    title: string;
+    category: string;
+    defaultPromiseTime?: string;
+    default_promise_time?: string;
+  };
 }
 
 export function PostChallengeCard({
   challenge,
   onPosted,
+  duplicateTitle = false,
 }: {
   challenge: Challenge;
   onPosted: () => void;
+  duplicateTitle?: boolean;
 }) {
   const [caption, setCaption] = useState("");
   const [uploading, setUploading] = useState(false);
@@ -34,6 +42,9 @@ export function PostChallengeCard({
   const [deleting, setDeleting] = useState(false);
 
   const title = challenge.goals?.title ?? "Goal";
+  const defaultTime =
+    challenge.goals?.defaultPromiseTime ??
+    challenge.goals?.default_promise_time;
   const done = Boolean(challenge.postedAt);
   const canDelete = Boolean(postedPostId) || Boolean(challenge.postId);
 
@@ -129,7 +140,18 @@ export function PostChallengeCard({
     <li className="rounded-xl border border-[var(--gp-border)] p-4 space-y-4">
       <div>
         <p className="font-semibold">{title}</p>
-        <p className="text-sm gp-text-muted capitalize">{challenge.goals?.category}</p>
+        <p className="text-sm gp-text-muted capitalize">
+          {challenge.goals?.category}
+          {defaultTime
+            ? ` · Default ${formatDefaultPromiseTime(defaultTime)}`
+            : null}
+        </p>
+        {duplicateTitle && (
+          <p className="text-xs text-amber-500 mt-1">
+            Duplicate goal — you have another active goal with this name. Remove
+            one on the Goals tab.
+          </p>
+        )}
       </div>
 
       {!done && (

@@ -1,7 +1,12 @@
 "use client";
 
 import { GOAL_CATEGORIES, type GoalCategory } from "@goalpost/shared";
-import { useEffect, useState } from "react";
+import {
+  countGoalTitles,
+  formatDefaultPromiseTime,
+  isDuplicateGoalTitle,
+} from "@/lib/goal-titles";
+import { useEffect, useMemo, useState } from "react";
 
 interface Goal {
   id: string;
@@ -37,6 +42,11 @@ export default function GoalsPage() {
   useEffect(() => {
     loadGoals();
   }, []);
+
+  const titleCounts = useMemo(
+    () => countGoalTitles(goals.map((g) => g.title)),
+    [goals]
+  );
 
   async function createGoal(event: React.FormEvent) {
     event.preventDefault();
@@ -202,8 +212,14 @@ export default function GoalsPage() {
                 >
                   <p className="font-medium truncate">{g.title}</p>
                   <p className="text-sm gp-text-muted capitalize">
-                    {g.category} · {formatTimeForInput(g.defaultPromiseTime)}
+                    {g.category} · Default{" "}
+                    {formatDefaultPromiseTime(g.defaultPromiseTime)}
                   </p>
+                  {isDuplicateGoalTitle(g.title, titleCounts) && (
+                    <p className="text-xs text-amber-500 mt-0.5">
+                      Duplicate title — remove or rename this goal
+                    </p>
+                  )}
                 </button>
                 <button
                   type="button"

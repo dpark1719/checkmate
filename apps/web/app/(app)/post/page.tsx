@@ -1,8 +1,9 @@
 "use client";
 
 import { PostChallengeCard } from "@/components/PostChallengeCard";
+import { countGoalTitles, isDuplicateGoalTitle } from "@/lib/goal-titles";
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 interface Challenge {
   id: string;
@@ -12,7 +13,7 @@ interface Challenge {
   leewayExpiresAt: string | null;
   postedAt: string | null;
   postId?: string;
-  goals?: { title: string; category: string };
+  goals?: { title: string; category: string; defaultPromiseTime?: string };
 }
 
 export default function PostPage() {
@@ -34,6 +35,15 @@ export default function PostPage() {
     load();
   }, [load]);
 
+  const titleCounts = useMemo(
+    () =>
+      countGoalTitles(
+        challenges.map((c) => c.goals?.title ?? "").filter(Boolean)
+      ),
+    [challenges]
+  );
+  const hasDuplicateTitles = [...titleCounts.values()].some((n) => n > 1);
+
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">Today&apos;s post</h1>
@@ -52,11 +62,31 @@ export default function PostPage() {
           </Link>
         </div>
       ) : (
-        <ul className="space-y-4">
-          {challenges.map((c) => (
-            <PostChallengeCard key={c.id} challenge={c} onPosted={load} />
-          ))}
-        </ul>
+        <>
+          {hasDuplicateTitles && (
+            <p className="text-sm text-amber-500 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2">
+              You have more than one active goal with the same name. Each gets its
+              own daily post below — remove the extra on the{" "}
+              <Link href="/goals" className="underline font-medium">
+                Goals
+              </Link>{" "}
+              tab.
+            </p>
+          )}
+          <ul className="space-y-4">
+            {challenges.map((c) => (
+              <PostChallengeCard
+                key={c.id}
+                challenge={c}
+                onPosted={load}
+                duplicateTitle={isDuplicateGoalTitle(
+                  c.goals?.title ?? "",
+                  titleCounts
+                )}
+              />
+            ))}
+          </ul>
+        </>
       )}
     </div>
   );

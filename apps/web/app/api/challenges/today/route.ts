@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
   const date = todayInTimezone(timezone);
   const { data, error } = await supabase
     .from("daily_challenges")
-    .select("*, goals(title, category)")
+    .select("*, goals(title, category, default_promise_time)")
     .eq("user_id", user.id)
     .eq("date", date);
 

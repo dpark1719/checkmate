@@ -1,7 +1,11 @@
 import { createGoalSchema } from "@goalpost/shared";
 import { NextRequest } from "next/server";
 import { jsonError, jsonOk, toCamelCase } from "@/lib/api/response";
-import { assertCanAddGoal, countActiveGoals } from "@/lib/goals";
+import {
+  assertCanAddGoal,
+  countActiveGoals,
+  hasDuplicateActiveGoalTitle,
+} from "@/lib/goals";
 import { createClient, getAuthUser } from "@/lib/supabase/server";
 
 export async function GET() {
@@ -36,6 +40,15 @@ export async function POST(request: NextRequest) {
   if (!gate.ok) return jsonError(gate.error, gate.code, 400);
 
   const { title, category, description, defaultPromiseTime } = parsed.data;
+
+  if (await hasDuplicateActiveGoalTitle(supabase, user.id, title)) {
+    return jsonError(
+      "You already have an active goal with this title. Edit the existing one or pick a different name.",
+      "DUPLICATE_GOAL_TITLE",
+      400
+    );
+  }
+
   const { data, error } = await supabase
     .from("goals")
     .insert({

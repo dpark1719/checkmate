@@ -1,6 +1,7 @@
 import { updateGoalSchema } from "@goalpost/shared";
 import { NextRequest } from "next/server";
 import { jsonError, jsonOk, toCamelCase } from "@/lib/api/response";
+import { hasDuplicateActiveGoalTitle } from "@/lib/goals";
 import { createClient, getAuthUser } from "@/lib/supabase/server";
 
 type Params = { params: Promise<{ id: string }> };
@@ -27,6 +28,23 @@ export async function PATCH(request: NextRequest, { params }: Params) {
   if (d.isActive !== undefined) updates.is_active = d.isActive;
 
   const supabase = await createClient();
+
+  if (d.title !== undefined) {
+    const duplicate = await hasDuplicateActiveGoalTitle(
+      supabase,
+      user.id,
+      d.title,
+      id
+    );
+    if (duplicate) {
+      return jsonError(
+        "You already have an active goal with this title.",
+        "DUPLICATE_GOAL_TITLE",
+        400
+      );
+    }
+  }
+
   const { data, error } = await supabase
     .from("goals")
     .update(updates)
