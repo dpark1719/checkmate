@@ -128,19 +128,17 @@ select option {
     background-color: var(--gp-surface);
   }
   .gp-nav-item {
-    @apply flex flex-1 flex-col items-center justify-center gap-0.5 min-w-0 px-1 py-1.5 rounded-xl transition-colors;
+    @apply flex flex-1 flex-col items-center justify-center gap-0.5 min-w-0 h-full px-1 transition-colors;
     color: var(--gp-muted);
   }
   .gp-nav-item:hover {
     color: var(--gp-fg);
-    background-color: var(--gp-surface);
   }
-  .gp-nav-item-active {
+  .gp-nav-item[aria-current="page"] {
     color: var(--gp-accent);
     background-color: var(--gp-accent-subtle);
   }
-  .gp-nav-item-active:hover {
+  .gp-nav-item[aria-current="page"]:hover {
     color: var(--gp-accent-hover);
-    background-color: var(--gp-accent-subtle);
   }
 }

@@ -64,15 +64,11 @@ export function AppBottomNav() {
             <Link
               key={tab.href}
               href={tab.href}
-              className={active ? "gp-nav-item-active" : "gp-nav-item"}
+              className="gp-nav-item"
               aria-current={active ? "page" : undefined}
             >
               <span className="relative flex items-center justify-center">
-                <Icon
-                  className="h-5 w-5 shrink-0"
-                  strokeWidth={active ? 2.25 : 2}
-                  aria-hidden
-                />
+                <Icon className="h-5 w-5 shrink-0" strokeWidth={2} aria-hidden />
                 {badgeLabel && <NavBadge count={badgeCount} />}
               </span>
               <span className="text-[10px] font-medium leading-tight truncate max-w-full">
