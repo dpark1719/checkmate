@@ -1,6 +1,10 @@
 -- Run in Supabase SQL Editor if delete post fails with:
 -- "new row violates row-level security policy for table posts"
 --
+-- Note: The web API uses the service role for soft-delete after ownership checks,
+-- so delete should work without this SQL. Run this anyway if you use Supabase
+-- client-side updates or want RLS-correct behavior for all paths.
+--
 -- Safe to re-run (drops and recreates policies).
 
 DROP POLICY IF EXISTS posts_select ON posts;

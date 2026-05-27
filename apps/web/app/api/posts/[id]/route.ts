@@ -1,5 +1,6 @@
 import { signPhotoUrl } from "@goalpost/server";
 import { jsonError, jsonOk, toCamelCase } from "@/lib/api/response";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient, getAuthUser } from "@/lib/supabase/server";
 
 type Params = { params: Promise<{ id: string }> };
@@ -42,16 +43,34 @@ export async function DELETE(_request: Request, { params }: Params) {
     return jsonError("Post not found", "NOT_FOUND", 404);
   }
 
-  const { error } = await supabase
+  // Soft-delete via service role: RLS blocks UPDATE when deleted_at is set unless
+  // posts_select allows owners to see deleted rows (see apply_posts_soft_delete_rls.sql).
+  let admin;
+  try {
+    admin = createAdminClient();
+  } catch {
+    return jsonError(
+      "Server misconfigured for post delete",
+      "SERVER_CONFIG",
+      500
+    );
+  }
+
+  const deletedAt = new Date().toISOString();
+  const { data: updated, error } = await admin
     .from("posts")
-    .update({ deleted_at: new Date().toISOString() })
+    .update({ deleted_at: deletedAt })
     .eq("id", id)
-    .eq("user_id", user.id);
+    .eq("user_id", user.id)
+    .is("deleted_at", null)
+    .select("id")
+    .maybeSingle();
 
   if (error) return jsonError(error.message, "DB_ERROR", 500);
+  if (!updated) return jsonError("Post not found", "NOT_FOUND", 404);
 
   if (existing.daily_challenge_id) {
-    const { error: challengeError } = await supabase
+    const { error: challengeError } = await admin
       .from("daily_challenges")
       .update({
         posted_at: null,
