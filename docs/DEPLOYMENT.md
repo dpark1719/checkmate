@@ -15,7 +15,10 @@ GoalPost has three deployable pieces:
 
 Your project is already hosted at `https://nfpeasuabkwobyvocecc.supabase.co`.
 
-1. Run the three SQL files in **SQL Editor** if you haven’t (same as local).
+1. Run all migration SQL files in **SQL Editor** if you haven’t (same as local).  
+   **Required for messaging:** paste and run [`supabase/runbooks/apply_messaging.sql`](../supabase/runbooks/apply_messaging.sql)  
+   ([open SQL Editor](https://supabase.com/dashboard/project/nfpeasuabkwobyvocecc/sql/new)).  
+   Verify: `GET https://your-app.vercel.app/api/conversations/health` → `{ "ready": true }`.
 2. **Authentication → URL Configuration** (replace with your real domain after Vercel deploy):
 
    | Setting | Example (production) |

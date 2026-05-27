@@ -1,4 +1,6 @@
--- Profile social links + direct messaging
+-- Run once in Supabase Dashboard → SQL Editor → New query → Run
+-- Project: https://supabase.com/dashboard/project/nfpeasuabkwobyvocecc/sql/new
+-- Safe to re-run (idempotent)
 
 ALTER TABLE profiles
   ADD COLUMN IF NOT EXISTS social_links JSONB NOT NULL DEFAULT '{}'::jsonb;
@@ -7,14 +9,14 @@ ALTER TABLE profiles DROP CONSTRAINT IF EXISTS social_links_object;
 ALTER TABLE profiles ADD CONSTRAINT social_links_object
   CHECK (jsonb_typeof(social_links) = 'object');
 
-CREATE TABLE conversations (
+CREATE TABLE IF NOT EXISTS conversations (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   post_id UUID REFERENCES posts(id) ON DELETE SET NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE TABLE conversation_participants (
+CREATE TABLE IF NOT EXISTS conversation_participants (
   conversation_id UUID NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
   user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
   joined_at TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -22,10 +24,10 @@ CREATE TABLE conversation_participants (
   PRIMARY KEY (conversation_id, user_id)
 );
 
-CREATE INDEX conversation_participants_user_idx
+CREATE INDEX IF NOT EXISTS conversation_participants_user_idx
   ON conversation_participants (user_id);
 
-CREATE TABLE messages (
+CREATE TABLE IF NOT EXISTS messages (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   conversation_id UUID NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
   sender_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
@@ -36,7 +38,7 @@ CREATE TABLE messages (
   )
 );
 
-CREATE INDEX messages_conversation_created_idx
+CREATE INDEX IF NOT EXISTS messages_conversation_created_idx
   ON messages (conversation_id, created_at DESC);
 
 CREATE OR REPLACE FUNCTION bump_conversation_updated_at()
@@ -49,6 +51,7 @@ BEGIN
 END;
 $$;
 
+DROP TRIGGER IF EXISTS messages_bump_conversation ON messages;
 CREATE TRIGGER messages_bump_conversation
   AFTER INSERT ON messages
   FOR EACH ROW
@@ -135,22 +138,32 @@ ALTER TABLE conversations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE conversation_participants ENABLE ROW LEVEL SECURITY;
 ALTER TABLE messages ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS conversations_select ON conversations;
 CREATE POLICY conversations_select ON conversations
   FOR SELECT USING (public.user_in_conversation(id));
 
+DROP POLICY IF EXISTS participants_select ON conversation_participants;
 CREATE POLICY participants_select ON conversation_participants
   FOR SELECT USING (public.user_in_conversation(conversation_id));
 
+DROP POLICY IF EXISTS participants_update_own ON conversation_participants;
 CREATE POLICY participants_update_own ON conversation_participants
   FOR UPDATE USING (auth.uid() = user_id)
   WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS messages_select ON messages;
 CREATE POLICY messages_select ON messages
   FOR SELECT USING (public.user_in_conversation(conversation_id));
 
+DROP POLICY IF EXISTS messages_insert ON messages;
 CREATE POLICY messages_insert ON messages
   FOR INSERT
   WITH CHECK (
     sender_id = auth.uid()
     AND public.user_in_conversation(conversation_id)
   );
+
+-- Verify (should return one row)
+SELECT proname, proargtypes::regtype[]
+FROM pg_proc
+WHERE proname = 'create_dm_conversation';

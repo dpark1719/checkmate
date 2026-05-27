@@ -44,7 +44,7 @@ export async function POST(request: NextRequest, { params }: Params) {
       raw.includes("create_dm_conversation")
     ) {
       msg =
-        "Messaging is not set up yet. Ask the app owner to run the Supabase migration (social_links_and_messages).";
+        "Messaging is not set up yet. Run supabase/runbooks/apply_messaging.sql in Supabase SQL Editor: https://supabase.com/dashboard/project/nfpeasuabkwobyvocecc/sql/new";
     }
     return jsonError(msg, "DB_ERROR", 400);
   }

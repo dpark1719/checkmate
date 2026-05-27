@@ -10,7 +10,8 @@ function isPublicProfile(path: string) {
 function isPublicApi(path: string) {
   return (
     path.startsWith("/api/inngest") ||
-    path.startsWith("/api/communities/") && path.endsWith("/feed")
+    (path.startsWith("/api/communities/") && path.endsWith("/feed")) ||
+    path === "/api/conversations/health"
   );
 }
 
