@@ -1,6 +1,7 @@
 "use client";
 
 import { SocialLinksDisplay } from "@/components/SocialLinksDisplay";
+import { UserAvatar } from "@/components/UserAvatar";
 import type { SocialLinks } from "@goalpost/shared";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -19,6 +20,7 @@ export default function PublicProfilePage() {
     displayName: string;
     username: string;
     bio: string | null;
+    avatarUrl: string | null;
     timezone: string;
     socialLinks: SocialLinks;
   } | null>(null);
@@ -35,6 +37,7 @@ export default function PublicProfilePage() {
           displayName: d.profile.displayName,
           username: d.profile.username,
           bio: d.profile.bio ?? null,
+          avatarUrl: d.profile.avatarUrl ?? null,
           timezone: d.profile.timezone,
           socialLinks: (d.profile.socialLinks ?? {}) as SocialLinks,
         });
@@ -71,9 +74,18 @@ export default function PublicProfilePage() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-8 space-y-8">
-      <header className="space-y-2">
-        <h1 className="text-3xl font-bold">{profile.displayName}</h1>
-        <p className="gp-text-muted">@{profile.username}</p>
+      <header className="space-y-3">
+        <div className="flex items-center gap-4">
+          <UserAvatar
+            displayName={profile.displayName}
+            avatarUrl={profile.avatarUrl}
+            size="lg"
+          />
+          <div>
+            <h1 className="text-3xl font-bold">{profile.displayName}</h1>
+            <p className="gp-text-muted">@{profile.username}</p>
+          </div>
+        </div>
         {profile.bio ? (
           <p className="text-[var(--gp-fg)] whitespace-pre-wrap max-w-lg">{profile.bio}</p>
         ) : (

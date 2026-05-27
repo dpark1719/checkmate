@@ -1,6 +1,7 @@
 "use client";
 
 import { CommentsSection } from "@/components/CommentsSection";
+import { UserAvatar } from "@/components/UserAvatar";
 import {
   REACTION_TYPES,
   reactionEmoji,
@@ -135,19 +136,30 @@ export function FeedPostCard({
   return (
     <article className="rounded-xl border border-[var(--gp-border)] overflow-hidden">
       <div className="p-4 flex items-center justify-between gap-2">
-        <div>
-          <Link
-            href={`/u/${post.author?.username}`}
-            className="font-semibold hover:underline"
-          >
-            {post.author?.displayName ?? "User"}
-          </Link>
-          <p className="text-xs gp-text-muted">
-            @{post.author?.username} · {post.goal?.title}
-            {post.isLate && (
-              <span className="ml-2 text-amber-500">Late</span>
-            )}
-          </p>
+        <div className="flex items-center gap-3 min-w-0">
+          {post.author && (
+            <Link href={`/u/${post.author.username}`} className="shrink-0">
+              <UserAvatar
+                displayName={post.author.displayName}
+                avatarUrl={post.author.avatarUrl}
+                size="sm"
+              />
+            </Link>
+          )}
+          <div className="min-w-0">
+            <Link
+              href={`/u/${post.author?.username}`}
+              className="font-semibold hover:underline"
+            >
+              {post.author?.displayName ?? "User"}
+            </Link>
+            <p className="text-xs gp-text-muted truncate">
+              @{post.author?.username} · {post.goal?.title}
+              {post.isLate && (
+                <span className="ml-2 text-amber-500">Late</span>
+              )}
+            </p>
+          </div>
         </div>
         <div className="flex items-center gap-2 shrink-0">
           {isOwner && (

@@ -1,3 +1,4 @@
+import { resolveAvatarUrl } from "@goalpost/server";
 import { jsonError, jsonOk, toCamelCase } from "@/lib/api/response";
 import { getAuthUserFromRequest, getSupabaseForRequest } from "@/lib/supabase/auth";
 import { NextRequest } from "next/server";
@@ -55,51 +56,70 @@ export async function GET(request: NextRequest) {
     (memberships ?? []).map((m) => [m.conversation_id as string, m.last_read_at])
   );
 
-  const conversations = (convs ?? []).map((c) => {
-    const others = (participants ?? [])
-      .filter(
-        (p) =>
-          p.conversation_id === c.id && (p.user_id as string) !== user.id
-      )
-      .map((p) => {
-        const prof = p.profiles as
-          | { display_name: string; username: string; avatar_url: string | null }
-          | { display_name: string; username: string; avatar_url: string | null }[]
-          | null;
-        const row = Array.isArray(prof) ? prof[0] : prof;
-        return row
+  const conversations = await Promise.all(
+    (convs ?? []).map(async (c) => {
+      const others = (participants ?? [])
+        .filter(
+          (p) =>
+            p.conversation_id === c.id && (p.user_id as string) !== user.id
+        )
+        .map((p) => {
+          const prof = p.profiles as
+            | {
+                display_name: string;
+                username: string;
+                avatar_url: string | null;
+              }
+            | {
+                display_name: string;
+                username: string;
+                avatar_url: string | null;
+              }[]
+            | null;
+          const row = Array.isArray(prof) ? prof[0] : prof;
+          return row
+            ? {
+                id: p.user_id,
+                displayName: row.display_name,
+                username: row.username,
+                avatarUrl: row.avatar_url,
+              }
+            : null;
+        })
+        .filter(Boolean);
+
+      const other = others[0];
+      if (other?.avatarUrl) {
+        other.avatarUrl = await resolveAvatarUrl(
+          supabase,
+          other.avatarUrl as string
+        );
+      }
+
+      const last = lastByConv.get(c.id as string);
+      const lastRead = readMap.get(c.id as string);
+      const unread =
+        last &&
+        last.sender_id !== user.id &&
+        (!lastRead ||
+          new Date(last.created_at as string) > new Date(lastRead as string));
+
+      return {
+        id: c.id,
+        postId: c.post_id,
+        updatedAt: c.updated_at,
+        otherUser: other ?? null,
+        lastMessage: last
           ? {
-              id: p.user_id,
-              displayName: row.display_name,
-              username: row.username,
-              avatarUrl: row.avatar_url,
+              body: last.body,
+              createdAt: last.created_at,
+              senderId: last.sender_id,
             }
-          : null;
-      })
-      .filter(Boolean);
-
-    const last = lastByConv.get(c.id as string);
-    const lastRead = readMap.get(c.id as string);
-    const unread =
-      last &&
-      last.sender_id !== user.id &&
-      (!lastRead || new Date(last.created_at as string) > new Date(lastRead as string));
-
-    return {
-      id: c.id,
-      postId: c.post_id,
-      updatedAt: c.updated_at,
-      otherUser: others[0] ?? null,
-      lastMessage: last
-        ? {
-            body: last.body,
-            createdAt: last.created_at,
-            senderId: last.sender_id,
-          }
-        : null,
-      unread: Boolean(unread),
-    };
-  });
+          : null,
+        unread: Boolean(unread),
+      };
+    })
+  );
 
   return jsonOk({ conversations: conversations.map((x) => toCamelCase(x)) });
 }

@@ -23,6 +23,8 @@ export const updateProfileSchema = z.object({
     .regex(/^[a-z0-9_]+$/, "Lowercase letters, numbers, underscores only")
     .optional(),
   bio: z.string().max(300).nullable().optional(),
+  /** Set to null to remove profile photo */
+  avatarPath: z.string().max(120).nullable().optional(),
   avatarUrl: z.string().url().optional(),
   timezone: z.string().min(1).optional(),
   region: z.string().max(10).nullable().optional(),

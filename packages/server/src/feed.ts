@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { signPhotoUrls } from "./storage";
+import { signAvatarUrls, signPhotoUrls } from "./storage";
 
 const DEFAULT_LIMIT = 20;
 
@@ -33,10 +33,20 @@ function mapPostRows(
   posts: PostRow[],
   limit: number
 ) {
-  return signPhotoUrls(
-    supabase,
-    posts.map((p) => p.photo_url as string)
-  ).then((signed) => {
+  const photoPaths = posts.map((p) => p.photo_url as string);
+  const avatarPaths = posts
+    .map((p) => {
+      const profile = normalizeRelation(p.profiles) as {
+        avatar_url: string | null;
+      } | null;
+      return profile?.avatar_url ?? "";
+    })
+    .filter(Boolean);
+
+  return Promise.all([
+    signPhotoUrls(supabase, photoPaths),
+    signAvatarUrls(supabase, avatarPaths),
+  ]).then(([signedPhotos, signedAvatars]) => {
     const items = posts.map((post) => {
       const profile = normalizeRelation(post.profiles) as {
         display_name: string;
@@ -47,11 +57,13 @@ function mapPostRows(
         title: string;
         category: string;
       } | null;
+      const avatarStored = profile?.avatar_url;
       return {
         id: post.id,
         userId: post.user_id,
         goalId: post.goal_id,
-        photoUrl: signed.get(post.photo_url as string) ?? post.photo_url,
+        photoUrl:
+          signedPhotos.get(post.photo_url as string) ?? post.photo_url,
         caption: post.caption,
         isLate: post.is_late,
         createdAt: post.created_at,
@@ -59,7 +71,9 @@ function mapPostRows(
           ? {
               displayName: profile.display_name,
               username: profile.username,
-              avatarUrl: profile.avatar_url,
+              avatarUrl: avatarStored
+                ? signedAvatars.get(avatarStored) ?? avatarStored
+                : null,
             }
           : null,
         goal: goal ? { title: goal.title, category: goal.category } : null,

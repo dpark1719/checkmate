@@ -1,6 +1,8 @@
 "use client";
 
+import { AvatarUpload } from "@/components/AvatarUpload";
 import { ProfileTabs, type ProfileTabId } from "@/components/ProfileTabs";
+import { UserAvatar } from "@/components/UserAvatar";
 import { PushRegistration } from "@/components/PushRegistration";
 import {
   SocialLinksEditor,
@@ -21,6 +23,7 @@ interface Profile {
   displayName: string;
   username: string;
   bio: string | null;
+  avatarUrl: string | null;
   timezone: string;
   region: string | null;
   socialLinks: SocialLinks;
@@ -37,6 +40,7 @@ function ProfilePageContent() {
   const tab = profileTabFromParam(searchParams.get("tab"));
 
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [displayName, setDisplayName] = useState("");
   const [username, setUsername] = useState("");
   const [bio, setBio] = useState("");
@@ -61,10 +65,12 @@ function ProfilePageContent() {
           displayName: p.displayName,
           username: p.username,
           bio: p.bio ?? null,
+          avatarUrl: p.avatarUrl ?? null,
           timezone: p.timezone,
           region: p.region ?? null,
           socialLinks: links,
         });
+        setAvatarUrl(p.avatarUrl ?? null);
         setDisplayName(p.displayName ?? "");
         setUsername(p.username ?? "");
         setBio(p.bio ?? "");
@@ -172,9 +178,18 @@ function ProfilePageContent() {
       {tab === "overview" && (
         <div className="space-y-6">
           <PushRegistration />
-          <div className="rounded-xl border border-[var(--gp-border)] p-4 space-y-2">
-            <h2 className="text-xl font-semibold">{profile.displayName}</h2>
-            <p className="text-accent">@{profile.username}</p>
+          <div className="rounded-xl border border-[var(--gp-border)] p-4 space-y-3">
+            <div className="flex items-center gap-4">
+              <UserAvatar
+                displayName={profile.displayName}
+                avatarUrl={profile.avatarUrl}
+                size="lg"
+              />
+              <div>
+                <h2 className="text-xl font-semibold">{profile.displayName}</h2>
+                <p className="text-accent">@{profile.username}</p>
+              </div>
+            </div>
             {profile.bio ? (
               <p className="text-[var(--gp-fg)] whitespace-pre-wrap">{profile.bio}</p>
             ) : (
@@ -210,6 +225,16 @@ function ProfilePageContent() {
             Choose how you appear to others — like Instagram. Your public link is
             goalpost.app/u/yourname (on this site: /u/{username || "…"}).
           </p>
+          <AvatarUpload
+            displayName={displayName || profile.displayName}
+            avatarUrl={avatarUrl}
+            onUpdated={(url) => {
+              setAvatarUrl(url);
+              setProfile((prev) =>
+                prev ? { ...prev, avatarUrl: url } : prev
+              );
+            }}
+          />
           <div>
             <label className="text-sm gp-text-muted">Display name</label>
             <input
