@@ -46,6 +46,7 @@ export function FeedPostCard({
   const [following, setFollowing] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const [removed, setRemoved] = useState(false);
   const [detailOpen, setDetailOpen] = useState(false);
 
@@ -89,12 +90,21 @@ export function FeedPostCard({
       return;
     }
     setDeleting(true);
+    setDeleteError(null);
     const res = await fetch(`/api/posts/${post.id}`, { method: "DELETE" });
+    const data = await res.json().catch(() => ({}));
     setDeleting(false);
     if (res.ok) {
       setRemoved(true);
       onDeleted?.(post.id);
+      return;
     }
+    setDeleteError(
+      (data as { error?: string }).error ??
+        (res.status === 401
+          ? "Please log in again to delete this post."
+          : "Could not delete post. Try again.")
+    );
   }
 
   async function reportPost() {
@@ -161,6 +171,9 @@ export function FeedPostCard({
           )}
         </div>
       </div>
+      {deleteError && (
+        <p className="px-4 pb-2 text-xs text-red-400">{deleteError}</p>
+      )}
       {openMessagingOnClick ? (
         <button
           type="button"

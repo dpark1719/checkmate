@@ -35,7 +35,7 @@ export function PostChallengeCard({
 
   const title = challenge.goals?.title ?? "Goal";
   const done = Boolean(challenge.postedAt);
-  const canDelete = Boolean(postedPostId);
+  const canDelete = Boolean(postedPostId) || Boolean(challenge.postId);
 
   useEffect(() => {
     if (challenge.postId) setPostedPostId(challenge.postId);
@@ -96,11 +96,15 @@ export function PostChallengeCard({
   }
 
   async function deletePost() {
-    if (!postedPostId) return;
+    const id = postedPostId ?? challenge.postId;
+    if (!id) {
+      setError("Could not find post id. Refresh the page and try again.");
+      return;
+    }
     if (!window.confirm("Delete this post?")) return;
     setDeleting(true);
     setError(null);
-    const res = await fetch(`/api/posts/${postedPostId}`, { method: "DELETE" });
+    const res = await fetch(`/api/posts/${id}`, { method: "DELETE" });
     setDeleting(false);
     if (!res.ok) {
       const data = await res.json();
@@ -161,7 +165,23 @@ export function PostChallengeCard({
               {deleting ? "Deleting…" : "Delete post"}
             </button>
           ) : (
-            <p className="text-xs text-zinc-500">Refresh page to delete this post</p>
+            <button
+              type="button"
+              onClick={() => {
+                fetch("/api/challenges/today")
+                  .then((r) => r.json())
+                  .then((d) => {
+                    const match = (d.challenges ?? []).find(
+                      (c: { id: string }) => c.id === challenge.id
+                    );
+                    if (match?.postId) setPostedPostId(match.postId);
+                    else setError("Post id not found. Try refreshing the page.");
+                  });
+              }}
+              className="text-xs text-emerald-500 hover:underline"
+            >
+              Load delete
+            </button>
           )}
         </div>
       ) : (

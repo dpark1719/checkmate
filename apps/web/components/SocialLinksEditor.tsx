@@ -25,9 +25,9 @@ export function SocialLinksEditor({
         <div key={platform.id}>
           <label className="text-sm text-zinc-400">{platform.label}</label>
           <input
-            type="url"
-            inputMode="url"
-            autoComplete="url"
+            type={platform.kind === "email" ? "email" : "url"}
+            inputMode={platform.kind === "email" ? "email" : "url"}
+            autoComplete={platform.kind === "email" ? "email" : "url"}
             value={values[platform.id] ?? ""}
             onChange={(e) =>
               onChange({ ...values, [platform.id]: e.target.value })

@@ -5,6 +5,13 @@ import type { SocialLinks } from "@goalpost/shared";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
+interface ActiveGoal {
+  id: string;
+  title: string;
+  category: string;
+  currentCount: number;
+}
+
 export default function PublicProfilePage() {
   const params = useParams();
   const username = params.username as string;
@@ -15,25 +22,43 @@ export default function PublicProfilePage() {
     timezone: string;
     socialLinks: SocialLinks;
   } | null>(null);
-  const [streaks, setStreaks] = useState<
-    { goalId: string; currentCount: number; goals?: { title: string } }[]
-  >([]);
+  const [activeGoals, setActiveGoals] = useState<ActiveGoal[]>([]);
   const [posts, setPosts] = useState<{ id: string; photoUrl: string }[]>([]);
 
   useEffect(() => {
     fetch(`/api/users/${username}`)
       .then((r) => r.json())
       .then((d) => {
-        if (d.profile) {
-          setProfile({
-            displayName: d.profile.displayName,
-            username: d.profile.username,
-            bio: d.profile.bio ?? null,
-            timezone: d.profile.timezone,
-            socialLinks: (d.profile.socialLinks ?? {}) as SocialLinks,
-          });
-          setStreaks(d.streaks ?? []);
+        if (!d.profile) return;
+
+        setProfile({
+          displayName: d.profile.displayName,
+          username: d.profile.username,
+          bio: d.profile.bio ?? null,
+          timezone: d.profile.timezone,
+          socialLinks: (d.profile.socialLinks ?? {}) as SocialLinks,
+        });
+
+        const streakByGoal = new Map<string, number>();
+        for (const s of d.streaks ?? []) {
+          const goalId = (s.goalId ?? s.goal_id) as string;
+          const count = (s.currentCount ?? s.current_count ?? 0) as number;
+          if (goalId) streakByGoal.set(goalId, count);
         }
+
+        const goals: ActiveGoal[] = (d.goals ?? []).map(
+          (g: {
+            id: string;
+            title: string;
+            category: string;
+          }) => ({
+            id: g.id,
+            title: g.title,
+            category: g.category,
+            currentCount: streakByGoal.get(g.id) ?? 0,
+          })
+        );
+        setActiveGoals(goals);
       });
     fetch(`/api/users/${username}/posts`)
       .then((r) => r.json())
@@ -49,24 +74,31 @@ export default function PublicProfilePage() {
       <header className="space-y-2">
         <h1 className="text-3xl font-bold">{profile.displayName}</h1>
         <p className="text-zinc-400">@{profile.username}</p>
-        {profile.bio && (
+        {profile.bio ? (
           <p className="text-zinc-300 whitespace-pre-wrap max-w-lg">{profile.bio}</p>
+        ) : (
+          <p className="text-sm text-[var(--gp-muted)] italic">No bio yet.</p>
         )}
         <SocialLinksDisplay links={profile.socialLinks} />
       </header>
 
       <section>
         <h2 className="text-lg font-semibold mb-3">Active goals</h2>
-        <ul className="flex flex-wrap gap-2">
-          {streaks.map((s) => (
-            <li
-              key={s.goalId}
-              className="rounded-full border border-zinc-700 px-3 py-1 text-sm"
-            >
-              {s.goals?.title ?? "Goal"} · {s.currentCount}🔥
-            </li>
-          ))}
-        </ul>
+        {activeGoals.length === 0 ? (
+          <p className="text-sm text-[var(--gp-muted)]">No active goals right now.</p>
+        ) : (
+          <ul className="flex flex-wrap gap-2">
+            {activeGoals.map((g) => (
+              <li
+                key={g.id}
+                className="rounded-full border border-[var(--gp-border)] px-3 py-1 text-sm capitalize"
+              >
+                {g.title} · {g.category}
+                {g.currentCount > 0 ? ` · ${g.currentCount}🔥` : ""}
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
 
       <section>

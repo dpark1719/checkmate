@@ -50,15 +50,25 @@ export async function DELETE(_request: Request, { params }: Params) {
 
   if (error) return jsonError(error.message, "DB_ERROR", 500);
 
-  await supabase
-    .from("daily_challenges")
-    .update({
-      posted_at: null,
-      is_late: false,
-      streak_credited: false,
-    })
-    .eq("id", existing.daily_challenge_id)
-    .eq("user_id", user.id);
+  if (existing.daily_challenge_id) {
+    const { error: challengeError } = await supabase
+      .from("daily_challenges")
+      .update({
+        posted_at: null,
+        is_late: false,
+        streak_credited: false,
+      })
+      .eq("id", existing.daily_challenge_id)
+      .eq("user_id", user.id);
+
+    if (challengeError) {
+      return jsonError(
+        challengeError.message,
+        "CHALLENGE_UPDATE_ERROR",
+        500
+      );
+    }
+  }
 
   return jsonOk({ success: true });
 }

@@ -2,6 +2,8 @@
 
 import {
   SOCIAL_LINK_PLATFORMS,
+  socialLinkDisplayEmail,
+  socialLinkHref,
   type SocialLinks,
 } from "@goalpost/shared";
 
@@ -12,16 +14,23 @@ export function SocialLinksDisplay({ links }: { links: SocialLinks | null | unde
   return (
     <div className="flex flex-wrap gap-2">
       {entries.map((platform) => {
-        const href = links![platform.id]!;
+        const stored = links![platform.id]!;
+        const href = socialLinkHref(platform.id, stored);
+        const isEmail = platform.kind === "email";
+        const label = isEmail
+          ? socialLinkDisplayEmail(stored)
+          : platform.label;
+
         return (
           <a
             key={platform.id}
             href={href}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-sm rounded-full border border-zinc-700 px-3 py-1 text-emerald-400 hover:bg-zinc-900 hover:border-emerald-500/50"
+            {...(isEmail
+              ? {}
+              : { target: "_blank", rel: "noopener noreferrer" })}
+            className="text-sm rounded-full border border-[var(--gp-border)] px-3 py-1 text-emerald-500 hover:bg-[var(--gp-surface)] hover:border-emerald-500/50"
           >
-            {platform.label}
+            {isEmail ? `✉ ${label}` : label}
           </a>
         );
       })}
