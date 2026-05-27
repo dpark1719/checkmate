@@ -94,9 +94,14 @@ export function AuthForm({ mode }: { mode: Mode }) {
       <fieldset
         disabled
         className="space-y-4 opacity-60 cursor-not-allowed"
-        aria-label="Email sign-in (not available yet)"
+        aria-label="Email sign-in (coming soon)"
       >
-        <label className="block text-sm gp-text-muted line-through">Email</label>
+        <div className="flex items-center justify-between gap-2">
+          <label className="text-sm gp-text-muted line-through">Email</label>
+          <span className="text-[10px] font-medium uppercase tracking-wide text-[var(--gp-subtle)] border border-[var(--gp-border)] rounded-full px-2 py-0.5 shrink-0">
+            Coming soon
+          </span>
+        </div>
         <input
           type="email"
           readOnly
@@ -116,11 +121,14 @@ export function AuthForm({ mode }: { mode: Mode }) {
       <fieldset
         disabled
         className="space-y-3 pt-2 border-t border-[var(--gp-border)] opacity-60 cursor-not-allowed"
-        aria-label="Phone sign-in (not available yet)"
+        aria-label="Phone sign-in (coming soon)"
       >
-        <label className="block text-sm gp-text-muted line-through">
-          Phone (SMS)
-        </label>
+        <div className="flex items-center justify-between gap-2">
+          <label className="text-sm gp-text-muted line-through">Phone (SMS)</label>
+          <span className="text-[10px] font-medium uppercase tracking-wide text-[var(--gp-subtle)] border border-[var(--gp-border)] rounded-full px-2 py-0.5 shrink-0">
+            Coming soon
+          </span>
+        </div>
         <input
           type="tel"
           readOnly
