@@ -31,9 +31,13 @@ export async function GET(request: NextRequest) {
   const date = todayInTimezone(timezone);
   const { data, error } = await supabase
     .from("daily_challenges")
-    .select("*, goals(title, category, default_promise_time)")
+    .select(
+      "*, goals!inner(title, category, default_promise_time, is_active, archived_at)"
+    )
     .eq("user_id", user.id)
-    .eq("date", date);
+    .eq("date", date)
+    .eq("goals.is_active", true)
+    .is("goals.archived_at", null);
 
   if (error) return jsonError(error.message, "DB_ERROR", 500);
 

@@ -1,3 +1,4 @@
+import { pruneOrphanDailyChallenges } from "@goalpost/server";
 import { updateGoalSchema } from "@goalpost/shared";
 import { NextRequest } from "next/server";
 import { jsonError, jsonOk, toCamelCase } from "@/lib/api/response";
@@ -72,5 +73,21 @@ export async function DELETE(_request: NextRequest, { params }: Params) {
     .single();
 
   if (error) return jsonError(error.message, "DB_ERROR", 500);
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("timezone")
+    .eq("id", user.id)
+    .single();
+
+  try {
+    await pruneOrphanDailyChallenges(
+      user.id,
+      (profile?.timezone as string) ?? "UTC"
+    );
+  } catch {
+    // Non-fatal: orphan cleanup also runs when loading the Post tab
+  }
+
   return jsonOk({ goal: toCamelCase(data) });
 }

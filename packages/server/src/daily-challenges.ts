@@ -29,6 +29,9 @@ export async function ensureDailyChallengesForUser(
     .is("archived_at", null);
 
   if (goalsError) throw goalsError;
+
+  await pruneOrphanDailyChallenges(userId, timezone, supabase);
+
   if (!goals?.length) return 0;
 
   const { data: existing } = await supabase
@@ -40,7 +43,7 @@ export async function ensureDailyChallengesForUser(
   const existingGoalIds = new Set((existing ?? []).map((r) => r.goal_id));
   const toCreate = (goals as ActiveGoal[]).filter((g) => !existingGoalIds.has(g.id));
 
-  if (toCreate.length === 0) return 0;
+  if (toCreate.length === 0) return 0; // prune already ran above
 
   const rows = toCreate.map((goal) => {
     const triggerAt = deterministicTriggerTime(userId, goal.id, timezone, date);
@@ -63,7 +66,57 @@ export async function ensureDailyChallengesForUser(
   const { error: insertError } = await supabase.from("daily_challenges").insert(rows);
   if (insertError) throw insertError;
 
+  await pruneOrphanDailyChallenges(userId, timezone, supabase);
+
   return rows.length;
+}
+
+/**
+ * Drop today's challenges for goals that are archived or inactive.
+ * Leaves posted challenges alone (historical record).
+ */
+export async function pruneOrphanDailyChallenges(
+  userId: string,
+  timezone: string,
+  supabase: SupabaseClient = getAdminClient()
+): Promise<number> {
+  const date = todayInTimezone(timezone);
+
+  const { data: activeGoals, error: goalsError } = await supabase
+    .from("goals")
+    .select("id")
+    .eq("user_id", userId)
+    .eq("is_active", true)
+    .is("archived_at", null);
+
+  if (goalsError) throw goalsError;
+
+  const activeIds = new Set((activeGoals ?? []).map((g) => g.id as string));
+
+  const { data: challenges, error: chError } = await supabase
+    .from("daily_challenges")
+    .select("id, goal_id, posted_at")
+    .eq("user_id", userId)
+    .eq("date", date);
+
+  if (chError) throw chError;
+
+  const orphanIds = (challenges ?? [])
+    .filter(
+      (c) =>
+        !activeIds.has(c.goal_id as string) && c.posted_at == null
+    )
+    .map((c) => c.id as string);
+
+  if (orphanIds.length === 0) return 0;
+
+  const { error: delError } = await supabase
+    .from("daily_challenges")
+    .delete()
+    .in("id", orphanIds);
+
+  if (delError) throw delError;
+  return orphanIds.length;
 }
 
 /** Fire trigger for challenges that are due (sets default promise from goal). */
