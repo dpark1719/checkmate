@@ -28,7 +28,7 @@ export function AppBottomNav() {
 
   return (
     <nav
-      className="fixed bottom-0 inset-x-0 z-20 border-t border-zinc-800 bg-zinc-950/95 backdrop-blur pb-[env(safe-area-inset-bottom)]"
+      className="fixed bottom-0 inset-x-0 z-30 border-t border-[var(--gp-border)] bg-[var(--gp-nav-bg)] backdrop-blur pb-[env(safe-area-inset-bottom)]"
       aria-label="Main"
     >
       <div className="max-w-3xl mx-auto flex items-stretch justify-around h-14">
@@ -39,7 +39,9 @@ export function AppBottomNav() {
               key={tab.href}
               href={tab.href}
               className={`flex flex-1 flex-col items-center justify-center gap-0.5 text-xs transition-colors ${
-                active ? "text-emerald-400" : "text-zinc-500 hover:text-zinc-200"
+                active
+                  ? "text-emerald-500"
+                  : "text-[var(--gp-muted)] hover:text-[var(--gp-fg)]"
               }`}
             >
               <span className="text-lg leading-none" aria-hidden>

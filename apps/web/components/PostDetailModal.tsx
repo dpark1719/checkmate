@@ -59,10 +59,10 @@ export function PostDetailModal({
       onClick={onClose}
     >
       <div
-        className="w-full sm:max-w-lg max-h-[90vh] overflow-y-auto rounded-t-2xl sm:rounded-2xl border border-zinc-800 bg-zinc-950"
+        className="w-full sm:max-w-lg max-h-[90vh] overflow-y-auto rounded-t-2xl sm:rounded-2xl border border-[var(--gp-border)] bg-[var(--background)]"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="p-4 flex items-center justify-between gap-2 border-b border-zinc-800">
+        <div className="p-4 flex items-center justify-between gap-2 border-b border-[var(--gp-border)]">
           <div className="min-w-0">
             <Link
               href={`/u/${post.author?.username}`}
@@ -91,7 +91,7 @@ export function PostDetailModal({
         {post.caption && (
           <p className="px-4 py-3 text-sm text-zinc-200">{post.caption}</p>
         )}
-        <div className="p-4 border-t border-zinc-800 space-y-3">
+        <div className="p-4 border-t border-[var(--gp-border)] space-y-3">
           {error && <p className="text-sm text-red-400">{error}</p>}
           {isOwner ? (
             <p className="text-sm text-zinc-500">This is your post.</p>

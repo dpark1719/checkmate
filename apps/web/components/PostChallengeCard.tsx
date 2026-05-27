@@ -1,6 +1,7 @@
 "use client";
 
 import { PromiseCountdown } from "@/components/PromiseCountdown";
+import { compressImageForUpload } from "@/lib/compress-image";
 import { useEffect, useState } from "react";
 
 interface Challenge {
@@ -43,19 +44,25 @@ export function PostChallengeCard({
   async function handleFile(file: File) {
     setUploading(true);
     setError(null);
-    const form = new FormData();
-    form.append("file", file);
+    try {
+      const compressed = await compressImageForUpload(file);
+      const form = new FormData();
+      form.append("file", compressed);
 
-    const res = await fetch("/api/upload", { method: "POST", body: form });
-    const data = await res.json();
-    setUploading(false);
+      const res = await fetch("/api/upload", { method: "POST", body: form });
+      const data = await res.json();
+      setUploading(false);
 
-    if (!res.ok) {
-      setError(data.error ?? "Upload failed");
-      return;
+      if (!res.ok) {
+        setError(data.error ?? "Upload failed");
+        return;
+      }
+      setPhotoPath(data.path);
+      setPreview(data.signedUrl);
+    } catch (e) {
+      setUploading(false);
+      setError(e instanceof Error ? e.message : "Could not process photo");
     }
-    setPhotoPath(data.path);
-    setPreview(data.signedUrl);
   }
 
   async function submitPost() {

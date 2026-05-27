@@ -6,7 +6,8 @@ import {
 } from "@/lib/supabase/auth";
 import { NextRequest } from "next/server";
 
-const MAX_BYTES = 5 * 1024 * 1024;
+/** Hard ceiling; clients compress to ~1MB first */
+const MAX_BYTES = 2 * 1024 * 1024;
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
 export async function POST(request: NextRequest) {
@@ -25,7 +26,7 @@ export async function POST(request: NextRequest) {
   }
 
   if (file.size > MAX_BYTES) {
-    return jsonError("File too large (max 5MB)", "FILE_TOO_LARGE", 400);
+    return jsonError("File too large (max 2MB)", "FILE_TOO_LARGE", 400);
   }
 
   const ext =

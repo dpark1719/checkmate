@@ -35,9 +35,17 @@ export async function POST(request: NextRequest, { params }: Params) {
   );
 
   if (error) {
-    const msg = error.message.includes("blocked")
-      ? "You cannot message this user"
-      : error.message;
+    const raw = error.message ?? "";
+    let msg = raw;
+    if (raw.includes("blocked")) {
+      msg = "You cannot message this user";
+    } else if (
+      raw.includes("does not exist") ||
+      raw.includes("create_dm_conversation")
+    ) {
+      msg =
+        "Messaging is not set up yet. Ask the app owner to run the Supabase migration (social_links_and_messages).";
+    }
     return jsonError(msg, "DB_ERROR", 400);
   }
 

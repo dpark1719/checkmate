@@ -35,8 +35,9 @@ export default function MessagesPage() {
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">Messages</h1>
-      <p className="text-sm text-zinc-500">
-        Tap a post in a community feed to start a conversation with the author.
+      <p className="text-sm text-[var(--gp-muted)]">
+        Tap a post photo on Home or in a community feed, then choose{" "}
+        <strong className="text-[var(--gp-fg)]">Message about this post</strong>.
       </p>
 
       {loading ? (

@@ -181,7 +181,18 @@ export function FeedPostCard({
           className="w-full aspect-square object-cover bg-zinc-900"
         />
       )}
-      {post.caption && <p className="px-4 py-2 text-sm">{post.caption}</p>}
+      {post.caption &&
+        (openMessagingOnClick ? (
+          <button
+            type="button"
+            onClick={() => setDetailOpen(true)}
+            className="px-4 py-2 text-sm w-full text-left hover:bg-[var(--gp-surface)]"
+          >
+            {post.caption}
+          </button>
+        ) : (
+          <p className="px-4 py-2 text-sm">{post.caption}</p>
+        ))}
       <div className="px-4 pb-2 flex gap-2 flex-wrap items-center">
         {REACTION_TYPES.map((type) => {
           const active = reactions.some((r) => reactionMatches(type, r.type));

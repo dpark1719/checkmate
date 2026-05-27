@@ -117,7 +117,7 @@ export default function GoalsPage() {
 
       {error && <p className="text-sm text-red-400">{error}</p>}
 
-      <form onSubmit={createGoal} className="space-y-4 rounded-xl border border-zinc-800 bg-zinc-900/30 p-4">
+      <form onSubmit={createGoal} className="space-y-4 gp-card p-4">
         <h2 className="text-sm font-medium text-zinc-400">Add goal</h2>
         <input
           value={title}

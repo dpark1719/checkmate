@@ -79,8 +79,8 @@ export default function ConversationPage() {
   }
 
   return (
-    <div className="flex flex-col min-h-[calc(100dvh-8rem)] -mx-4">
-      <div className="px-4 pb-3 border-b border-zinc-800 space-y-2">
+    <div className="flex flex-col min-h-[calc(100dvh-10rem)] -mx-4 pb-[calc(4.5rem+env(safe-area-inset-bottom))]">
+      <div className="px-4 pb-3 border-b border-[var(--gp-border)] space-y-2">
         <Link href="/messages" className="text-sm text-emerald-400 hover:underline">
           ← Messages
         </Link>
@@ -96,7 +96,7 @@ export default function ConversationPage() {
           </div>
         )}
         {postContext && (
-          <div className="flex gap-3 items-center rounded-lg border border-zinc-800 p-2 bg-zinc-900/50">
+          <div className="flex gap-3 items-center rounded-lg border border-[var(--gp-border)] p-2 bg-[var(--gp-surface)]">
             <img
               src={postContext.photoUrl}
               alt=""
@@ -121,7 +121,7 @@ export default function ConversationPage() {
                 className={`max-w-[85%] rounded-2xl px-4 py-2 text-sm ${
                   mine
                     ? "bg-emerald-500 text-zinc-950"
-                    : "bg-zinc-800 text-zinc-100"
+                    : "bg-[var(--gp-surface)] text-[var(--gp-fg)]"
                 }`}
               >
                 {m.body}
@@ -134,7 +134,7 @@ export default function ConversationPage() {
 
       <form
         onSubmit={sendMessage}
-        className="sticky bottom-0 px-4 py-3 border-t border-zinc-800 bg-zinc-950 flex gap-2"
+        className="fixed left-0 right-0 z-20 px-4 py-3 border-t border-[var(--gp-border)] bg-[var(--gp-nav-bg)] backdrop-blur flex gap-2 max-w-3xl mx-auto bottom-[calc(3.5rem+env(safe-area-inset-bottom))]"
       >
         <input
           value={body}
