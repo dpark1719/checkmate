@@ -19,6 +19,8 @@ Your project is already hosted at `https://nfpeasuabkwobyvocecc.supabase.co`.
    **Required for messaging:** paste and run [`supabase/runbooks/apply_messaging.sql`](../supabase/runbooks/apply_messaging.sql)  
    ([open SQL Editor](https://supabase.com/dashboard/project/nfpeasuabkwobyvocecc/sql/new)).  
    Verify: `GET https://your-app.vercel.app/api/conversations/health` → `{ "ready": true }`.
+   **Comment notification badges:** [`supabase/runbooks/apply_notifications.sql`](../supabase/runbooks/apply_notifications.sql).
+4. **Email alerts (comments + DMs):** Add `RESEND_API_KEY` and `EMAIL_FROM` on Vercel. Users can toggle email in Profile → Settings.
 2. **Authentication → URL Configuration** (replace with your real domain after Vercel deploy):
 
    | Setting | Example (production) |

@@ -1,4 +1,5 @@
 import { commentSchema } from "@goalpost/shared";
+import { notifyPostComment } from "@goalpost/server";
 import { NextRequest } from "next/server";
 import { jsonError, jsonOk, toCamelCase } from "@/lib/api/response";
 import { createClient, getAuthUser } from "@/lib/supabase/server";
@@ -28,6 +29,21 @@ export async function POST(request: NextRequest, { params }: Params) {
     .single();
 
   if (error) return jsonError(error.message, "DB_ERROR", 500);
+
+  const profile = data.profiles as
+    | { display_name: string; username: string }
+    | { display_name: string; username: string }[]
+    | null;
+  const author = Array.isArray(profile) ? profile[0] : profile;
+
+  void notifyPostComment({
+    postId,
+    commentId: data.id as string,
+    actorId: user.id,
+    actorName: author?.display_name ?? "Someone",
+    commentBody: parsed.data.body,
+  }).catch((e) => console.error("[notifyPostComment]", e));
+
   return jsonOk({ comment: toCamelCase(data) }, 201);
 }
 

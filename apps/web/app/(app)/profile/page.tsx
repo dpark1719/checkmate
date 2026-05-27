@@ -45,6 +45,8 @@ function ProfilePageContent() {
   const [socialLinks, setSocialLinks] = useState<
     Record<SocialLinkPlatformId, string>
   >(socialLinksToFormState({}));
+  const [emailComments, setEmailComments] = useState(true);
+  const [emailMessages, setEmailMessages] = useState(true);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -69,6 +71,12 @@ function ProfilePageContent() {
         setTimezone(p.timezone ?? "UTC");
         setRegion(p.region ?? "");
         setSocialLinks(socialLinksToFormState(links));
+        const prefs = (p.notificationPreferences ?? {}) as Record<
+          string,
+          unknown
+        >;
+        setEmailComments(prefs.emailComments !== false);
+        setEmailMessages(prefs.emailMessages !== false);
       });
   }
 
@@ -116,6 +124,10 @@ function ProfilePageContent() {
       body: JSON.stringify({
         timezone,
         region: region.trim() || null,
+        notificationPreferences: {
+          emailComments,
+          emailMessages,
+        },
       }),
     });
     if (!res.ok) {
@@ -258,7 +270,7 @@ function ProfilePageContent() {
               <input
                 value={timezone}
                 onChange={(e) => setTimezone(e.target.value)}
-                className="w-full mt-1 rounded-lg bg-zinc-900 border border-zinc-700 px-4 py-2"
+                className="w-full mt-1 gp-input"
               />
             </div>
             <div>
@@ -267,8 +279,33 @@ function ProfilePageContent() {
                 value={region}
                 onChange={(e) => setRegion(e.target.value)}
                 placeholder="US"
-                className="w-full mt-1 rounded-lg bg-zinc-900 border border-zinc-700 px-4 py-2"
+                className="w-full mt-1 gp-input"
               />
+            </div>
+            <div className="border-t border-[var(--gp-border)] pt-4 space-y-3">
+              <p className="text-sm font-medium text-[var(--gp-fg)]">Email alerts</p>
+              <label className="flex items-center gap-3 text-sm">
+                <input
+                  type="checkbox"
+                  checked={emailComments}
+                  onChange={(e) => setEmailComments(e.target.checked)}
+                  className="rounded"
+                />
+                New comments on my posts
+              </label>
+              <label className="flex items-center gap-3 text-sm">
+                <input
+                  type="checkbox"
+                  checked={emailMessages}
+                  onChange={(e) => setEmailMessages(e.target.checked)}
+                  className="rounded"
+                />
+                New direct messages
+              </label>
+              <p className="text-xs text-[var(--gp-muted)]">
+                Requires Resend (<code className="text-xs">RESEND_API_KEY</code>) on
+                the server. In-app badges work without email.
+              </p>
             </div>
             <button
               type="submit"

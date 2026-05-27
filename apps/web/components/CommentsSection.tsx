@@ -20,7 +20,17 @@ export function CommentsSection({ postId }: { postId: string }) {
   }
 
   useEffect(() => {
-    if (open) load();
+    if (!open) return;
+    load();
+    fetch("/api/notifications/mark-read", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type: "comments", postId }),
+    })
+      .then(() => {
+        window.dispatchEvent(new Event("goalpost:notifications-changed"));
+      })
+      .catch(() => {});
   }, [open, postId]);
 
   async function submit(event: React.FormEvent) {

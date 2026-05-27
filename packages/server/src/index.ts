@@ -7,3 +7,5 @@ export * from "./leaderboards";
 export * from "./push";
 export * from "./late-challenges";
 export * from "./users";
+export * from "./email";
+export * from "./notifications";

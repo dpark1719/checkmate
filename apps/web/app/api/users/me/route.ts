@@ -36,14 +36,25 @@ export async function PATCH(request: NextRequest) {
   if (d.avatarUrl !== undefined) updates.avatar_url = d.avatarUrl;
   if (d.timezone !== undefined) updates.timezone = d.timezone;
   if (d.region !== undefined) updates.region = d.region;
+  const supabase = await getSupabaseForRequest(request);
+
   if (d.notificationPreferences !== undefined) {
-    updates.notification_preferences = d.notificationPreferences;
+    const { data: current } = await supabase
+      .from("profiles")
+      .select("notification_preferences")
+      .eq("id", user.id)
+      .single();
+    const existing =
+      (current?.notification_preferences as Record<string, unknown>) ?? {};
+    updates.notification_preferences = {
+      ...existing,
+      ...d.notificationPreferences,
+    };
   }
   if (d.socialLinks !== undefined) {
     updates.social_links = sanitizeSocialLinks(d.socialLinks);
   }
 
-  const supabase = await getSupabaseForRequest(request);
   const { data, error } = await supabase
     .from("profiles")
     .update(updates)

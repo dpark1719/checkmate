@@ -1,4 +1,5 @@
 import { sendMessageSchema } from "@goalpost/shared";
+import { notifyConversationMessage } from "@goalpost/server";
 import { jsonError, jsonOk, toCamelCase } from "@/lib/api/response";
 import { getAuthUserFromRequest, getSupabaseForRequest } from "@/lib/supabase/auth";
 import { NextRequest } from "next/server";
@@ -71,6 +72,19 @@ export async function POST(request: NextRequest, { params }: Params) {
     .single();
 
   if (error) return jsonError(error.message, "DB_ERROR", 500);
+
+  const { data: senderProfile } = await supabase
+    .from("profiles")
+    .select("display_name")
+    .eq("id", user.id)
+    .single();
+
+  void notifyConversationMessage({
+    conversationId: id,
+    senderId: user.id,
+    senderName: senderProfile?.display_name ?? "Someone",
+    messageBody: parsed.data.body.trim(),
+  }).catch((e) => console.error("[notifyConversationMessage]", e));
 
   return jsonOk({ message: toCamelCase(data) }, 201);
 }
