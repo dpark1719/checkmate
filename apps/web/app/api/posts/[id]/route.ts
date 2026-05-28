@@ -43,21 +43,10 @@ export async function DELETE(_request: Request, { params }: Params) {
     return jsonError("Post not found", "NOT_FOUND", 404);
   }
 
-  // Soft-delete via service role: RLS blocks UPDATE when deleted_at is set unless
-  // posts_select allows owners to see deleted rows (see apply_posts_soft_delete_rls.sql).
-  let admin;
-  try {
-    admin = createAdminClient();
-  } catch {
-    return jsonError(
-      "Server misconfigured for post delete",
-      "SERVER_CONFIG",
-      500
-    );
-  }
-
   const deletedAt = new Date().toISOString();
-  const { data: updated, error } = await admin
+  // Prefer soft-delete with the user's session (RLS-correct) so deletes work
+  // even if the service role env var isn't configured.
+  const { data: updated, error: updateError } = await supabase
     .from("posts")
     .update({ deleted_at: deletedAt })
     .eq("id", id)
@@ -66,11 +55,36 @@ export async function DELETE(_request: Request, { params }: Params) {
     .select("id")
     .maybeSingle();
 
-  if (error) return jsonError(error.message, "DB_ERROR", 500);
+  if (updateError) {
+    // Fallback: use service role if available (bypasses RLS) for server-only mutation.
+    let admin;
+    try {
+      admin = createAdminClient();
+    } catch {
+      return jsonError(
+        "Could not delete post (missing server config or RLS not applied)",
+        "DELETE_POST_BLOCKED",
+        500
+      );
+    }
+
+    const { data: adminUpdated, error: adminError } = await admin
+      .from("posts")
+      .update({ deleted_at: deletedAt })
+      .eq("id", id)
+      .eq("user_id", user.id)
+      .is("deleted_at", null)
+      .select("id")
+      .maybeSingle();
+
+    if (adminError) return jsonError(adminError.message, "DB_ERROR", 500);
+    if (!adminUpdated) return jsonError("Post not found", "NOT_FOUND", 404);
+  }
+
   if (!updated) return jsonError("Post not found", "NOT_FOUND", 404);
 
   if (existing.daily_challenge_id) {
-    const { error: challengeError } = await admin
+    const { error: challengeError } = await supabase
       .from("daily_challenges")
       .update({
         posted_at: null,
