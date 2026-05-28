@@ -1,7 +1,7 @@
 "use client";
 
 import { JoinCommunityModal } from "@/components/JoinCommunityModal";
-import { GOAL_CATEGORIES, type GoalCategory } from "@checkmate/shared";
+import type { GoalCategory } from "@checkmate/shared";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
@@ -20,17 +20,20 @@ interface Membership {
 export default function DiscoverPage() {
   const [communities, setCommunities] = useState<Community[]>([]);
   const [memberships, setMemberships] = useState<Membership[]>([]);
+  const [pageLoading, setPageLoading] = useState(true);
   const [loading, setLoading] = useState<string | null>(null);
   const [modalCategory, setModalCategory] = useState<GoalCategory | null>(null);
   const [editingMembership, setEditingMembership] = useState<Membership | null>(null);
 
   const load = useCallback(() => {
+    setPageLoading(true);
     fetch("/api/communities")
       .then((r) => r.json())
       .then((data) => {
         setCommunities(data.communities ?? []);
         setMemberships(data.myMemberships ?? []);
-      });
+      })
+      .finally(() => setPageLoading(false));
   }, []);
 
   useEffect(() => {
@@ -68,6 +71,9 @@ export default function DiscoverPage() {
         show in the community feed.
       </p>
 
+      {pageLoading ? (
+        <p className="gp-text-muted">Loading…</p>
+      ) : (
       <div className="grid gap-3 sm:grid-cols-2">
         {communities.map((c) => {
           const membership = membershipFor(c.category);
@@ -133,13 +139,11 @@ export default function DiscoverPage() {
           );
         })}
       </div>
+      )}
 
-      {communities.length === 0 &&
-        GOAL_CATEGORIES.map((cat) => (
-          <p key={cat} className="gp-text-subtle text-sm capitalize">
-            {cat}
-          </p>
-        ))}
+      {!pageLoading && communities.length === 0 && (
+        <p className="gp-text-muted text-sm">No communities found.</p>
+      )}
 
       {modalCategory && (
         <JoinCommunityModal

@@ -1,6 +1,6 @@
 "use client";
 
-import { FeedPostCard } from "@/components/FeedPostCard";
+import { DiscoverPostGrid } from "@/components/DiscoverPostGrid";
 import { goalCategorySchema } from "@checkmate/shared";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -118,7 +118,7 @@ export default function CommunityFeedPage() {
       {feedError && <p className="text-red-400 text-sm">{feedError}</p>}
 
       {loading ? (
-        <p className="gp-text-muted">Loading feed…</p>
+        <p className="gp-text-muted">Loading…</p>
       ) : posts.length === 0 ? (
         <div className="gp-text-muted text-sm space-y-2">
           <p>No posts in this feed yet.</p>
@@ -139,16 +139,7 @@ export default function CommunityFeedPage() {
           </ul>
         </div>
       ) : (
-        <div className="space-y-6">
-          {posts.map((post) => (
-            <FeedPostCard
-              key={post.id}
-              post={post}
-              openMessagingOnClick
-              onDeleted={(id) => setPosts((prev) => prev.filter((p) => p.id !== id))}
-            />
-          ))}
-        </div>
+        <DiscoverPostGrid posts={posts} />
       )}
     </div>
   );
