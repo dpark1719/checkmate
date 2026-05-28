@@ -32,7 +32,7 @@ export default function LoginScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.brand}>GoalPost</Text>
+      <Text style={styles.brand}>CheckMate</Text>
       <Text style={styles.title}>Sign in</Text>
       <TextInput
         style={styles.input}

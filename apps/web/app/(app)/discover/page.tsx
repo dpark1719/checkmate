@@ -1,7 +1,7 @@
 "use client";
 
 import { JoinCommunityModal } from "@/components/JoinCommunityModal";
-import { GOAL_CATEGORIES, type GoalCategory } from "@goalpost/shared";
+import { GOAL_CATEGORIES, type GoalCategory } from "@checkmate/shared";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 

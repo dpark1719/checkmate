@@ -1,6 +1,6 @@
 "use client";
 
-import { GOAL_CATEGORIES, type GoalCategory } from "@goalpost/shared";
+import { GOAL_CATEGORIES, type GoalCategory } from "@checkmate/shared";
 import {
   countGoalTitles,
   formatDefaultPromiseTime,

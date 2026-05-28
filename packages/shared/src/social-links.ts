@@ -1,4 +1,4 @@
-/** Platforms users can link on their GoalPost profile */
+/** Platforms users can link on their CheckMate profile */
 export const SOCIAL_LINK_PLATFORMS = [
   {
     id: "instagram",

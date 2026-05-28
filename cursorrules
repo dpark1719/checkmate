@@ -1,15 +1,15 @@
-# GoalPost — Cursor Rules
+# CheckMate — Cursor Rules
 # Read this entire file before writing any code.
 
 ## What This App Is
-GoalPost is a cross-platform social accountability app (web + iOS + Android).
+CheckMate is a cross-platform social accountability app (web + iOS + Android).
 Users set personal goals, receive a daily randomized notification (5am–10pm local time),
 commit to a "promise time" to post a photo, and share progress with followers and goal communities.
 Think: BeReal mechanic + Strava social layer, for ANY life goal.
 
 ## Monorepo Structure
 ```
-goalpost/
+checkmate/
 ├── apps/
 │   ├── mobile/          # Expo (React Native) app
 │   └── web/             # Next.js 14 App Router
@@ -103,11 +103,11 @@ import { createBrowserClient } from '@supabase/ssr'
 ```
 
 ## Inngest Job Names (don't rename these)
-- `goalpost/daily-trigger.schedule`   — fires at midnight UTC, schedules per-user triggers
-- `goalpost/trigger.send`             — sends push notification to one user
-- `goalpost/streak.calculate`         — runs at midnight local per user, updates streaks table
-- `goalpost/leaderboard.refresh`      — runs hourly, recalculates leaderboard table
-- `goalpost/leaderboard.weekly-reset` — runs every Monday midnight UTC
+- `checkmate/daily-trigger.schedule`   — fires at midnight UTC, schedules per-user triggers
+- `checkmate/trigger.send`             — sends push notification to one user
+- `checkmate/streak.calculate`         — runs at midnight local per user, updates streaks table
+- `checkmate/leaderboard.refresh`      — runs hourly, recalculates leaderboard table
+- `checkmate/leaderboard.weekly-reset` — runs every Monday midnight UTC
 
 ## What NOT To Do
 - Do not use `getServerSideProps` or `getStaticProps` — this is App Router only

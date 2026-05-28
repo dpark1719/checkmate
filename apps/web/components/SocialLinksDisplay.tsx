@@ -6,7 +6,7 @@ import {
   socialLinkDisplayEmail,
   socialLinkHref,
   type SocialLinks,
-} from "@goalpost/shared";
+} from "@checkmate/shared";
 
 export function SocialLinksDisplay({ links }: { links: SocialLinks | null | undefined }) {
   const entries = SOCIAL_LINK_PLATFORMS.filter((p) => links?.[p.id]);

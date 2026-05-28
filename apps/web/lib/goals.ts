@@ -1,4 +1,4 @@
-import { MAX_ACTIVE_GOALS } from "@goalpost/shared";
+import { MAX_ACTIVE_GOALS } from "@checkmate/shared";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 export function normalizeGoalTitle(title: string): string {

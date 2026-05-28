@@ -28,7 +28,7 @@ export function CommentsSection({ postId }: { postId: string }) {
       body: JSON.stringify({ type: "comments", postId }),
     })
       .then(() => {
-        window.dispatchEvent(new Event("goalpost:notifications-changed"));
+        window.dispatchEvent(new Event("checkmate:notifications-changed"));
       })
       .catch(() => {});
   }, [open, postId]);

@@ -1,4 +1,4 @@
-import { goalCategorySchema } from "@goalpost/shared";
+import { goalCategorySchema } from "@checkmate/shared";
 import { jsonError, jsonOk } from "@/lib/api/response";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getAuthUser } from "@/lib/supabase/server";

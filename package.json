@@ -1,5 +1,5 @@
 {
-  "name": "goalpost",
+  "name": "checkmate",
   "private": true,
   "workspaces": [
     "apps/*",
@@ -10,8 +10,8 @@
     "dev": "turbo run dev",
     "build": "turbo run build",
     "lint": "turbo run lint",
-    "dev:web": "npm run dev --workspace=@goalpost/web",
-    "dev:mobile": "npm run dev --workspace=@goalpost/mobile"
+    "dev:web": "npm run dev --workspace=@checkmate/web",
+    "dev:mobile": "npm run dev --workspace=@checkmate/mobile"
   },
   "devDependencies": {
     "turbo": "^2.5.4",

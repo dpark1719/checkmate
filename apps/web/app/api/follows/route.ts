@@ -1,4 +1,4 @@
-import { followSchema } from "@goalpost/shared";
+import { followSchema } from "@checkmate/shared";
 import { NextRequest } from "next/server";
 import { jsonError, jsonOk, toCamelCase } from "@/lib/api/response";
 import { createClient, getAuthUser } from "@/lib/supabase/server";

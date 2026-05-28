@@ -1,5 +1,5 @@
-import { goalCategorySchema } from "@goalpost/shared";
-import { getCommunityFeed } from "@goalpost/server";
+import { goalCategorySchema } from "@checkmate/shared";
+import { getCommunityFeed } from "@checkmate/server";
 import { NextRequest } from "next/server";
 import { jsonError, jsonOk } from "@/lib/api/response";
 import { createAdminClient } from "@/lib/supabase/admin";

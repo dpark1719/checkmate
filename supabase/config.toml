@@ -1,5 +1,5 @@
 # Supabase local dev — run `supabase init` / `supabase start` when using CLI
-project_id = "goalpost"
+project_id = "checkmate"
 
 [api]
 enabled = true

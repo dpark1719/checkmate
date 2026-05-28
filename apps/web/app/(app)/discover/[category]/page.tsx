@@ -1,7 +1,7 @@
 "use client";
 
 import { FeedPostCard } from "@/components/FeedPostCard";
-import { goalCategorySchema } from "@goalpost/shared";
+import { goalCategorySchema } from "@checkmate/shared";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";

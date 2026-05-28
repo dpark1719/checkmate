@@ -2,11 +2,11 @@ import {
   markExpiredChallengesAsLate,
   refreshLeaderboards,
   resetWeeklyLeaderboards,
-} from "@goalpost/server";
+} from "@checkmate/server";
 import { inngest } from "../client";
 
 export const refreshLeaderboardsJob = inngest.createFunction(
-  { id: "goalpost-leaderboard-refresh", name: "goalpost/leaderboard.refresh" },
+  { id: "checkmate-leaderboard-refresh", name: "checkmate/leaderboard.refresh" },
   { cron: "0 * * * *" },
   async ({ step }) => {
     return step.run("recalculate-leaderboards", async () => {
@@ -17,7 +17,7 @@ export const refreshLeaderboardsJob = inngest.createFunction(
 );
 
 export const weeklyLeaderboardReset = inngest.createFunction(
-  { id: "goalpost-leaderboard-weekly-reset", name: "goalpost/leaderboard.weekly-reset" },
+  { id: "checkmate-leaderboard-weekly-reset", name: "checkmate/leaderboard.weekly-reset" },
   { cron: "0 0 * * 1" },
   async ({ step }) => {
     return step.run("reset-weekly-scores", async () => {

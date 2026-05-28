@@ -1,5 +1,5 @@
-import { commentSchema } from "@goalpost/shared";
-import { notifyPostComment } from "@goalpost/server";
+import { commentSchema } from "@checkmate/shared";
+import { notifyPostComment } from "@checkmate/server";
 import { NextRequest } from "next/server";
 import { jsonError, jsonOk, toCamelCase } from "@/lib/api/response";
 import { createClient, getAuthUser } from "@/lib/supabase/server";

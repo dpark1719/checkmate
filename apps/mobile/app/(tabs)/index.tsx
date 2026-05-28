@@ -1,10 +1,10 @@
-import { GOALPOST_BRAND } from "@goalpost/ui";
+import { CHECKMATE_BRAND } from "@checkmate/ui";
 import { StyleSheet, Text, View } from "react-native";
 
 export default function HomeScreen() {
   return (
     <View style={styles.container}>
-      <Text style={styles.brand}>{GOALPOST_BRAND}</Text>
+      <Text style={styles.brand}>{CHECKMATE_BRAND}</Text>
       <Text style={styles.title}>Daily accountability</Text>
       <Text style={styles.subtitle}>
         Connect Supabase env vars, then build auth and post flows. Web app ships

@@ -1,4 +1,4 @@
-import { reportSchema } from "@goalpost/shared";
+import { reportSchema } from "@checkmate/shared";
 import { NextRequest } from "next/server";
 import { jsonError, jsonOk } from "@/lib/api/response";
 import { createClient, getAuthUser } from "@/lib/supabase/server";

@@ -1,4 +1,4 @@
--- GoalPost initial schema (v1)
+-- CheckMate initial schema (v1)
 
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 

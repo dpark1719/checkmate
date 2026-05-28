@@ -2,7 +2,7 @@
 
 import { SocialLinksDisplay } from "@/components/SocialLinksDisplay";
 import { UserAvatar } from "@/components/UserAvatar";
-import type { SocialLinks } from "@goalpost/shared";
+import type { SocialLinks } from "@checkmate/shared";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 

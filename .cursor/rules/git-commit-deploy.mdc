@@ -27,7 +27,7 @@ git push origin main
 
 ## 2. Redeploy (Vercel)
 
-Production web app: **dpark1719/GoalPost** → root `apps/web`.
+Production web app: **dpark1719/CheckMate** → root `apps/web`.
 
 - **Default:** `git push` to `main` triggers Vercel auto-deploy if the repo is connected. Say: “Pushed to GitHub — Vercel should redeploy in ~1–2 min.”
 - **If auto-deploy is off or user asks to redeploy now:** `vercel --prod` from repo root (requires `vercel link`).

@@ -1,4 +1,4 @@
-import { phoneOtpSchema, verifyOtpSchema } from "@goalpost/shared";
+import { phoneOtpSchema, verifyOtpSchema } from "@checkmate/shared";
 import { NextRequest } from "next/server";
 import { jsonError, jsonOk } from "@/lib/api/response";
 import { createClient } from "@/lib/supabase/server";

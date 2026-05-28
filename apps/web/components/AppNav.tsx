@@ -9,7 +9,7 @@ export function AppNav() {
           href="/feed"
           className="font-bold text-accent shrink-0 tracking-tight"
         >
-          GoalPost
+          CheckMate
         </Link>
         <ThemeToggle />
       </div>

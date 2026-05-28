@@ -1,4 +1,4 @@
-import { GOAL_CATEGORIES } from "@goalpost/shared";
+import { GOAL_CATEGORIES } from "@checkmate/shared";
 import { apiFetch } from "@/lib/api";
 import { useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";

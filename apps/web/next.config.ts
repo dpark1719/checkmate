@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  transpilePackages: ["@goalpost/shared", "@goalpost/server"],
+  transpilePackages: ["@checkmate/shared", "@checkmate/server"],
   experimental: {
     externalDir: true,
   },

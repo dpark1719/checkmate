@@ -1,4 +1,4 @@
-# How to Prompt Cursor Effectively (GoalPost)
+# How to Prompt Cursor Effectively (CheckMate)
 # Read this once. Refer back whenever Cursor gives you bad output.
 
 ---
@@ -43,7 +43,7 @@ Do not calculate streaks or leaderboards here — those are Inngest jobs.
 
 ### New Inngest Job
 ```
-Create an Inngest function named [goalpost/job.name].
+Create an Inngest function named [checkmate/job.name].
 It should [what it does].
 - Trigger: [cron schedule or event name]
 - It reads from [tables] and writes to [tables]
@@ -129,18 +129,18 @@ Pick one and add it here before building the leaderboard Inngest job.
 ## Useful Claude.ai Prompts for This Project
 
 Before building a new feature:
-"I'm about to build [feature] for GoalPost. Here's my plan: [describe it].
+"I'm about to build [feature] for CheckMate. Here's my plan: [describe it].
 Does this match our data model and business rules? What could go wrong?"
 
 When Cursor writes something you don't understand:
-"Cursor wrote this code for GoalPost: [paste code].
+"Cursor wrote this code for CheckMate: [paste code].
 Explain what it does in plain English. Does it follow our .cursorrules?"
 
 When you hit an error you can't fix:
-"I'm getting this error in GoalPost: [paste error + stack trace].
+"I'm getting this error in CheckMate: [paste error + stack trace].
 Here's the relevant code: [paste]. What's wrong and how do I fix it?"
 
 When starting a new week of building:
-"I'm starting Week [N] of building GoalPost. According to our build order,
+"I'm starting Week [N] of building CheckMate. According to our build order,
 I need to: [paste week's tasks]. What should I build first and what do I
 need to set up before starting?"

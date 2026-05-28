@@ -6,7 +6,7 @@ import {
   REACTION_TYPES,
   reactionEmoji,
   type ReactionType,
-} from "@goalpost/shared";
+} from "@checkmate/shared";
 import { PostDetailModal } from "@/components/PostDetailModal";
 import Link from "next/link";
 import { useEffect, useState } from "react";

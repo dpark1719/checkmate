@@ -1,4 +1,4 @@
-import { signPhotoUrl } from "@goalpost/server";
+import { signPhotoUrl } from "@checkmate/server";
 import { jsonError, jsonOk, toCamelCase } from "@/lib/api/response";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient, getAuthUser } from "@/lib/supabase/server";

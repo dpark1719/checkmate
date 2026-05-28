@@ -1,11 +1,11 @@
 {
-  "name": "@goalpost/inngest",
+  "name": "@checkmate/inngest",
   "version": "0.0.1",
   "private": true,
   "main": "./functions/index.ts",
   "types": "./functions/index.ts",
   "dependencies": {
-    "@goalpost/server": "*",
+    "@checkmate/server": "*",
     "inngest": "^3.35.1"
   }
 }

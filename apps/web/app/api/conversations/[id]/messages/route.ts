@@ -1,5 +1,5 @@
-import { sendMessageSchema } from "@goalpost/shared";
-import { notifyConversationMessage } from "@goalpost/server";
+import { sendMessageSchema } from "@checkmate/shared";
+import { notifyConversationMessage } from "@checkmate/server";
 import { jsonError, jsonOk, toCamelCase } from "@/lib/api/response";
 import { getAuthUserFromRequest, getSupabaseForRequest } from "@/lib/supabase/auth";
 import { NextRequest } from "next/server";

@@ -1,7 +1,7 @@
-# GoalPost — App Planning Document
+# CheckMate — App Planning Document
 ### Cross-Platform Social Productivity App | v1 Blueprint
 
-> **One-sentence pitch:** GoalPost is a social app for general consumers that gives every person — regardless of what they're working toward — a daily trigger to document and share their goal progress, combining BeReal's accountability mechanic with Strava's community momentum, for any goal in life.
+> **One-sentence pitch:** CheckMate is a social app for general consumers that gives every person — regardless of what they're working toward — a daily trigger to document and share their goal progress, combining BeReal's accountability mechanic with Strava's community momentum, for any goal in life.
 
 ---
 
@@ -13,10 +13,10 @@ Every existing social or productivity app is goal-type-specific:
 - **LinkedIn** → professional goals only
 - **BeReal** → no goal context at all, just presence
 
-No app captures the full human experience of *working toward something* — regardless of what that thing is. GoalPost fills this gap.
+No app captures the full human experience of *working toward something* — regardless of what that thing is. CheckMate fills this gap.
 
 **Why people would pick it over doing nothing / a spreadsheet:**
-A spreadsheet has no social layer. No one cheers you on. No one holds you accountable. GoalPost makes daily progress feel like participation in something bigger, while keeping the bar low (one photo, once a day).
+A spreadsheet has no social layer. No one cheers you on. No one holds you accountable. CheckMate makes daily progress feel like participation in something bigger, while keeping the bar low (one photo, once a day).
 
 ---
 
@@ -118,7 +118,7 @@ This is the most technically nuanced part of the app. Get this right before buil
 - Promise Time is per-goal, per-day (multiple goals can have different promise times)
 
 ### Why This Is Better Than BeReal
-BeReal's mechanic is random and anxiety-inducing. GoalPost gives users **agency through commitment**: you choose when you'll do the thing, which mirrors the actual psychology of goal-setting. The leeway window handles real life without removing consequences.
+BeReal's mechanic is random and anxiety-inducing. CheckMate gives users **agency through commitment**: you choose when you'll do the thing, which mirrors the actual psychology of goal-setting. The leeway window handles real life without removing consequences.
 
 ### Technical Notes
 - Use Inngest (or Supabase Edge Functions + pg_cron) to schedule per-user daily trigger notifications
@@ -548,7 +548,7 @@ All list endpoints: `cursor` + `limit` pagination. All responses: camelCase JSON
 
 ## 14. Open Questions to Resolve Before Building
 
-1. **App name finalized?** "GoalPost" is placeholder.
+1. **App name finalized?** "CheckMate" is placeholder.
 2. **Goal categories fixed in v1?** Recommended fixed list: Fitness, Diet, Finance, Career, Study, Relationship, Creative, Other.
 3. **Max active goals per user?** Recommend capping at 5 to limit notification load.
 4. **Promise time set window?** Currently 2 hours after trigger — confirm this feels right.

@@ -4,7 +4,7 @@ import {
   SOCIAL_LINK_PLATFORMS,
   type SocialLinkPlatformId,
   type SocialLinks,
-} from "@goalpost/shared";
+} from "@checkmate/shared";
 
 export function SocialLinksEditor({
   values,

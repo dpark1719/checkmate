@@ -1,4 +1,4 @@
-import { AVATAR_BUCKET, resolveAvatarUrl } from "@goalpost/server";
+import { AVATAR_BUCKET, resolveAvatarUrl } from "@checkmate/server";
 import { jsonError, jsonOk } from "@/lib/api/response";
 import {
   getAuthUserFromRequest,

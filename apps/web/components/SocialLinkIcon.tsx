@@ -1,5 +1,5 @@
 import type { ComponentType } from "react";
-import type { SocialLinkPlatformId } from "@goalpost/shared";
+import type { SocialLinkPlatformId } from "@checkmate/shared";
 import {
   Github,
   Globe,

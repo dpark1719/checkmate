@@ -1,8 +1,8 @@
-import { markExpiredChallengesAsLate } from "@goalpost/server";
+import { markExpiredChallengesAsLate } from "@checkmate/server";
 import { inngest } from "../client";
 
 export const markLateChallenges = inngest.createFunction(
-  { id: "goalpost-late-mark", name: "goalpost/challenges.mark-late" },
+  { id: "checkmate-late-mark", name: "checkmate/challenges.mark-late" },
   { cron: "*/15 * * * *" },
   async ({ step }) => {
     return step.run("mark-late", async () => ({

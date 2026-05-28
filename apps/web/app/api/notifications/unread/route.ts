@@ -1,7 +1,7 @@
 import {
   countUnreadComments,
   countUnreadMessages,
-} from "@goalpost/server";
+} from "@checkmate/server";
 import { jsonError, jsonOk } from "@/lib/api/response";
 import { getAuthUserFromRequest, getSupabaseForRequest } from "@/lib/supabase/auth";
 import { NextRequest } from "next/server";

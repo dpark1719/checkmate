@@ -1,6 +1,6 @@
 import { jsonError, jsonOk, toCamelCase } from "@/lib/api/response";
 import { getAuthUserFromRequest, getSupabaseForRequest } from "@/lib/supabase/auth";
-import { signPhotoUrls } from "@goalpost/server";
+import { signPhotoUrls } from "@checkmate/server";
 import { NextRequest } from "next/server";
 
 type Params = { params: Promise<{ id: string }> };

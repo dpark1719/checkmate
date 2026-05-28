@@ -1,4 +1,4 @@
-import { setPromiseTimeSchema } from "@goalpost/shared";
+import { setPromiseTimeSchema } from "@checkmate/shared";
 import { NextRequest } from "next/server";
 import { canSetPromiseTime, computeLeewayExpires } from "@/lib/challenges";
 import { jsonError, jsonOk, toCamelCase } from "@/lib/api/response";

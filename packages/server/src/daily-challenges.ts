@@ -3,7 +3,7 @@ import {
   hardDeadlineTime,
   deterministicTriggerTime,
   todayInTimezone,
-} from "@goalpost/shared";
+} from "@checkmate/shared";
 import { notifyUser } from "./push";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { getAdminClient } from "./supabase";
@@ -172,7 +172,7 @@ export async function fireDueTriggers(
 
     await notifyUser(
       userId,
-      "GoalPost — daily trigger",
+      "CheckMate — daily trigger",
       `Time to check in on "${goalRow?.title ?? "your goal"}"`,
       { challengeId: row.id, goalId: row.goal_id }
     );

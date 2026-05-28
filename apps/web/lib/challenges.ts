@@ -2,4 +2,4 @@ export {
   canSetPromiseTime,
   computeLeewayExpires,
   isPostOnTime,
-} from "@goalpost/shared";
+} from "@checkmate/shared";

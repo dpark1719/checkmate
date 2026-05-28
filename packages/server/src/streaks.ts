@@ -1,4 +1,4 @@
-import { todayInTimezone } from "@goalpost/shared";
+import { todayInTimezone } from "@checkmate/shared";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { getAdminClient } from "./supabase";
 

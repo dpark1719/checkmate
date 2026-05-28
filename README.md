@@ -1,4 +1,4 @@
-# GoalPost
+# CheckMate
 
 Cross-platform social accountability app — **Expo mobile** + **Next.js web** + **Supabase** + **Inngest**.
 
@@ -70,11 +70,11 @@ supabase/migrations/
 
 See **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)** for Vercel (web), Inngest (jobs), Supabase (auth URLs), and Expo EAS (mobile).
 
-Repo: [github.com/dpark1719/GoalPost](https://github.com/dpark1719/GoalPost) — push code, then import `apps/web` on Vercel → set env vars → point Inngest at `https://<your-domain>/api/inngest` → update Supabase redirect URLs.
+Repo: [github.com/dpark1719/CheckMate](https://github.com/dpark1719/CheckMate) — push code, then import `apps/web` on Vercel → set env vars → point Inngest at `https://<your-domain>/api/inngest` → update Supabase redirect URLs.
 
 ## Docs
 
-- `docs/GOALPOST_PLAN.md` — product spec
+- `docs/CHECKMATE_PLAN.md` — product spec
 - `docs/DEPLOYMENT.md` — production deploy guide
 - `.cursorrules` — Cursor rules
 - `CONTEXT.md` — paste into new chats

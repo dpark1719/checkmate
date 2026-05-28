@@ -1,4 +1,4 @@
-import { BUCKET } from "@goalpost/server";
+import { BUCKET } from "@checkmate/server";
 import { jsonError, jsonOk } from "@/lib/api/response";
 import {
   getAuthUserFromRequest,

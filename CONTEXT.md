@@ -1,8 +1,8 @@
-# GoalPost — Cursor Context File
+# CheckMate — Cursor Context File
 # Paste this into Cursor chat when starting a new session or switching to a new feature area.
 
 ## What I'm Building
-GoalPost: a cross-platform social accountability app (Next.js web + Expo mobile).
+CheckMate: a cross-platform social accountability app (Next.js web + Expo mobile).
 Users set goals, get a daily randomized notification in their 5am–10pm local window,
 set a "promise time" to post a photo, and share progress with followers + goal communities.
 
@@ -20,7 +20,7 @@ set a "promise time" to post a photo, and share progress with followers + goal c
 
 ## Monorepo Layout
 ```
-goalpost/
+checkmate/
 ├── apps/mobile/        # Expo app
 ├── apps/web/           # Next.js app (API routes + web UI)
 ├── packages/shared/    # Shared types + Zod schemas

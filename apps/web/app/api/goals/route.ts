@@ -1,4 +1,4 @@
-import { createGoalSchema } from "@goalpost/shared";
+import { createGoalSchema } from "@checkmate/shared";
 import { NextRequest } from "next/server";
 import { jsonError, jsonOk, toCamelCase } from "@/lib/api/response";
 import {

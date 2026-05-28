@@ -1,4 +1,4 @@
-import { createPostSchema } from "@goalpost/shared";
+import { createPostSchema } from "@checkmate/shared";
 import { NextRequest } from "next/server";
 import { isPostOnTime } from "@/lib/challenges";
 import { jsonError, jsonOk, toCamelCase } from "@/lib/api/response";

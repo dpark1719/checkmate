@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "mobile",
-    "slug": "mobile",
+    "name": "CheckMate",
+    "slug": "checkmate",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "mobile",
+    "scheme": "checkmate",
     "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": true

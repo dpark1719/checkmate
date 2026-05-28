@@ -1,8 +1,8 @@
-import { ensureAllUsersDailyChallenges } from "@goalpost/server";
+import { ensureAllUsersDailyChallenges } from "@checkmate/server";
 import { inngest } from "../client";
 
 export const scheduleDailyTriggers = inngest.createFunction(
-  { id: "goalpost-daily-trigger-schedule", name: "goalpost/daily-trigger.schedule" },
+  { id: "checkmate-daily-trigger-schedule", name: "checkmate/daily-trigger.schedule" },
   { cron: "0 0 * * *" },
   async ({ step }) => {
     const result = await step.run("schedule-user-triggers", async () => {
@@ -13,8 +13,8 @@ export const scheduleDailyTriggers = inngest.createFunction(
 );
 
 export const sendUserTrigger = inngest.createFunction(
-  { id: "goalpost-trigger-send", name: "goalpost/trigger.send" },
-  { event: "goalpost/trigger.send" },
+  { id: "checkmate-trigger-send", name: "checkmate/trigger.send" },
+  { event: "checkmate/trigger.send" },
   async ({ event, step }) => {
     const { userId, goalId, challengeId } = event.data as {
       userId: string;
@@ -23,7 +23,7 @@ export const sendUserTrigger = inngest.createFunction(
     };
 
     await step.run("mark-trigger-fired", async () => {
-      const { getAdminClient } = await import("@goalpost/server");
+      const { getAdminClient } = await import("@checkmate/server");
       const supabase = getAdminClient();
       const now = new Date().toISOString();
 

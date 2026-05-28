@@ -1,5 +1,5 @@
 {
-  "name": "@goalpost/web",
+  "name": "@checkmate/web",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -9,8 +9,8 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@goalpost/server": "*",
-    "@goalpost/shared": "*",
+    "@checkmate/server": "*",
+    "@checkmate/shared": "*",
     "@supabase/ssr": "^0.6.1",
     "@supabase/supabase-js": "^2.49.8",
     "inngest": "^3.35.1",

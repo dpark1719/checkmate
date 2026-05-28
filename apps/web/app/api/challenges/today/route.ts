@@ -1,9 +1,9 @@
-import { todayInTimezone } from "@goalpost/shared";
+import { todayInTimezone } from "@checkmate/shared";
 import {
   applyHardDeadlines,
   ensureDailyChallengesForUser,
   fireDueTriggers,
-} from "@goalpost/server";
+} from "@checkmate/server";
 import { jsonError, jsonOk, toCamelCase } from "@/lib/api/response";
 import { getAuthUserFromRequest, getSupabaseForRequest } from "@/lib/supabase/auth";
 import { NextRequest } from "next/server";

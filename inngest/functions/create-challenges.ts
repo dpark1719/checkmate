@@ -3,12 +3,12 @@ import {
   ensureDailyChallengesForUser,
   fireDueTriggers,
   getAdminClient,
-} from "@goalpost/server";
+} from "@checkmate/server";
 import { inngest } from "../client";
 
 export const createDailyChallenges = inngest.createFunction(
-  { id: "goalpost-daily-challenges-create", name: "goalpost/daily-challenges.create" },
-  { event: "goalpost/daily-challenges.create" },
+  { id: "checkmate-daily-challenges-create", name: "checkmate/daily-challenges.create" },
+  { event: "checkmate/daily-challenges.create" },
   async ({ event, step }) => {
     const { userId } = event.data as { userId: string; date: string };
 

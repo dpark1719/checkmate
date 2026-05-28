@@ -1,4 +1,4 @@
-import { goalCategorySchema, joinCommunitySchema } from "@goalpost/shared";
+import { goalCategorySchema, joinCommunitySchema } from "@checkmate/shared";
 import { jsonError, jsonOk } from "@/lib/api/response";
 import { createClient, getAuthUser } from "@/lib/supabase/server";
 

@@ -34,10 +34,10 @@ export function useUnreadCounts(pollMs = 30_000) {
     refresh();
     const id = setInterval(refresh, pollMs);
     const onChange = () => refresh();
-    window.addEventListener("goalpost:notifications-changed", onChange);
+    window.addEventListener("checkmate:notifications-changed", onChange);
     return () => {
       clearInterval(id);
-      window.removeEventListener("goalpost:notifications-changed", onChange);
+      window.removeEventListener("checkmate:notifications-changed", onChange);
     };
   }, [refresh, pollMs, pathname]);
 

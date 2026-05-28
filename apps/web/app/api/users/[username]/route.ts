@@ -1,4 +1,4 @@
-import { getProfileByUsername, resolveAvatarUrl } from "@goalpost/server";
+import { getProfileByUsername, resolveAvatarUrl } from "@checkmate/server";
 import { jsonError, jsonOk, toCamelCase } from "@/lib/api/response";
 import { createClient, getAuthUser } from "@/lib/supabase/server";
 

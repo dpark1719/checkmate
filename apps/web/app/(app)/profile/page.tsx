@@ -13,7 +13,7 @@ import {
   GOAL_CATEGORIES,
   type SocialLinkPlatformId,
   type SocialLinks,
-} from "@goalpost/shared";
+} from "@checkmate/shared";
 import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -223,7 +223,7 @@ function ProfilePageContent() {
         <form onSubmit={saveEditProfile} className="space-y-4 max-w-md">
           <p className="text-sm gp-text-muted">
             Choose how you appear to others — like Instagram. Your public link is
-            goalpost.app/u/yourname (on this site: /u/{username || "…"}).
+            checkmate.app/u/yourname (on this site: /u/{username || "…"}).
           </p>
           <AvatarUpload
             displayName={displayName || profile.displayName}
@@ -359,7 +359,7 @@ function ProfilePageContent() {
               Delete my account
             </button>
             <a
-              href="mailto:support@goalpost.app?subject=Report%20a%20problem"
+              href="mailto:support@checkmate.app?subject=Report%20a%20problem"
               className="text-sm gp-text-muted hover:text-[var(--gp-fg)] block"
             >
               Report a problem

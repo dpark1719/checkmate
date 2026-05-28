@@ -22,7 +22,7 @@ export async function getUserEmail(userId: string): Promise<string | null> {
 export async function sendEmail(payload: EmailPayload): Promise<boolean> {
   const apiKey = process.env.RESEND_API_KEY;
   const from =
-    process.env.EMAIL_FROM ?? "GoalPost <onboarding@resend.dev>";
+    process.env.EMAIL_FROM ?? "CheckMate <onboarding@resend.dev>";
 
   if (!apiKey) {
     if (process.env.NODE_ENV === "development") {
@@ -82,9 +82,9 @@ export async function sendCommentEmail(options: {
 
   await sendEmail({
     to: email,
-    subject: `${options.actorName} commented on your GoalPost`,
+    subject: `${options.actorName} commented on your CheckMate`,
     text: `${options.actorName} commented: "${preview}"\n\nView your feed: ${link}`,
-    html: `<p><strong>${escapeHtml(options.actorName)}</strong> commented on your post:</p><p>${escapeHtml(preview)}</p><p><a href="${link}">Open GoalPost</a></p>`,
+    html: `<p><strong>${escapeHtml(options.actorName)}</strong> commented on your post:</p><p>${escapeHtml(preview)}</p><p><a href="${link}">Open CheckMate</a></p>`,
   });
 }
 
@@ -108,7 +108,7 @@ export async function sendMessageEmail(options: {
 
   await sendEmail({
     to: email,
-    subject: `New message from ${options.actorName} on GoalPost`,
+    subject: `New message from ${options.actorName} on CheckMate`,
     text: `${options.actorName}: "${preview}"\n\nReply: ${link}`,
     html: `<p><strong>${escapeHtml(options.actorName)}</strong> sent you a message:</p><p>${escapeHtml(preview)}</p><p><a href="${link}">Open conversation</a></p>`,
   });

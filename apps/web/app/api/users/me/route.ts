@@ -1,5 +1,5 @@
-import { resolveAvatarUrl } from "@goalpost/server";
-import { sanitizeSocialLinks, updateProfileSchema } from "@goalpost/shared";
+import { resolveAvatarUrl } from "@checkmate/server";
+import { sanitizeSocialLinks, updateProfileSchema } from "@checkmate/shared";
 import { NextRequest } from "next/server";
 import { jsonError, jsonOk, toCamelCase } from "@/lib/api/response";
 import { getAuthUserFromRequest, getSupabaseForRequest } from "@/lib/supabase/auth";

@@ -1,5 +1,5 @@
 {
-  "name": "@goalpost/mobile",
+  "name": "@checkmate/mobile",
   "main": "expo-router/entry",
   "version": "1.0.0",
   "private": true,
@@ -12,8 +12,8 @@
     "lint": "tsc --noEmit"
   },
   "dependencies": {
-    "@goalpost/shared": "*",
-    "@goalpost/ui": "*",
+    "@checkmate/shared": "*",
+    "@checkmate/ui": "*",
     "@react-native-async-storage/async-storage": "^2.1.2",
     "@supabase/supabase-js": "^2.49.8",
     "expo": "~56.0.4",

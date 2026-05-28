@@ -1,6 +1,6 @@
 export type ThemeMode = "light" | "dark" | "system";
 
-export const THEME_STORAGE_KEY = "goalpost-theme";
+export const THEME_STORAGE_KEY = "checkmate-theme";
 
 export function resolveTheme(mode: ThemeMode): "light" | "dark" {
   if (mode === "light" || mode === "dark") return mode;

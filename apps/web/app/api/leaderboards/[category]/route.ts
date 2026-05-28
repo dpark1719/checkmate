@@ -1,5 +1,5 @@
-import { getLeaderboard } from "@goalpost/server";
-import { goalCategorySchema, leaderboardQuerySchema } from "@goalpost/shared";
+import { getLeaderboard } from "@checkmate/server";
+import { goalCategorySchema, leaderboardQuerySchema } from "@checkmate/shared";
 import { NextRequest } from "next/server";
 import { jsonError, jsonOk } from "@/lib/api/response";
 import { createClient, getAuthUser } from "@/lib/supabase/server";

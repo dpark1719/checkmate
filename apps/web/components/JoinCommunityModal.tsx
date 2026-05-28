@@ -1,6 +1,6 @@
 "use client";
 
-import type { GoalCategory } from "@goalpost/shared";
+import type { GoalCategory } from "@checkmate/shared";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 

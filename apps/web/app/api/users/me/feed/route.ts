@@ -1,4 +1,4 @@
-import { getHomeFeed } from "@goalpost/server";
+import { getHomeFeed } from "@checkmate/server";
 import { NextRequest } from "next/server";
 import { jsonError, jsonOk } from "@/lib/api/response";
 import { getAuthUserFromRequest, getSupabaseForRequest } from "@/lib/supabase/auth";

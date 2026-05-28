@@ -5,7 +5,7 @@ export default function HomePage() {
     <div className="min-h-screen flex flex-col items-center justify-center px-6">
       <div className="max-w-lg text-center space-y-6">
         <p className="text-accent font-semibold tracking-wide uppercase text-sm">
-          GoalPost
+          CheckMate
         </p>
         <h1 className="text-4xl sm:text-5xl font-bold tracking-tight">
           One photo. One promise. Every day.

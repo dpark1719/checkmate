@@ -1,6 +1,6 @@
-# Deploying GoalPost
+# Deploying CheckMate
 
-GoalPost has three deployable pieces:
+CheckMate has three deployable pieces:
 
 | Piece | Where it runs | You deploy it? |
 |-------|----------------|----------------|
@@ -43,10 +43,10 @@ Your project is already hosted at `https://nfpeasuabkwobyvocecc.supabase.co`.
 
 ### One-time setup
 
-1. Push the repo to GitHub: [github.com/dpark1719/GoalPost](https://github.com/dpark1719/GoalPost).
-2. Go to [vercel.com](https://vercel.com) → **Add New Project** → import **dpark1719/GoalPost**.
+1. Push the repo to GitHub: [github.com/dpark1719/CheckMate](https://github.com/dpark1719/CheckMate).
+2. Go to [vercel.com](https://vercel.com) → **Add New Project** → import **dpark1719/CheckMate**.
 3. **Root Directory**: `apps/web`
-4. Enable **“Include source files outside of the Root Directory”** (required for `@goalpost/shared` and `@goalpost/server`).
+4. Enable **“Include source files outside of the Root Directory”** (required for `@checkmate/shared` and `@checkmate/server`).
 5. Framework: **Next.js** (auto-detected).
 
 `apps/web/vercel.json` sets install/build to run from the monorepo root.
@@ -88,7 +88,7 @@ vercel --prod
 
 ```bash
 npm install
-npm run build --workspace=@goalpost/web
+npm run build --workspace=@checkmate/web
 cd apps/web && npm run start
 ```
 
@@ -130,9 +130,9 @@ EXPO_PUBLIC_API_URL=https://your-app.vercel.app
 
 Add to Supabase **Redirect URLs** (for deep links when you configure them):
 
-- `goalpost://auth/callback` (example — match your `scheme` in `app.json`)
+- `checkmate://auth/callback` (example — match your `scheme` in `app.json`)
 
-Update `app.json` `scheme` to something stable (e.g. `goalpost`) before store submission.
+Update `app.json` `scheme` to something stable (e.g. `checkmate`) before store submission.
 
 ### Build with EAS
 
@@ -152,8 +152,8 @@ Apple/Google sign-in for mobile need extra OAuth client IDs and redirect URIs in
 
 ## 5. Custom domain (optional)
 
-1. Vercel → Project → **Domains** → add `goalpost.com` (example).
-2. Set `NEXT_PUBLIC_APP_URL=https://goalpost.com` and redeploy.
+1. Vercel → Project → **Domains** → add `checkmate.com` (example).
+2. Set `NEXT_PUBLIC_APP_URL=https://checkmate.com` and redeploy.
 3. Update Supabase **Site URL** and **Redirect URLs** to the custom domain.
 4. Update Inngest serve URL if you use a custom domain.
 

@@ -1,5 +1,5 @@
 {
-  "name": "@goalpost/server",
+  "name": "@checkmate/server",
   "version": "0.0.1",
   "private": true,
   "main": "./src/index.ts",
@@ -8,7 +8,7 @@
     ".": "./src/index.ts"
   },
   "dependencies": {
-    "@goalpost/shared": "*",
+    "@checkmate/shared": "*",
     "@supabase/supabase-js": "^2.49.8"
   },
   "devDependencies": {

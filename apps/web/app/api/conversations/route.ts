@@ -1,4 +1,4 @@
-import { resolveAvatarUrl } from "@goalpost/server";
+import { resolveAvatarUrl } from "@checkmate/server";
 import { jsonError, jsonOk, toCamelCase } from "@/lib/api/response";
 import { getAuthUserFromRequest, getSupabaseForRequest } from "@/lib/supabase/auth";
 import { NextRequest } from "next/server";

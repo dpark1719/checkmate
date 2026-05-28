@@ -1,5 +1,5 @@
-import { pruneOrphanDailyChallenges } from "@goalpost/server";
-import { updateGoalSchema } from "@goalpost/shared";
+import { pruneOrphanDailyChallenges } from "@checkmate/server";
+import { updateGoalSchema } from "@checkmate/shared";
 import { NextRequest } from "next/server";
 import { jsonError, jsonOk, toCamelCase } from "@/lib/api/response";
 import { hasDuplicateActiveGoalTitle } from "@/lib/goals";

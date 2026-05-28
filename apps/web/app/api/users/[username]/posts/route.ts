@@ -1,4 +1,4 @@
-import { getUserPosts } from "@goalpost/server";
+import { getUserPosts } from "@checkmate/server";
 import { NextRequest } from "next/server";
 import { jsonError, jsonOk } from "@/lib/api/response";
 import { createClient } from "@/lib/supabase/server";

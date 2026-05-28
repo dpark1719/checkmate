@@ -1,6 +1,6 @@
 "use client";
 
-import { GOAL_CATEGORIES, type GoalCategory } from "@goalpost/shared";
+import { GOAL_CATEGORIES, type GoalCategory } from "@checkmate/shared";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -23,7 +23,7 @@ export default function OnboardingPage() {
     const minAge = region === "eu" ? 16 : 13;
     const age = new Date().getFullYear() - year;
     if (age < minAge) {
-      setError(`You must be at least ${minAge} years old to use GoalPost.`);
+      setError(`You must be at least ${minAge} years old to use CheckMate.`);
       return;
     }
 
