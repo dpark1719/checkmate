@@ -1,13 +1,22 @@
 "use client";
 
+import {
+  readRememberMeFromClient,
+  setRememberMeClientCookie,
+} from "@/lib/auth/remember-me";
 import { createClient } from "@/lib/supabase/client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type Mode = "login" | "signup";
 
 export function AuthForm({ mode }: { mode: Mode }) {
   const [message, setMessage] = useState<string | null>(null);
   const [messageIsError, setMessageIsError] = useState(false);
+  const [stayLoggedIn, setStayLoggedIn] = useState(true);
+
+  useEffect(() => {
+    setStayLoggedIn(readRememberMeFromClient());
+  }, []);
 
   // Prefer live browser origin on deployed site so OAuth isn't sent to localhost
   // if NEXT_PUBLIC_APP_URL wasn't updated in Vercel yet.
@@ -21,9 +30,14 @@ export function AuthForm({ mode }: { mode: Mode }) {
   // Base path only — Supabase allow-list must include this URL (or https://yoursite.com/**)
   const redirectTo = `${appBase}/auth/callback?next=/onboarding`;
 
+  function applyRememberMePreference() {
+    setRememberMeClientCookie(stayLoggedIn);
+  }
+
   async function signInWithGoogle() {
     setMessage(null);
     setMessageIsError(false);
+    applyRememberMePreference();
     const supabase = createClient();
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
@@ -41,6 +55,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
   async function signInWithApple() {
     setMessage(null);
     setMessageIsError(false);
+    applyRememberMePreference();
     const supabase = createClient();
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "apple",
@@ -64,6 +79,20 @@ export function AuthForm({ mode }: { mode: Mode }) {
             : "Start documenting your goals today."}
         </p>
       </div>
+
+      <label className="flex items-center gap-2 text-sm gp-text-muted cursor-pointer select-none">
+        <input
+          type="checkbox"
+          checked={stayLoggedIn}
+          onChange={(e) => {
+            const next = e.target.checked;
+            setStayLoggedIn(next);
+            setRememberMeClientCookie(next);
+          }}
+          className="rounded border-[var(--gp-border)] accent-[var(--accent)]"
+        />
+        Stay logged in on this device
+      </label>
 
       <div className="space-y-2">
         <button

@@ -31,7 +31,7 @@ export function SocialLinksDisplay({ links }: { links: SocialLinks | null | unde
             {...(isEmail
               ? {}
               : { target: "_blank", rel: "noopener noreferrer" })}
-            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[var(--gp-border)] text-[var(--gp-fg)] hover:bg-[var(--gp-surface)] hover:border-accent/50 hover:text-accent transition-colors"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[var(--gp-border)] bg-[var(--gp-card)] hover:bg-[var(--gp-surface)] hover:border-accent/50 transition-colors"
           >
             <SocialLinkIcon platformId={platform.id} />
           </a>

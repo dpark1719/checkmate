@@ -8,6 +8,7 @@ import {
   SocialLinksEditor,
   socialLinksToFormState,
 } from "@/components/SocialLinksEditor";
+import { ProfilePostsGallery } from "@/components/ProfilePostsGallery";
 import { SocialLinksDisplay } from "@/components/SocialLinksDisplay";
 import {
   GOAL_CATEGORIES,
@@ -198,6 +199,12 @@ function ProfilePageContent() {
             <p className="text-xs gp-text-muted">Timezone: {profile.timezone}</p>
             <SocialLinksDisplay links={profile.socialLinks} />
           </div>
+
+          <section className="space-y-3">
+            <h2 className="text-lg font-semibold">Posts</h2>
+            <ProfilePostsGallery username={profile.username} />
+          </section>
+
           <div className="flex flex-col gap-2 text-sm">
             <Link
               href={`/u/${profile.username}`}

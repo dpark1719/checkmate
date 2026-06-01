@@ -3,7 +3,7 @@
 import { PromiseCountdown } from "@/components/PromiseCountdown";
 import { compressImageForUpload } from "@/lib/compress-image";
 import { formatDefaultPromiseTime } from "@/lib/goal-titles";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface Challenge {
   id: string;
@@ -21,6 +21,16 @@ interface Challenge {
   };
 }
 
+function resetUploadState(setters: {
+  setPreview: (v: string | null) => void;
+  setPhotoPath: (v: string | null) => void;
+  setCaption: (v: string) => void;
+}) {
+  setters.setPreview(null);
+  setters.setPhotoPath(null);
+  setters.setCaption("");
+}
+
 export function PostChallengeCard({
   challenge,
   onPosted,
@@ -30,6 +40,7 @@ export function PostChallengeCard({
   onPosted: () => void;
   duplicateTitle?: boolean;
 }) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [caption, setCaption] = useState("");
   const [uploading, setUploading] = useState(false);
   const [posting, setPosting] = useState(false);
@@ -40,17 +51,22 @@ export function PostChallengeCard({
     challenge.postId ?? null
   );
   const [deleting, setDeleting] = useState(false);
+  /** After delete, ignore stale postedAt until parent reloads */
+  const [dismissedPosted, setDismissedPosted] = useState(false);
 
   const title = challenge.goals?.title ?? "Goal";
   const defaultTime =
     challenge.goals?.defaultPromiseTime ??
     challenge.goals?.default_promise_time;
-  const done = Boolean(challenge.postedAt);
+  const done = Boolean(challenge.postedAt) && !dismissedPosted;
   const canDelete = Boolean(postedPostId) || Boolean(challenge.postId);
 
   useEffect(() => {
+    if (!challenge.postedAt) {
+      setDismissedPosted(false);
+    }
     if (challenge.postId) setPostedPostId(challenge.postId);
-  }, [challenge.postId]);
+  }, [challenge.postedAt, challenge.postId]);
 
   async function handleFile(file: File) {
     setUploading(true);
@@ -103,6 +119,7 @@ export function PostChallengeCard({
     }
     const postId = data.post?.id as string | undefined;
     if (postId) setPostedPostId(postId);
+    setDismissedPosted(false);
     onPosted();
   }
 
@@ -112,7 +129,9 @@ export function PostChallengeCard({
       setError("Could not find post id. Refresh the page and try again.");
       return;
     }
-    if (!window.confirm("Delete this post?")) return;
+    if (!window.confirm("Delete this post? You can upload a new one after.")) {
+      return;
+    }
     setDeleting(true);
     setError(null);
     const res = await fetch(`/api/posts/${id}`, { method: "DELETE" });
@@ -123,6 +142,9 @@ export function PostChallengeCard({
       return;
     }
     setPostedPostId(null);
+    setDismissedPosted(true);
+    resetUploadState({ setPreview, setPhotoPath, setCaption });
+    if (fileInputRef.current) fileInputRef.current.value = "";
     onPosted();
   }
 
@@ -154,13 +176,13 @@ export function PostChallengeCard({
         )}
       </div>
 
-      {!done && (
-        <PromiseCountdown expiresAt={challenge.leewayExpiresAt} />
-      )}
+      {!done && <PromiseCountdown expiresAt={challenge.leewayExpiresAt} />}
 
       {!done && challenge.triggerFiredAt && (
         <div>
-          <label className="text-sm gp-text-muted block mb-1">Promise time today</label>
+          <label className="text-sm gp-text-muted block mb-1">
+            Promise time today
+          </label>
           <input
             type="datetime-local"
             defaultValue={
@@ -197,7 +219,8 @@ export function PostChallengeCard({
                       (c: { id: string }) => c.id === challenge.id
                     );
                     if (match?.postId) setPostedPostId(match.postId);
-                    else setError("Post id not found. Try refreshing the page.");
+                    else
+                      setError("Post id not found. Try refreshing the page.");
                   });
               }}
               className="text-xs text-accent hover:underline"
@@ -208,22 +231,53 @@ export function PostChallengeCard({
         </div>
       ) : (
         <>
-          {preview && (
-            <img
-              src={preview}
-              alt="Preview"
-              className="rounded-lg w-full max-h-64 object-cover"
-            />
+          {preview ? (
+            <div className="relative rounded-lg overflow-hidden border border-[var(--gp-border)]">
+              <img
+                src={preview}
+                alt="Preview"
+                className="w-full max-h-64 object-cover"
+              />
+            </div>
+          ) : (
+            <div
+              className="rounded-xl border-2 border-dashed border-accent/50 bg-[var(--gp-accent-subtle)]/40 p-6 text-center"
+              role="presentation"
+            >
+              <p className="text-sm font-medium text-[var(--gp-fg)]">
+                Add today&apos;s photo
+              </p>
+              <p className="text-xs gp-text-muted mt-1">
+                JPEG, PNG, or WebP
+              </p>
+            </div>
           )}
+
           <input
+            ref={fileInputRef}
             type="file"
             accept="image/jpeg,image/png,image/webp"
+            className="hidden"
             onChange={(e) => {
               const f = e.target.files?.[0];
               if (f) handleFile(f);
+              e.target.value = "";
             }}
-            className="text-sm gp-text-muted"
           />
+
+          <button
+            type="button"
+            disabled={uploading}
+            onClick={() => fileInputRef.current?.click()}
+            className="w-full rounded-lg bg-accent text-accent-foreground font-semibold py-3 hover:opacity-90 disabled:opacity-50 transition-opacity"
+          >
+            {uploading
+              ? "Uploading…"
+              : preview
+                ? "Change photo"
+                : "Choose photo"}
+          </button>
+
           <textarea
             value={caption}
             onChange={(e) => setCaption(e.target.value)}
@@ -235,9 +289,9 @@ export function PostChallengeCard({
             type="button"
             disabled={uploading || posting || !photoPath}
             onClick={submitPost}
-            className="w-full rounded-lg bg-accent text-accent-foreground font-semibold py-2.5 disabled:opacity-50"
+            className="w-full rounded-lg border-2 border-accent text-accent font-semibold py-2.5 hover:bg-[var(--gp-accent-subtle)] disabled:opacity-50 disabled:border-[var(--gp-border)] disabled:text-[var(--gp-muted)]"
           >
-            {uploading ? "Uploading…" : posting ? "Posting…" : "Post"}
+            {posting ? "Posting…" : "Post"}
           </button>
         </>
       )}

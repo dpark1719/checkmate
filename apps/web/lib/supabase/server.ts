@@ -1,8 +1,16 @@
+import {
+  isRememberMeEnabled,
+  REMEMBER_ME_COOKIE,
+  withAuthCookieMaxAge,
+} from "@/lib/auth/remember-me";
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
 export async function createClient() {
   const cookieStore = await cookies();
+  const remember = isRememberMeEnabled(
+    cookieStore.get(REMEMBER_ME_COOKIE)?.value
+  );
 
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -15,7 +23,7 @@ export async function createClient() {
         setAll(cookiesToSet: { name: string; value: string; options: CookieOptions }[]) {
           try {
             cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options)
+              cookieStore.set(name, value, withAuthCookieMaxAge(options, remember))
             );
           } catch {
             // Called from Server Component — ignore
