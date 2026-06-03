@@ -6,7 +6,9 @@ import {
   formatDefaultPromiseTime,
   isDuplicateGoalTitle,
 } from "@/lib/goal-titles";
-import { useEffect, useMemo, useState } from "react";
+import { formatPostDateTime } from "@/lib/format-datetime";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 interface Goal {
   id: string;
@@ -16,6 +18,10 @@ interface Goal {
   isActive: boolean;
 }
 
+interface ArchivedGoal extends Goal {
+  archivedAt: string;
+}
+
 function formatTimeForInput(t: string) {
   const parts = t.split(":");
   if (parts.length >= 2) return `${parts[0]}:${parts[1]}`;
@@ -23,7 +29,12 @@ function formatTimeForInput(t: string) {
 }
 
 export default function GoalsPage() {
+  const router = useRouter();
   const [goals, setGoals] = useState<Goal[]>([]);
+  const [archivedGoals, setArchivedGoals] = useState<ArchivedGoal[]>([]);
+  const [showArchived, setShowArchived] = useState(false);
+  const [archivedLoading, setArchivedLoading] = useState(false);
+  const [restoringId, setRestoringId] = useState<string | null>(null);
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState<GoalCategory>("fitness");
   const [error, setError] = useState<string | null>(null);
@@ -39,9 +50,22 @@ export default function GoalsPage() {
       .catch(() => setError("Could not load goals"));
   }
 
+  const loadArchivedGoals = useCallback(() => {
+    setArchivedLoading(true);
+    fetch("/api/goals?archived=true")
+      .then((r) => r.json())
+      .then((data) => setArchivedGoals(data.goals ?? []))
+      .catch(() => setError("Could not load archived goals"))
+      .finally(() => setArchivedLoading(false));
+  }, []);
+
   useEffect(() => {
     loadGoals();
   }, []);
+
+  useEffect(() => {
+    if (showArchived) loadArchivedGoals();
+  }, [showArchived, loadArchivedGoals]);
 
   const titleCounts = useMemo(
     () => countGoalTitles(goals.map((g) => g.title)),
@@ -104,7 +128,7 @@ export default function GoalsPage() {
   async function deleteGoal(id: string, goalTitle: string) {
     if (
       !window.confirm(
-        `Remove "${goalTitle}"? It will be archived and hidden from your active goals.`
+        `Remove "${goalTitle}"? It will be archived — you can restore it from Archived goals.`
       )
     ) {
       return;
@@ -118,12 +142,45 @@ export default function GoalsPage() {
     }
     if (editingId === id) setEditingId(null);
     loadGoals();
+    if (showArchived) loadArchivedGoals();
+  }
+
+  async function restoreGoal(id: string) {
+    setRestoringId(id);
+    setError(null);
+    const res = await fetch(`/api/goals/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ isActive: true }),
+    });
+    const data = await res.json();
+    setRestoringId(null);
+    if (!res.ok) {
+      setError(data.error ?? "Could not restore goal");
+      return;
+    }
+    loadGoals();
+    loadArchivedGoals();
   }
 
   return (
     <div className="space-y-8">
-      <h1 className="text-2xl font-bold">Your goals</h1>
-      <p className="text-sm gp-text-muted">Up to 5 active goals. Tap a goal to edit or remove.</p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold">Your goals</h1>
+          <p className="text-sm gp-text-muted mt-1">
+            Up to 5 active goals. Tap a goal to see check-ins. Use Edit to change
+            details. Removed goals can be restored from Archived goals.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => setShowArchived((v) => !v)}
+          className="gp-btn-text-neutral shrink-0"
+        >
+          {showArchived ? "Hide archived" : "Archived goals"}
+        </button>
+      </div>
 
       {error && <p className="text-sm text-red-400">{error}</p>}
 
@@ -207,8 +264,8 @@ export default function GoalsPage() {
               <div className="flex items-center gap-3 px-4 py-3">
                 <button
                   type="button"
-                  onClick={() => startEdit(g)}
-                  className="flex-1 text-left min-w-0"
+                  onClick={() => router.push(`/goals/${g.id}`)}
+                  className="flex-1 text-left min-w-0 rounded-lg border border-[var(--gp-border)] px-3 py-2 hover:bg-[var(--gp-surface)] hover:border-[var(--gp-muted)] transition-colors"
                 >
                   <p className="font-medium truncate">{g.title}</p>
                   <p className="text-sm gp-text-muted capitalize">
@@ -224,14 +281,14 @@ export default function GoalsPage() {
                 <button
                   type="button"
                   onClick={() => startEdit(g)}
-                  className="text-sm text-accent hover:underline shrink-0"
+                  className="gp-btn-text gp-btn-text-xs shrink-0"
                 >
                   Edit
                 </button>
                 <button
                   type="button"
                   onClick={() => deleteGoal(g.id, g.title)}
-                  className="text-sm text-red-400 hover:underline shrink-0"
+                  className="gp-btn-text-danger gp-btn-text-xs shrink-0"
                 >
                   Remove
                 </button>
@@ -240,6 +297,51 @@ export default function GoalsPage() {
           </li>
         ))}
       </ul>
+
+      {showArchived && (
+        <section className="space-y-3 border-t border-[var(--gp-border)] pt-6">
+          <h2 className="text-lg font-semibold">Archived goals</h2>
+          {archivedLoading ? (
+            <p className="gp-text-muted text-sm">Loading archived goals…</p>
+          ) : archivedGoals.length === 0 ? (
+            <p className="gp-text-muted text-sm">No archived goals.</p>
+          ) : (
+            <ul className="space-y-3">
+              {archivedGoals.map((g) => (
+                <li
+                  key={g.id}
+                  className="flex flex-wrap items-center gap-3 px-4 py-3 rounded-xl border border-[var(--gp-border)] bg-[var(--gp-surface)]/50"
+                >
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium truncate">{g.title}</p>
+                    <p className="text-sm gp-text-muted capitalize">
+                      {g.category}
+                      {g.archivedAt
+                        ? ` · Archived ${formatPostDateTime(g.archivedAt)}`
+                        : ""}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => router.push(`/goals/${g.id}`)}
+                    className="gp-btn-text-neutral gp-btn-text-xs shrink-0"
+                  >
+                    View check-ins
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => void restoreGoal(g.id)}
+                    disabled={restoringId === g.id}
+                    className="gp-btn-text gp-btn-text-xs shrink-0 disabled:opacity-50"
+                  >
+                    {restoringId === g.id ? "Restoring…" : "Restore"}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      )}
     </div>
   );
 }

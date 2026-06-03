@@ -1,17 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
-
-interface GalleryPost {
-  id: string;
-  photoUrl: string;
-}
+import {
+  PostThumbnailGrid,
+  type ThumbnailPost,
+} from "@/components/PostThumbnailGrid";
+import { useCallback, useEffect, useState } from "react";
 
 export function ProfilePostsGallery({ username }: { username: string }) {
-  const [posts, setPosts] = useState<GalleryPost[]>([]);
+  const [posts, setPosts] = useState<ThumbnailPost[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const loadPosts = useCallback(() => {
     if (!username) return;
     setLoading(true);
     fetch(`/api/users/${encodeURIComponent(username)}/posts`)
@@ -20,6 +19,10 @@ export function ProfilePostsGallery({ username }: { username: string }) {
       .catch(() => setPosts([]))
       .finally(() => setLoading(false));
   }, [username]);
+
+  useEffect(() => {
+    loadPosts();
+  }, [loadPosts]);
 
   if (loading) {
     return <p className="gp-text-muted text-sm">Loading posts…</p>;
@@ -34,19 +37,6 @@ export function ProfilePostsGallery({ username }: { username: string }) {
   }
 
   return (
-    <div className="grid grid-cols-3 gap-1 sm:gap-1.5">
-      {posts.map((post) => (
-        <div
-          key={post.id}
-          className="relative aspect-square overflow-hidden rounded-md bg-[var(--gp-card)]"
-        >
-          <img
-            src={post.photoUrl}
-            alt=""
-            className="w-full h-full object-cover"
-          />
-        </div>
-      ))}
-    </div>
+    <PostThumbnailGrid posts={posts} onPostUpdated={() => loadPosts()} />
   );
 }

@@ -81,7 +81,7 @@ export default function CommunityFeedPage() {
         <button
           type="button"
           onClick={load}
-          className="text-sm text-accent hover:underline"
+          className="gp-btn-text"
         >
           Refresh
         </button>
@@ -108,7 +108,7 @@ export default function CommunityFeedPage() {
             </p>
           )}
           {!status.joined && (
-            <Link href="/discover" className="text-accent underline mt-2 inline-block">
+            <Link href="/discover" className="gp-btn-text mt-2">
               Join on Discover →
             </Link>
           )}
@@ -124,13 +124,13 @@ export default function CommunityFeedPage() {
           <p>No posts in this feed yet.</p>
           <ul className="list-disc list-inside gp-text-subtle space-y-1">
             <li>
-              <Link href="/discover" className="text-accent underline">
+              <Link href="/discover" className="gp-btn-text">
                 Join
               </Link>{" "}
               the community and pick a goal
             </li>
             <li>
-              <Link href="/post" className="text-accent underline">
+              <Link href="/post" className="gp-btn-text">
                 Post
               </Link>{" "}
               a photo for a <span className="capitalize">{category}</span> goal

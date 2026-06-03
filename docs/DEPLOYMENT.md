@@ -78,7 +78,7 @@ Do **not** commit `.env` to git.
 
 ```bash
 npm i -g vercel
-cd /path/to/P4
+cd /path/to/CheckMate
 vercel link          # link to project, root = apps/web when prompted
 vercel env pull apps/web/.env.local   # optional: pull env for local prod build
 vercel --prod

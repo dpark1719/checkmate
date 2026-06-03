@@ -1,5 +1,6 @@
 "use client";
 
+import { AvatarCropModal } from "@/components/AvatarCropModal";
 import { UserAvatar } from "@/components/UserAvatar";
 import { compressImageForUpload } from "@/lib/compress-image";
 import { useEffect, useRef, useState } from "react";
@@ -15,6 +16,7 @@ export function AvatarUpload({
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(avatarUrl);
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -22,7 +24,7 @@ export function AvatarUpload({
     setPreview(avatarUrl);
   }, [avatarUrl]);
 
-  async function handleFile(file: File) {
+  async function uploadFile(file: File) {
     setUploading(true);
     setError(null);
     try {
@@ -36,7 +38,9 @@ export function AvatarUpload({
       const res = await fetch("/api/upload/avatar", { method: "POST", body: form });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error ?? "Upload failed");
+        const msg = data.error ?? "Upload failed";
+        const code = data.code as string | undefined;
+        setError(code ? `${msg} (${code})` : msg);
         return;
       }
       const url = data.avatarUrl as string;
@@ -66,49 +70,62 @@ export function AvatarUpload({
   }
 
   return (
-    <div className="flex flex-col items-center gap-3 sm:flex-row sm:items-start">
-      <UserAvatar
-        displayName={displayName}
-        avatarUrl={preview}
-        size="lg"
-      />
-      <div className="flex flex-col gap-2 text-center sm:text-left">
-        <input
-          ref={inputRef}
-          type="file"
-          accept="image/jpeg,image/png,image/webp"
-          className="hidden"
-          onChange={(e) => {
-            const f = e.target.files?.[0];
-            if (f) handleFile(f);
-            e.target.value = "";
-          }}
+    <>
+      <div className="flex flex-col items-center gap-3 sm:flex-row sm:items-start">
+        <UserAvatar
+          displayName={displayName}
+          avatarUrl={preview}
+          size="lg"
         />
-        <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
-          <button
-            type="button"
-            disabled={uploading}
-            onClick={() => inputRef.current?.click()}
-            className="rounded-lg bg-accent text-accent-foreground font-semibold px-4 py-2 text-sm disabled:opacity-50"
-          >
-            {uploading ? "Uploading…" : preview ? "Change photo" : "Upload photo"}
-          </button>
-          {preview && (
+        <div className="flex flex-col gap-2 text-center sm:text-left">
+          <input
+            ref={inputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            className="hidden"
+            onChange={(e) => {
+              const f = e.target.files?.[0];
+              if (f) setPendingFile(f);
+              e.target.value = "";
+            }}
+          />
+          <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
             <button
               type="button"
               disabled={uploading}
-              onClick={removePhoto}
-              className="rounded-lg border border-[var(--gp-border)] px-4 py-2 text-sm hover:bg-[var(--gp-surface)] disabled:opacity-50"
+              onClick={() => inputRef.current?.click()}
+              className="rounded-lg bg-accent text-accent-foreground font-semibold px-4 py-2 text-sm disabled:opacity-50"
             >
-              Remove
+              {uploading ? "Uploading…" : preview ? "Change photo" : "Upload photo"}
             </button>
-          )}
+            {preview && (
+              <button
+                type="button"
+                disabled={uploading}
+                onClick={removePhoto}
+                className="rounded-lg border border-[var(--gp-border)] px-4 py-2 text-sm hover:bg-[var(--gp-surface)] disabled:opacity-50"
+              >
+                Remove
+              </button>
+            )}
+          </div>
+          <p className="text-xs gp-text-muted max-w-xs">
+            Drag and zoom to fit your photo inside the circle before saving.
+          </p>
+          {error && <p className="text-xs text-red-400">{error}</p>}
         </div>
-        <p className="text-xs gp-text-muted max-w-xs">
-          Square photos work best. We resize to 512px and compress before upload.
-        </p>
-        {error && <p className="text-xs text-red-400">{error}</p>}
       </div>
-    </div>
+
+      {pendingFile && (
+        <AvatarCropModal
+          file={pendingFile}
+          onClose={() => setPendingFile(null)}
+          onConfirm={(cropped) => {
+            setPendingFile(null);
+            void uploadFile(cropped);
+          }}
+        />
+      )}
+    </>
   );
 }

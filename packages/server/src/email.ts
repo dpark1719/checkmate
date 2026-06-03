@@ -8,7 +8,7 @@ export interface EmailPayload {
 }
 
 export function getAppUrl(): string {
-  const url = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+  const url = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3004";
   return url.replace(/\/$/, "");
 }
 

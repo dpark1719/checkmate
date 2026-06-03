@@ -9,3 +9,14 @@ export const createPostSchema = z.object({
 });
 
 export type CreatePostInput = z.infer<typeof createPostSchema>;
+
+export const updatePostSchema = z
+  .object({
+    caption: z.string().max(280).nullable().optional(),
+    photoUrl: z.string().min(1).optional(),
+  })
+  .refine((data) => data.caption !== undefined || data.photoUrl !== undefined, {
+    message: "At least one field must be provided",
+  });
+
+export type UpdatePostInput = z.infer<typeof updatePostSchema>;

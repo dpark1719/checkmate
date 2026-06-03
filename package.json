@@ -11,6 +11,7 @@
     "build": "turbo run build",
     "lint": "turbo run lint",
     "dev:web": "npm run dev --workspace=@checkmate/web",
+    "dev:web:clean": "kill $(lsof -ti :3004) 2>/dev/null; sleep 1; rm -rf apps/web/.next && npm run dev --workspace=@checkmate/web",
     "dev:mobile": "npm run dev --workspace=@checkmate/mobile"
   },
   "devDependencies": {

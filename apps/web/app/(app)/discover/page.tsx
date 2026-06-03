@@ -105,7 +105,7 @@ export default function DiscoverPage() {
                       type="button"
                       disabled={loading === c.category}
                       onClick={() => openJoin(c.category as GoalCategory)}
-                      className="flex-1 min-w-[7rem] rounded-lg bg-[var(--gp-accent-subtle)] text-accent border border-accent/40 py-2 text-sm font-medium hover:bg-accent/20 disabled:opacity-50"
+                      className="gp-btn-text gp-btn-text-xs min-w-[7rem] flex-1"
                     >
                       Change goal
                     </button>
@@ -113,7 +113,7 @@ export default function DiscoverPage() {
                       type="button"
                       disabled={loading === c.category}
                       onClick={() => leave(c.category as GoalCategory)}
-                      className="rounded-lg border border-[var(--gp-border)] px-3 py-2 text-sm gp-text-muted hover:bg-[var(--gp-card)] disabled:opacity-50"
+                      className="gp-btn-text-neutral gp-btn-text-xs shrink-0 disabled:opacity-50"
                     >
                       Leave
                     </button>
@@ -130,7 +130,7 @@ export default function DiscoverPage() {
                 )}
                 <Link
                   href={`/discover/${c.category}`}
-                  className="rounded-lg border border-[var(--gp-border)] px-3 py-2 text-sm hover:bg-[var(--gp-card)]"
+                  className="gp-btn-text-neutral gp-btn-text-xs shrink-0"
                 >
                   Feed
                 </Link>

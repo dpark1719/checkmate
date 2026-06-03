@@ -91,7 +91,7 @@ export function JoinCommunityModal({
             </p>
             <Link
               href="/goals"
-              className="inline-block text-accent hover:underline"
+              className="gp-btn-text"
               onClick={onClose}
             >
               Create a goal →

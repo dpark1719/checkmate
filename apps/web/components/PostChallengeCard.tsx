@@ -59,7 +59,6 @@ export function PostChallengeCard({
     challenge.goals?.defaultPromiseTime ??
     challenge.goals?.default_promise_time;
   const done = Boolean(challenge.postedAt) && !dismissedPosted;
-  const canDelete = Boolean(postedPostId) || Boolean(challenge.postId);
 
   useEffect(() => {
     if (!challenge.postedAt) {
@@ -67,6 +66,32 @@ export function PostChallengeCard({
     }
     if (challenge.postId) setPostedPostId(challenge.postId);
   }, [challenge.postedAt, challenge.postId]);
+
+  useEffect(() => {
+    if (!done || postedPostId || challenge.postId) return;
+    fetch("/api/challenges/today")
+      .then((r) => r.json())
+      .then((d) => {
+        const match = (d.challenges ?? []).find(
+          (c: { id: string; postId?: string }) => c.id === challenge.id
+        );
+        if (match?.postId) setPostedPostId(match.postId);
+      })
+      .catch(() => {});
+  }, [done, postedPostId, challenge.postId, challenge.id]);
+
+  async function resolvePostId(): Promise<string | null> {
+    if (postedPostId) return postedPostId;
+    if (challenge.postId) return challenge.postId;
+    const res = await fetch("/api/challenges/today");
+    const data = await res.json();
+    const match = (data.challenges ?? []).find(
+      (c: { id: string; postId?: string }) => c.id === challenge.id
+    );
+    const id = (match?.postId as string | undefined) ?? null;
+    if (id) setPostedPostId(id);
+    return id;
+  }
 
   async function handleFile(file: File) {
     setUploading(true);
@@ -124,9 +149,9 @@ export function PostChallengeCard({
   }
 
   async function deletePost() {
-    const id = postedPostId ?? challenge.postId;
+    const id = await resolvePostId();
     if (!id) {
-      setError("Could not find post id. Refresh the page and try again.");
+      setError("Could not delete yet. Try again in a moment.");
       return;
     }
     if (!window.confirm("Delete this post? You can upload a new one after.")) {
@@ -199,57 +224,24 @@ export function PostChallengeCard({
       {done ? (
         <div className="flex items-center justify-between gap-2 flex-wrap">
           <p className="text-accent text-sm font-medium">Posted ✓</p>
-          {canDelete ? (
-            <button
-              type="button"
-              onClick={deletePost}
-              disabled={deleting}
-              className="text-sm text-red-400 hover:underline disabled:opacity-50"
-            >
-              {deleting ? "Deleting…" : "Delete post"}
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={() => {
-                fetch("/api/challenges/today")
-                  .then((r) => r.json())
-                  .then((d) => {
-                    const match = (d.challenges ?? []).find(
-                      (c: { id: string }) => c.id === challenge.id
-                    );
-                    if (match?.postId) setPostedPostId(match.postId);
-                    else
-                      setError("Post id not found. Try refreshing the page.");
-                  });
-              }}
-              className="text-xs text-accent hover:underline"
-            >
-              Load delete
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={deletePost}
+            disabled={deleting}
+            className="gp-btn-text-danger gp-btn-text-xs disabled:opacity-50"
+          >
+            {deleting ? "Deleting…" : "Delete post"}
+          </button>
         </div>
       ) : (
         <>
-          {preview ? (
+          {preview && (
             <div className="relative rounded-lg overflow-hidden border border-[var(--gp-border)]">
               <img
                 src={preview}
                 alt="Preview"
                 className="w-full max-h-64 object-cover"
               />
-            </div>
-          ) : (
-            <div
-              className="rounded-xl border-2 border-dashed border-accent/50 bg-[var(--gp-accent-subtle)]/40 p-6 text-center"
-              role="presentation"
-            >
-              <p className="text-sm font-medium text-[var(--gp-fg)]">
-                Add today&apos;s photo
-              </p>
-              <p className="text-xs gp-text-muted mt-1">
-                JPEG, PNG, or WebP
-              </p>
             </div>
           )}
 

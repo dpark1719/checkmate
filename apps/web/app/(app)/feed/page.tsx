@@ -18,6 +18,7 @@ interface FeedPost {
   } | null;
   goal: { title: string; category: string } | null;
   reactions: { type: string; user_id: string }[];
+  isFollowingAuthor?: boolean;
 }
 
 export default function FeedPage() {
@@ -38,7 +39,7 @@ export default function FeedPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Feed</h1>
-        <Link href="/post" className="text-sm text-accent hover:underline">
+        <Link href="/post" className="gp-btn-text">
           Post today →
         </Link>
       </div>
@@ -50,10 +51,7 @@ export default function FeedPage() {
           <p className="gp-text-muted">
             Your feed is empty. Follow people or join a community in Discover.
           </p>
-          <Link
-            href="/discover"
-            className="inline-block text-accent hover:underline"
-          >
+          <Link href="/discover" className="gp-btn-text">
             Discover communities
           </Link>
         </div>

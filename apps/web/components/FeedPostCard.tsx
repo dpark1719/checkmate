@@ -25,6 +25,7 @@ interface FeedPost {
   } | null;
   goal: { title: string; category: string } | null;
   reactions: { type: string; user_id: string }[];
+  isFollowingAuthor?: boolean;
 }
 
 function reactionMatches(type: ReactionType, stored: string) {
@@ -44,7 +45,8 @@ export function FeedPostCard({
   openMessagingOnClick?: boolean;
 }) {
   const [reactions, setReactions] = useState(post.reactions);
-  const [following, setFollowing] = useState(false);
+  const [connected, setConnected] = useState(post.isFollowingAuthor ?? false);
+  const [connecting, setConnecting] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
@@ -52,6 +54,10 @@ export function FeedPostCard({
   const [detailOpen, setDetailOpen] = useState(false);
 
   const isOwner = currentUserId === post.userId;
+
+  useEffect(() => {
+    setConnected(post.isFollowingAuthor ?? false);
+  }, [post.isFollowingAuthor]);
 
   useEffect(() => {
     fetch("/api/users/me")
@@ -122,13 +128,22 @@ export function FeedPostCard({
     });
   }
 
-  async function followAuthor() {
+  async function connectAuthor() {
+    setConnecting(true);
     const res = await fetch("/api/follows", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ followingId: post.userId }),
     });
-    if (res.ok) setFollowing(true);
+    setConnecting(false);
+    if (res.ok) setConnected(true);
+  }
+
+  async function disconnectAuthor() {
+    setConnecting(true);
+    const res = await fetch(`/api/follows/${post.userId}`, { method: "DELETE" });
+    setConnecting(false);
+    if (res.ok) setConnected(false);
   }
 
   if (removed) return null;
@@ -149,7 +164,7 @@ export function FeedPostCard({
           <div className="min-w-0">
             <Link
               href={`/u/${post.author?.username}`}
-              className="font-semibold hover:underline"
+              className="gp-btn-text gp-btn-text-xs max-w-full truncate"
             >
               {post.author?.displayName ?? "User"}
             </Link>
@@ -167,19 +182,31 @@ export function FeedPostCard({
               type="button"
               onClick={deletePost}
               disabled={deleting}
-              className="text-xs text-red-400 hover:underline disabled:opacity-50"
+              className="gp-btn-text-danger gp-btn-text-xs shrink-0"
             >
               {deleting ? "Deleting…" : "Delete"}
             </button>
           )}
-          {!isOwner && !following && (
-            <button
-              type="button"
-              onClick={followAuthor}
-              className="text-xs rounded-full border border-[var(--gp-border)] px-3 py-1 hover:bg-[var(--gp-card)]"
-            >
-              Follow
-            </button>
+          {!isOwner && (
+            connected ? (
+              <button
+                type="button"
+                onClick={() => void disconnectAuthor()}
+                disabled={connecting}
+                className="gp-btn-text-neutral gp-btn-text-xs shrink-0 disabled:opacity-50"
+              >
+                {connecting ? "…" : "Connected"}
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => void connectAuthor()}
+                disabled={connecting}
+                className="gp-btn-text gp-btn-text-xs shrink-0 disabled:opacity-50"
+              >
+                {connecting ? "Connecting…" : "Connect"}
+              </button>
+            )
           )}
         </div>
       </div>
@@ -211,7 +238,7 @@ export function FeedPostCard({
           <button
             type="button"
             onClick={() => setDetailOpen(true)}
-            className="px-4 py-2 text-sm w-full text-left hover:bg-[var(--gp-surface)]"
+            className="px-4 py-2 text-sm w-full text-left gp-btn-text-neutral gp-btn-text-block rounded-none border-x-0 border-b-0"
           >
             {post.caption}
           </button>
@@ -246,7 +273,7 @@ export function FeedPostCard({
           <button
             type="button"
             onClick={reportPost}
-            className="text-xs gp-text-subtle hover:gp-text-muted ml-auto"
+            className="gp-btn-text-neutral gp-btn-text-xs ml-auto shrink-0"
           >
             Report
           </button>

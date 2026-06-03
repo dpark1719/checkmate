@@ -77,3 +77,24 @@ export async function resolveAvatarUrl(
 }
 
 export { BUCKET, AVATAR_BUCKET };
+
+export function isAvatarsBucketMissingError(message: string) {
+  const lower = message.toLowerCase();
+  return (
+    lower.includes("bucket not found") ||
+    lower.includes("does not exist") ||
+    lower.includes("not found")
+  );
+}
+
+export async function ensureAvatarsBucket(admin: SupabaseClient) {
+  const { data: buckets, error } = await admin.storage.listBuckets();
+  if (error) throw error;
+  if (buckets?.some((b) => b.id === AVATAR_BUCKET)) return;
+  const { error: createError } = await admin.storage.createBucket(AVATAR_BUCKET, {
+    public: false,
+  });
+  if (createError && !createError.message.toLowerCase().includes("already exists")) {
+    throw createError;
+  }
+}

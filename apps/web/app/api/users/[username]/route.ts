@@ -27,5 +27,6 @@ export async function GET(_request: Request, { params }: Params) {
     profile,
     goals: result.goals.map((g) => toCamelCase(g)),
     streaks: result.streaks.map((s) => toCamelCase(s)),
+    isFollowing: result.isFollowing,
   });
 }

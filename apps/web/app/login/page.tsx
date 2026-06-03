@@ -31,7 +31,7 @@ export default async function LoginPage({
       <AuthForm mode="login" />
       <p className="mt-8 text-sm gp-text-muted">
         New here?{" "}
-        <Link href="/signup" className="text-accent hover:underline">
+        <Link href="/signup" className="gp-btn-text">
           Sign up
         </Link>
       </p>

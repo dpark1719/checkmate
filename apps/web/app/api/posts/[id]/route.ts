@@ -1,4 +1,5 @@
-import { signPhotoUrl } from "@checkmate/server";
+import { signPhotoUrl, updatePost } from "@checkmate/server";
+import { updatePostSchema } from "@checkmate/shared";
 import { jsonError, jsonOk, toCamelCase } from "@/lib/api/response";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient, getAuthUser } from "@/lib/supabase/server";
@@ -104,4 +105,31 @@ export async function DELETE(_request: Request, { params }: Params) {
   }
 
   return jsonOk({ success: true });
+}
+
+export async function PATCH(request: Request, { params }: Params) {
+  const user = await getAuthUser();
+  if (!user) return jsonError("Unauthorized", "UNAUTHORIZED", 401);
+
+  const { id } = await params;
+  const body = await request.json();
+  const parsed = updatePostSchema.safeParse(body);
+  if (!parsed.success) {
+    return jsonError(parsed.error.message, "VALIDATION_ERROR", 400);
+  }
+
+  const supabase = await createClient();
+  const result = await updatePost(supabase, user.id, id, parsed.data);
+
+  if ("error" in result) {
+    if (result.error === "NOT_FOUND") {
+      return jsonError("Post not found", "NOT_FOUND", 404);
+    }
+    if (result.error === "VALIDATION_ERROR") {
+      return jsonError("No changes provided", "VALIDATION_ERROR", 400);
+    }
+    return jsonError(result.message ?? "Update failed", "DB_ERROR", 500);
+  }
+
+  return jsonOk({ post: result.post });
 }

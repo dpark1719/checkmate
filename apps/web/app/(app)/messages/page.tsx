@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { formatMessageTime } from "@/lib/format-datetime";
 
 interface ConversationRow {
   id: string;
@@ -45,7 +46,7 @@ export default function MessagesPage() {
       ) : conversations.length === 0 ? (
         <p className="gp-text-muted text-sm">
           No conversations yet.{" "}
-          <Link href="/discover" className="text-accent underline">
+          <Link href="/discover" className="gp-btn-text gp-btn-text-xs">
             Browse communities
           </Link>{" "}
           and tap a post to message someone.
@@ -66,9 +67,16 @@ export default function MessagesPage() {
                   <p className="font-medium truncate">
                     {c.otherUser?.displayName ?? "User"}
                   </p>
-                  {c.unread && (
-                    <span className="shrink-0 h-2 w-2 rounded-full bg-accent" />
-                  )}
+                  <div className="flex items-center gap-2 shrink-0">
+                    {c.lastMessage && (
+                      <span className="text-[10px] gp-text-muted">
+                        {formatMessageTime(c.lastMessage.createdAt)}
+                      </span>
+                    )}
+                    {c.unread && (
+                      <span className="h-2 w-2 rounded-full bg-accent" />
+                    )}
+                  </div>
                 </div>
                 <p className="text-xs gp-text-muted">@{c.otherUser?.username}</p>
                 {c.lastMessage && (

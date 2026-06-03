@@ -2,6 +2,8 @@
 
 Cross-platform social accountability app — **Expo mobile** + **Next.js web** + **Supabase** + **Inngest**.
 
+Local clone folder: **`CheckMate`** (recommended; was `P4`).
+
 ## Quick start
 
 ```bash
@@ -9,10 +11,18 @@ npm install
 cp .env.example .env
 # Fill Supabase + service role keys
 
-# Run SQL migrations in Supabase SQL Editor:
+# Run SQL migrations in Supabase SQL Editor (in order):
 # - supabase/migrations/20250523000000_initial_schema.sql
 # - supabase/migrations/20250523000001_rls_fixes.sql
 # - supabase/migrations/20250523000002_push_blocks_reports.sql
+# - supabase/migrations/20250523100000_profile_bio.sql
+# - supabase/migrations/20250523110000_community_shared_goal.sql
+# - supabase/migrations/20250523120000_community_member_count_trigger.sql
+# - supabase/migrations/20250523130000_reaction_cheers.sql
+# - supabase/migrations/20250523140000_social_links_and_messages.sql
+# - supabase/migrations/20250524100000_user_notifications.sql
+# - supabase/migrations/20250524110000_posts_soft_delete_rls.sql
+# - supabase/migrations/20250524120000_avatars_bucket.sql  ← required for profile photos
 
 npm run dev:web
 ```

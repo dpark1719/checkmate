@@ -9,6 +9,7 @@ import {
   socialLinksToFormState,
 } from "@/components/SocialLinksEditor";
 import { ProfilePostsGallery } from "@/components/ProfilePostsGallery";
+import { ProfileActivityHeatmap } from "@/components/ProfileActivityHeatmap";
 import { SocialLinksDisplay } from "@/components/SocialLinksDisplay";
 import {
   GOAL_CATEGORIES,
@@ -191,13 +192,18 @@ function ProfilePageContent() {
                 <p className="text-accent">@{profile.username}</p>
               </div>
             </div>
-            {profile.bio ? (
-              <p className="text-[var(--gp-fg)] whitespace-pre-wrap">{profile.bio}</p>
-            ) : (
-              <p className="gp-text-muted text-sm italic">No bio yet.</p>
-            )}
-            <p className="text-xs gp-text-muted">Timezone: {profile.timezone}</p>
-            <SocialLinksDisplay links={profile.socialLinks} />
+            <div className="flex gap-4 items-start">
+              <div className="flex-1 min-w-0 space-y-3">
+                {profile.bio ? (
+                  <p className="text-[var(--gp-fg)] whitespace-pre-wrap">{profile.bio}</p>
+                ) : (
+                  <p className="gp-text-muted text-sm italic">No bio yet.</p>
+                )}
+                <p className="text-xs gp-text-muted">Timezone: {profile.timezone}</p>
+                <SocialLinksDisplay links={profile.socialLinks} />
+              </div>
+              <ProfileActivityHeatmap username={profile.username} />
+            </div>
           </div>
 
           <section className="space-y-3">
@@ -208,11 +214,11 @@ function ProfilePageContent() {
           <div className="flex flex-col gap-2 text-sm">
             <Link
               href={`/u/${profile.username}`}
-              className="text-accent hover:underline"
+              className="gp-btn-text gp-btn-text-block"
             >
               View public profile →
             </Link>
-            <Link href="/goals" className="text-accent hover:underline">
+            <Link href="/goals" className="gp-btn-text gp-btn-text-block">
               Manage goals →
             </Link>
           </div>
@@ -349,7 +355,7 @@ function ProfilePageContent() {
 
           <div className="space-y-2 text-sm gp-text-muted">
             <p>Goal categories: {GOAL_CATEGORIES.join(", ")}</p>
-            <Link href="/goals" className="text-accent hover:underline block">
+            <Link href="/goals" className="gp-btn-text gp-btn-text-block">
               Manage goals →
             </Link>
           </div>
@@ -361,13 +367,13 @@ function ProfilePageContent() {
             <button
               type="button"
               onClick={deleteAccount}
-              className="text-red-400 text-sm hover:underline"
+              className="gp-btn-text-danger"
             >
               Delete my account
             </button>
             <a
               href="mailto:support@checkmate.app?subject=Report%20a%20problem"
-              className="text-sm gp-text-muted hover:text-[var(--gp-fg)] block"
+              className="gp-btn-text-neutral gp-btn-text-block"
             >
               Report a problem
             </a>

@@ -1,0 +1,29 @@
+---
+description: After web code changes, clear Next.js cache and restart dev server on port 3004
+alwaysApply: true
+---
+
+# Dev server reload after implementation
+
+When you **finish implementing or modifying web app code** in this repo, always refresh the local dev environment before ending your response.
+
+## Required steps
+
+Run from repo root (`/Users/dpark/Documents/P4_check.mate`):
+
+```bash
+npm run dev:web:clean
+```
+
+This kills any process on port 3004, deletes `apps/web/.next`, and starts a fresh Next.js dev server.
+
+Run it **in the background** (`block_until_ms: 0`) and wait until `http://localhost:3004` responds (200 or expected redirect like 307 to `/login`).
+
+## When to run
+
+- After any task that changed files under `apps/web/`, `packages/server/`, or `packages/shared/` (anything the web app imports).
+- Skip only for read-only Q&A with zero file edits.
+
+## Tell the user
+
+Confirm the server was restarted and share **http://localhost:3004** (and the relevant page path if applicable).

@@ -31,7 +31,8 @@ const POST_SELECT = `
 function mapPostRows(
   supabase: SupabaseClient,
   posts: PostRow[],
-  limit: number
+  limit: number,
+  followingAuthorIds?: Set<string>
 ) {
   const photoPaths = posts.map((p) => p.photo_url as string);
   const avatarPaths = posts
@@ -78,6 +79,7 @@ function mapPostRows(
           : null,
         goal: goal ? { title: goal.title, category: goal.category } : null,
         reactions: post.reactions ?? [],
+        isFollowingAuthor: followingAuthorIds?.has(post.user_id) ?? false,
       };
     });
 
@@ -120,6 +122,7 @@ export async function getHomeFeed(
   const blockedIds = new Set((blocks ?? []).map((b) => b.blocked_id));
 
   const followingIds = (following ?? []).map((f) => f.following_id);
+  const followingAuthorIds = new Set(followingIds);
   followingIds.push(userId);
 
   const sharedGoalIds = await mySharedGoalIds(supabase, userId);
@@ -171,7 +174,7 @@ export async function getHomeFeed(
   });
 
   const sliced = filtered.slice(0, limit);
-  return mapPostRows(supabase, sliced as PostRow[], limit);
+  return mapPostRows(supabase, sliced as PostRow[], limit, followingAuthorIds);
 }
 
 /**

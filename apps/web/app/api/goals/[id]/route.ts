@@ -2,7 +2,11 @@ import { pruneOrphanDailyChallenges } from "@checkmate/server";
 import { updateGoalSchema } from "@checkmate/shared";
 import { NextRequest } from "next/server";
 import { jsonError, jsonOk, toCamelCase } from "@/lib/api/response";
-import { hasDuplicateActiveGoalTitle } from "@/lib/goals";
+import {
+  assertCanAddGoal,
+  countActiveGoals,
+  hasDuplicateActiveGoalTitle,
+} from "@/lib/goals";
 import { createClient, getAuthUser } from "@/lib/supabase/server";
 
 type Params = { params: Promise<{ id: string }> };
@@ -27,10 +31,56 @@ export async function PATCH(request: NextRequest, { params }: Params) {
     updates.default_promise_time = d.defaultPromiseTime;
   }
   if (d.isActive !== undefined) updates.is_active = d.isActive;
+  if (d.isActive === true) updates.archived_at = null;
 
   const supabase = await createClient();
 
-  if (d.title !== undefined) {
+  if (d.isActive === true) {
+    const activeCount = await countActiveGoals(supabase, user.id);
+    const gate = assertCanAddGoal(activeCount);
+    if (!gate.ok) return jsonError(gate.error, gate.code, 400);
+
+    const titleToCheck = d.title;
+    if (titleToCheck !== undefined) {
+      const duplicate = await hasDuplicateActiveGoalTitle(
+        supabase,
+        user.id,
+        titleToCheck,
+        id
+      );
+      if (duplicate) {
+        return jsonError(
+          "You already have an active goal with this title.",
+          "DUPLICATE_GOAL_TITLE",
+          400
+        );
+      }
+    } else {
+      const { data: existing } = await supabase
+        .from("goals")
+        .select("title")
+        .eq("id", id)
+        .eq("user_id", user.id)
+        .single();
+      if (existing?.title) {
+        const duplicate = await hasDuplicateActiveGoalTitle(
+          supabase,
+          user.id,
+          existing.title as string,
+          id
+        );
+        if (duplicate) {
+          return jsonError(
+            "You already have an active goal with this title.",
+            "DUPLICATE_GOAL_TITLE",
+            400
+          );
+        }
+      }
+    }
+  }
+
+  if (d.title !== undefined && d.isActive !== true) {
     const duplicate = await hasDuplicateActiveGoalTitle(
       supabase,
       user.id,

@@ -126,7 +126,7 @@ export default function OnboardingPage() {
       <button
         type="button"
         onClick={skip}
-        className="w-full text-sm gp-text-muted hover:text-[var(--gp-fg)]"
+        className="w-full gp-btn-text-neutral"
       >
         Skip for now
       </button>

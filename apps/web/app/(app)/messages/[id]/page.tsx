@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { formatMessageTime } from "@/lib/format-datetime";
 
 interface Message {
   id: string;
@@ -81,14 +82,14 @@ export default function ConversationPage() {
   return (
     <div className="flex flex-col min-h-[calc(100dvh-10rem)] -mx-4 pb-[calc(4.5rem+env(safe-area-inset-bottom))]">
       <div className="px-4 pb-3 border-b border-[var(--gp-border)] space-y-2">
-        <Link href="/messages" className="text-sm text-accent hover:underline">
+        <Link href="/messages" className="gp-btn-text">
           ← Messages
         </Link>
         {otherUser && (
           <div>
             <Link
               href={`/u/${otherUser.username}`}
-              className="font-semibold hover:underline"
+              className="gp-btn-text gp-btn-text-xs"
             >
               {otherUser.displayName}
             </Link>
@@ -118,13 +119,22 @@ export default function ConversationPage() {
               className={`flex ${mine ? "justify-end" : "justify-start"}`}
             >
               <div
-                className={`max-w-[85%] rounded-2xl px-4 py-2 text-sm ${
-                  mine
-                    ? "bg-accent text-accent-foreground"
-                    : "bg-[var(--gp-surface)] text-[var(--gp-fg)]"
+                className={`flex flex-col max-w-[85%] ${
+                  mine ? "items-end" : "items-start"
                 }`}
               >
-                {m.body}
+                <div
+                  className={`rounded-2xl px-4 py-2 text-sm ${
+                    mine
+                      ? "bg-accent text-accent-foreground"
+                      : "bg-[var(--gp-surface)] text-[var(--gp-fg)]"
+                  }`}
+                >
+                  {m.body}
+                </div>
+                <span className="text-[10px] gp-text-muted mt-0.5 px-1">
+                  {formatMessageTime(m.createdAt)}
+                </span>
               </div>
             </div>
           );

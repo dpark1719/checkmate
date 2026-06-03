@@ -1,5 +1,4 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { signPhotoUrls } from "./storage";
 
 export async function getProfileByUsername(
   supabase: SupabaseClient,
@@ -36,47 +35,17 @@ export async function getProfileByUsername(
     .select("goal_id, current_count, longest_count")
     .eq("user_id", profile.id);
 
-  return { profile, goals: goals ?? [], streaks: streaks ?? [] };
-}
-
-export async function getUserPosts(
-  supabase: SupabaseClient,
-  userId: string,
-  options: { cursor?: string; limit?: number } = {}
-) {
-  const limit = Math.min(options.limit ?? 20, 50);
-
-  let query = supabase
-    .from("posts")
-    .select("id, photo_url, caption, is_late, created_at, goals(title, category)")
-    .eq("user_id", userId)
-    .is("deleted_at", null)
-    .order("created_at", { ascending: false })
-    .limit(limit);
-
-  if (options.cursor) {
-    query = query.lt("created_at", options.cursor);
+  let isFollowing = false;
+  if (viewerId && viewerId !== profile.id) {
+    const { data: follow } = await supabase
+      .from("follows")
+      .select("follower_id")
+      .eq("follower_id", viewerId)
+      .eq("following_id", profile.id)
+      .maybeSingle();
+    isFollowing = Boolean(follow);
   }
 
-  const { data, error } = await query;
-  if (error) throw error;
-
-  const signed = await signPhotoUrls(
-    supabase,
-    (data ?? []).map((p) => p.photo_url as string)
-  );
-
-  const posts = (data ?? []).map((p) => ({
-    id: p.id,
-    photoUrl: signed.get(p.photo_url as string) ?? p.photo_url,
-    caption: p.caption,
-    isLate: p.is_late,
-    createdAt: p.created_at,
-    goal: Array.isArray(p.goals) ? p.goals[0] : p.goals,
-  }));
-
-  return {
-    posts,
-    nextCursor: posts.length === limit ? posts[posts.length - 1]?.createdAt : null,
-  };
+  return { profile, goals: goals ?? [], streaks: streaks ?? [], isFollowing };
 }
+

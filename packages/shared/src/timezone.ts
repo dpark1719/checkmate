@@ -6,12 +6,97 @@ import {
 
 /** YYYY-MM-DD in the given IANA timezone. */
 export function todayInTimezone(timezone: string, now = new Date()): string {
+  return dateInTimezone(now.toISOString(), timezone);
+}
+
+/** Format a UTC ISO timestamp as local YYYY-MM-DD in `timezone`. */
+export function dateInTimezone(iso: string, timezone: string): string {
   return new Intl.DateTimeFormat("en-CA", {
     timeZone: timezone,
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
-  }).format(now);
+  }).format(new Date(iso));
+}
+
+/** UTC ISO bounds for a local calendar day (inclusive start, exclusive end). */
+export function localDayUtcBounds(
+  date: string,
+  timezone: string
+): { start: string; end: string } {
+  const start = localTimeToUtc(`${date}T00:00:00`, timezone);
+  const nextDate = addDaysToDateString(date, 1);
+  const end = localTimeToUtc(`${nextDate}T00:00:00`, timezone);
+  return { start: start.toISOString(), end: end.toISOString() };
+}
+
+function addDaysToDateString(date: string, days: number): string {
+  const [y, m, d] = date.split("-").map(Number);
+  const utc = new Date(Date.UTC(y, m - 1, d + days));
+  return utc.toISOString().slice(0, 10);
+}
+
+function lastDayOfMonth(year: number, month: number): string {
+  const utc = new Date(Date.UTC(year, month, 0));
+  return utc.toISOString().slice(0, 10);
+}
+
+function minDate(a: string, b: string): string {
+  return a <= b ? a : b;
+}
+
+/** Current month as YYYY-MM in the given timezone. */
+export function currentMonthAnchor(timezone: string, now = new Date()): string {
+  return todayInTimezone(timezone, now).slice(0, 7);
+}
+
+/** Current year as YYYY in the given timezone. */
+export function currentYearAnchor(timezone: string, now = new Date()): string {
+  return todayInTimezone(timezone, now).slice(0, 4);
+}
+
+/** Shift a YYYY-MM anchor by delta months. */
+export function shiftMonth(anchor: string, delta: number): string {
+  const [y, m] = anchor.split("-").map(Number);
+  const d = new Date(Date.UTC(y, m - 1 + delta, 1));
+  const year = d.getUTCFullYear();
+  const month = String(d.getUTCMonth() + 1).padStart(2, "0");
+  return `${year}-${month}`;
+}
+
+/** Shift a YYYY anchor by delta years. */
+export function shiftYear(anchor: string, delta: number): string {
+  return String(parseInt(anchor, 10) + delta);
+}
+
+/** Local date bounds for a calendar month; `to` capped at today when viewing current month. */
+export function monthBounds(
+  timezone: string,
+  anchor: string,
+  now = new Date()
+): { from: string; to: string } {
+  const [year, month] = anchor.split("-").map(Number);
+  const from = `${anchor}-01`;
+  const monthEnd = lastDayOfMonth(year, month);
+  const today = todayInTimezone(timezone, now);
+  const currentAnchor = today.slice(0, 7);
+  const to = anchor === currentAnchor ? minDate(monthEnd, today) : monthEnd;
+  return { from, to };
+}
+
+/** Local date bounds for a calendar year; `to` capped at today when viewing current year. */
+export function yearBounds(
+  timezone: string,
+  anchor: string,
+  now = new Date()
+): { from: string; to: string } {
+  const from = `${anchor}-01-01`;
+  const yearEnd = `${anchor}-12-31`;
+  const today = todayInTimezone(timezone, now);
+  const to = anchor === currentYearAnchor(timezone, now)
+    ? minDate(yearEnd, today)
+    : yearEnd;
+  return { from, to };
 }
 
 /** Stable trigger time per user/goal/day (5am–10pm local). */

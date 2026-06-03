@@ -8,18 +8,27 @@ import {
 } from "@/lib/goals";
 import { createClient, getAuthUser } from "@/lib/supabase/server";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   const user = await getAuthUser();
   if (!user) return jsonError("Unauthorized", "UNAUTHORIZED", 401);
 
+  const archived = request.nextUrl.searchParams.get("archived") === "true";
   const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("goals")
-    .select("*")
-    .eq("user_id", user.id)
-    .eq("is_active", true)
-    .is("archived_at", null)
-    .order("created_at", { ascending: false });
+
+  let query = supabase.from("goals").select("*").eq("user_id", user.id);
+
+  if (archived) {
+    query = query.not("archived_at", "is", null).order("archived_at", {
+      ascending: false,
+    });
+  } else {
+    query = query
+      .eq("is_active", true)
+      .is("archived_at", null)
+      .order("created_at", { ascending: false });
+  }
+
+  const { data, error } = await query;
 
   if (error) return jsonError(error.message, "DB_ERROR", 500);
   return jsonOk({ goals: (data ?? []).map((g) => toCamelCase(g)) });

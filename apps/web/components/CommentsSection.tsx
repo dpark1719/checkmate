@@ -51,7 +51,7 @@ export function CommentsSection({ postId }: { postId: string }) {
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="text-xs gp-text-muted hover:text-[var(--gp-fg)]"
+        className="gp-btn-text-neutral gp-btn-text-xs"
       >
         {open ? "Hide" : "Show"} comments ({comments.length || "…"})
       </button>
