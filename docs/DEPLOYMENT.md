@@ -33,9 +33,36 @@ Your project is already hosted at `https://nfpeasuabkwobyvocecc.supabase.co`.
    `https://nfpeasuabkwobyvocecc.supabase.co/auth/v1/callback`  
    (unchanged — Google always talks to Supabase first).
 
-4. **SMTP** (recommended for launch): Authentication → SMTP — avoids the ~2 emails/hour built-in limit.
+4. **Apple Sign In (web)** — required if you offer Google on iOS; the **Continue with Apple** button is already in the app:
 
-5. **Storage**: Ensure the `post-images` bucket exists and policies match migrations.
+   **Apple Developer** ([developer.apple.com](https://developer.apple.com/account/resources/identifiers/list)):
+
+   1. **App ID** — create or reuse your iOS/web app ID (e.g. `com.yourname.checkmate`).
+   2. **Services ID** — create one for web (e.g. `com.yourname.checkmate.web`). Enable **Sign in with Apple**, link the App ID.
+   3. **Services ID → Configure → Website URLs:**
+      - **Domains:** `nfpeasuabkwobyvocecc.supabase.co` (your Supabase project host — not localhost)
+      - **Return URLs:** `https://nfpeasuabkwobyvocecc.supabase.co/auth/v1/callback`
+   4. **Keys** — create a **Sign in with Apple** key (.p8). Note **Key ID** and **Team ID** (Membership page).
+
+   **Supabase** → Authentication → Providers → **Apple**:
+
+   | Field | Value |
+   |-------|--------|
+   | Enable Apple | On |
+   | Client ID (Services ID) | e.g. `com.yourname.checkmate.web` |
+   | Secret Key | Generate with [Supabase Apple secret tool](https://supabase.com/docs/guides/auth/social-login/auth-apple) (paste .p8, Team ID, Key ID, Services ID). **Regenerate every 6 months.** |
+
+   **Supabase** → Authentication → **URL Configuration** — also allow your app callback (same as Google):
+
+   - `http://localhost:3004/auth/callback` (local dev)
+   - `https://your-app.vercel.app/auth/callback`
+   - `https://your-app.vercel.app/**`
+
+   Apple talks to Supabase first; Supabase then redirects to `/auth/callback` on your app. You do **not** put localhost in Apple’s Return URLs.
+
+5. **SMTP** (recommended for launch): Authentication → SMTP — avoids the ~2 emails/hour built-in limit.
+
+6. **Storage**: Ensure the `post-images` bucket exists and policies match migrations.
 
 ---
 
@@ -165,6 +192,7 @@ Apple/Google sign-in for mobile need extra OAuth client IDs and redirect URIs in
 - [ ] `NEXT_PUBLIC_APP_URL` matches live URL
 - [ ] Supabase redirect URLs include `/auth/callback`
 - [ ] Google OAuth enabled + test sign-in on production URL
+- [ ] Apple Sign In enabled (Services ID + secret in Supabase) + test on production URL
 - [ ] Custom SMTP configured (if relying on email auth)
 - [ ] Inngest synced to `https://<domain>/api/inngest`
 - [ ] `SUPABASE_SERVICE_ROLE_KEY` only in server env (Vercel), never in mobile
@@ -179,6 +207,8 @@ Apple/Google sign-in for mobile need extra OAuth client IDs and redirect URIs in
 | Build fails on Vercel | Enable “include files outside root”; check `apps/web/vercel.json` |
 | Auth redirect error | Supabase redirect URL must match `NEXT_PUBLIC_APP_URL/auth/callback` |
 | Google works locally but not prod | Add production URL to Supabase; consent screen test users |
+| **Apple: invalid client id or redirect url** | Services ID Return URL must be `https://nfpeasuabkwobyvocecc.supabase.co/auth/v1/callback`; domain must be `nfpeasuabkwobyvocecc.supabase.co`. Regenerate Apple secret in Supabase if expired (6 months). |
+| **Apple button does nothing / provider disabled** | Supabase → Auth → Providers → enable Apple; fill Client ID + secret |
 | **Internal Server Error** on Google login | Fix: redeploy latest `auth/callback`; set `NEXT_PUBLIC_APP_URL` to Vercel URL; add `https://YOUR.vercel.app/auth/callback` in Supabase redirect URLs |
 | Jobs never run | Inngest serve URL + `INNGEST_*` keys on Vercel |
 | Email rate limit | Custom SMTP in Supabase |

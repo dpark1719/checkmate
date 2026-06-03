@@ -23,7 +23,8 @@ export default async function LoginPage({
               {" "}
               Check that Supabase redirect URLs include your site (
               {process.env.NEXT_PUBLIC_APP_URL ?? "your Vercel URL"})
-              /auth/callback and that Google OAuth is enabled.
+              /auth/callback and that Google and Apple OAuth are enabled in
+              Supabase → Authentication → Providers.
             </>
           )}
         </p>
