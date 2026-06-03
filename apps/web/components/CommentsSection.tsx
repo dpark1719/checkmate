@@ -11,16 +11,17 @@ interface Comment {
 export function CommentsSection({ postId }: { postId: string }) {
   const [comments, setComments] = useState<Comment[]>([]);
   const [body, setBody] = useState("");
-  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   function load() {
+    setLoading(true);
     fetch(`/api/posts/${postId}/comments`)
       .then((r) => r.json())
-      .then((d) => setComments(d.comments ?? []));
+      .then((d) => setComments(d.comments ?? []))
+      .finally(() => setLoading(false));
   }
 
   useEffect(() => {
-    if (!open) return;
     load();
     fetch("/api/notifications/mark-read", {
       method: "POST",
@@ -31,7 +32,7 @@ export function CommentsSection({ postId }: { postId: string }) {
         window.dispatchEvent(new Event("checkmate:notifications-changed"));
       })
       .catch(() => {});
-  }, [open, postId]);
+  }, [postId]);
 
   async function submit(event: React.FormEvent) {
     event.preventDefault();
@@ -47,40 +48,35 @@ export function CommentsSection({ postId }: { postId: string }) {
   }
 
   return (
-    <div className="px-4 pb-4">
-      <button
-        type="button"
-        onClick={() => setOpen(!open)}
-        className="gp-btn-text-neutral gp-btn-text-xs"
-      >
-        {open ? "Hide" : "Show"} comments ({comments.length || "…"})
-      </button>
-      {open && (
-        <div className="mt-3 space-y-3">
-          {comments.map((c) => (
-            <p key={c.id} className="text-sm">
-              <span className="gp-text-muted">
-                @{c.profiles?.username ?? "user"}{" "}
-              </span>
-              {c.body}
-            </p>
-          ))}
-          <form onSubmit={submit} className="flex gap-2">
-            <input
-              value={body}
-              onChange={(e) => setBody(e.target.value)}
-              placeholder="Add a comment…"
-              className="flex-1 rounded-lg bg-[var(--gp-card)] border border-[var(--gp-border)] px-3 py-2 text-sm"
-            />
-            <button
-              type="submit"
-              className="rounded-lg bg-[var(--gp-surface)] px-3 py-2 text-sm"
-            >
-              Send
-            </button>
-          </form>
-        </div>
+    <div className="px-4 pb-4 space-y-3">
+      {loading ? (
+        <p className="text-xs gp-text-muted">Loading comments…</p>
+      ) : comments.length === 0 ? (
+        <p className="text-xs gp-text-muted">No comments yet.</p>
+      ) : (
+        comments.map((c) => (
+          <p key={c.id} className="text-sm">
+            <span className="gp-text-muted">
+              @{c.profiles?.username ?? "user"}{" "}
+            </span>
+            {c.body}
+          </p>
+        ))
       )}
+      <form onSubmit={submit} className="flex gap-2">
+        <input
+          value={body}
+          onChange={(e) => setBody(e.target.value)}
+          placeholder="Add a comment…"
+          className="flex-1 rounded-lg bg-[var(--gp-card)] border border-[var(--gp-border)] px-3 py-2 text-sm"
+        />
+        <button
+          type="submit"
+          className="rounded-lg bg-[var(--gp-surface)] px-3 py-2 text-sm"
+        >
+          Send
+        </button>
+      </form>
     </div>
   );
 }
