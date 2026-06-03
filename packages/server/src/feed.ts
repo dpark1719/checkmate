@@ -123,7 +123,6 @@ export async function getHomeFeed(
 
   const followingIds = (following ?? []).map((f) => f.following_id);
   const followingAuthorIds = new Set(followingIds);
-  followingIds.push(userId);
 
   const sharedGoalIds = await mySharedGoalIds(supabase, userId);
   const sharedGoalSet = new Set(sharedGoalIds);
@@ -166,6 +165,7 @@ export async function getHomeFeed(
   if (error) throw error;
 
   const filtered = (posts ?? []).filter((post) => {
+    if (post.user_id === userId) return false;
     if (blockedIds.has(post.user_id)) return false;
     if (followingIds.includes(post.user_id)) return true;
     if (sharedGoalSet.has(post.goal_id as string)) return true;
