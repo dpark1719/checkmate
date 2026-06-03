@@ -10,7 +10,7 @@ When you **finish a task that changed project files** (not docs-only Q&A), do th
 ## 1. Commit and push
 
 ```bash
-cd /Users/dpark/Documents/CheckMate
+cd /Users/dpark/Documents/P4_check.mate
 git status
 git diff
 git add <relevant files>   # never .env or secrets
