@@ -56,14 +56,14 @@ export default function HomePage() {
         </div>
       </section>
 
+      <LandingSteps />
+
       <SocialProofSection
         stats={MOCK_STATS}
         categories={MOCK_CATEGORY_CYCLE}
         posts={MOCK_POSTS}
         leaderboard={MOCK_LEADERBOARD}
       />
-
-      <LandingSteps />
 
       <section className="pb-16 px-6 max-w-xl mx-auto w-full text-center">
         <AuthLinks />
