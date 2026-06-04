@@ -52,21 +52,6 @@ export function AuthForm({ mode }: { mode: Mode }) {
     }
   }
 
-  async function signInWithApple() {
-    setMessage(null);
-    setMessageIsError(false);
-    applyRememberMePreference();
-    const supabase = createClient();
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "apple",
-      options: { redirectTo },
-    });
-    if (error) {
-      setMessage(error.message);
-      setMessageIsError(true);
-    }
-  }
-
   return (
     <div className="w-full max-w-md space-y-6">
       <div>
@@ -101,13 +86,6 @@ export function AuthForm({ mode }: { mode: Mode }) {
           className="w-full rounded-lg border border-[var(--gp-border)] py-3 hover:bg-[var(--gp-card)]"
         >
           Continue with Google
-        </button>
-        <button
-          type="button"
-          onClick={signInWithApple}
-          className="w-full rounded-lg border border-[var(--gp-border)] py-3 hover:bg-[var(--gp-card)]"
-        >
-          Continue with Apple
         </button>
       </div>
 
