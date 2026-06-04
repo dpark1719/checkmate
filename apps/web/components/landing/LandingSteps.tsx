@@ -17,7 +17,7 @@ const STEPS = [
   },
   {
     title: "Join a community.",
-    body: "You are the average of who you surround yourself with. Choose wisely.",
+    body: "You are the average of who you surround yourself with.",
   },
 ] as const;
 
