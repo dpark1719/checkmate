@@ -93,6 +93,7 @@ export async function sendMessageEmail(options: {
   actorName: string;
   conversationId: string;
   messagePreview: string;
+  isRequest?: boolean;
   prefs?: Record<string, unknown> | null;
 }): Promise<void> {
   if (!emailEnabled(options.prefs, "emailMessages")) return;
@@ -101,6 +102,17 @@ export async function sendMessageEmail(options: {
   if (!email) return;
 
   const link = `${getAppUrl()}/messages/${options.conversationId}`;
+
+  if (options.isRequest) {
+    await sendEmail({
+      to: email,
+      subject: `Message request from ${options.actorName} on CheckMate`,
+      text: `${options.actorName} sent you a message request.\n\nView request: ${link}`,
+      html: `<p><strong>${escapeHtml(options.actorName)}</strong> sent you a message request.</p><p><a href="${link}">View request</a></p>`,
+    });
+    return;
+  }
+
   const preview =
     options.messagePreview.length > 120
       ? `${options.messagePreview.slice(0, 117)}…`

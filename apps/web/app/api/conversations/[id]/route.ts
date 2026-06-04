@@ -12,9 +12,21 @@ export async function GET(request: NextRequest, { params }: Params) {
   const { id } = await params;
   const supabase = await getSupabaseForRequest(request);
 
+  const { data: membership, error: memErr } = await supabase
+    .from("conversation_participants")
+    .select("status, last_read_at")
+    .eq("conversation_id", id)
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (memErr) return jsonError(memErr.message, "DB_ERROR", 500);
+  if (!membership || membership.status === "declined") {
+    return jsonError("Conversation not found", "NOT_FOUND", 404);
+  }
+
   const { data: conv, error: convErr } = await supabase
     .from("conversations")
-    .select("id, post_id, updated_at, created_at")
+    .select("id, post_id, initiated_by, updated_at, created_at")
     .eq("id", id)
     .single();
 
@@ -24,8 +36,9 @@ export async function GET(request: NextRequest, { params }: Params) {
 
   const { data: participants, error: partErr } = await supabase
     .from("conversation_participants")
-    .select("user_id, profiles(id, display_name, username, avatar_url)")
-    .eq("conversation_id", id);
+    .select("user_id, status, profiles(id, display_name, username, avatar_url)")
+    .eq("conversation_id", id)
+    .neq("status", "declined");
 
   if (partErr) return jsonError(partErr.message, "DB_ERROR", 500);
 
@@ -60,11 +73,18 @@ export async function GET(request: NextRequest, { params }: Params) {
     }
   }
 
-  await supabase
-    .from("conversation_participants")
-    .update({ last_read_at: new Date().toISOString() })
-    .eq("conversation_id", id)
-    .eq("user_id", user.id);
+  const viewerStatus = membership.status as string;
+  const initiatedBy = conv.initiated_by as string | null;
+  const isRequest = viewerStatus === "pending" && initiatedBy !== user.id;
+  const canReply = viewerStatus === "accepted" || initiatedBy === user.id;
+
+  if (!isRequest) {
+    await supabase
+      .from("conversation_participants")
+      .update({ last_read_at: new Date().toISOString() })
+      .eq("conversation_id", id)
+      .eq("user_id", user.id);
+  }
 
   return jsonOk({
     conversation: toCamelCase(conv),
@@ -77,5 +97,8 @@ export async function GET(request: NextRequest, { params }: Params) {
         })
       : null,
     postContext,
+    status: viewerStatus,
+    isRequest,
+    canReply,
   });
 }

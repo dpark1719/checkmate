@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { formatMessageTime } from "@/lib/format-datetime";
 
@@ -14,6 +14,7 @@ interface Message {
 
 export default function ConversationPage() {
   const params = useParams();
+  const router = useRouter();
   const id = params.id as string;
   const [messages, setMessages] = useState<Message[]>([]);
   const [otherUser, setOtherUser] = useState<{
@@ -28,6 +29,10 @@ export default function ConversationPage() {
   const [body, setBody] = useState("");
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
+  const [accepting, setAccepting] = useState(false);
+  const [declining, setDeclining] = useState(false);
+  const [isRequest, setIsRequest] = useState(false);
+  const [canReply, setCanReply] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -47,6 +52,8 @@ export default function ConversationPage() {
       .then((d) => {
         if (d.otherUser) setOtherUser(d.otherUser);
         if (d.postContext) setPostContext(d.postContext);
+        setIsRequest(Boolean(d.isRequest));
+        setCanReply(Boolean(d.canReply));
       });
 
     loadMessages();
@@ -79,6 +86,37 @@ export default function ConversationPage() {
     setMessages((prev) => [...prev, data.message]);
   }
 
+  async function acceptRequest() {
+    setAccepting(true);
+    setError(null);
+    const res = await fetch(`/api/conversations/${id}/accept`, {
+      method: "POST",
+    });
+    const data = await res.json();
+    setAccepting(false);
+    if (!res.ok) {
+      setError(data.error ?? "Could not accept");
+      return;
+    }
+    setIsRequest(false);
+    setCanReply(true);
+  }
+
+  async function declineRequest() {
+    setDeclining(true);
+    setError(null);
+    const res = await fetch(`/api/conversations/${id}/decline`, {
+      method: "POST",
+    });
+    const data = await res.json();
+    setDeclining(false);
+    if (!res.ok) {
+      setError(data.error ?? "Could not decline");
+      return;
+    }
+    router.push("/messages");
+  }
+
   return (
     <div className="flex flex-col min-h-[calc(100dvh-10rem)] -mx-4 pb-[calc(4.5rem+env(safe-area-inset-bottom))]">
       <div className="px-4 pb-3 border-b border-[var(--gp-border)] space-y-2">
@@ -95,6 +133,11 @@ export default function ConversationPage() {
             </Link>
             <p className="text-xs gp-text-muted">@{otherUser.username}</p>
           </div>
+        )}
+        {isRequest && (
+          <p className="text-sm gp-text-muted">
+            This is a message request. Accept to reply and move it to your inbox.
+          </p>
         )}
         {postContext && (
           <div className="flex gap-3 items-center rounded-lg border border-[var(--gp-border)] p-2 bg-[var(--gp-surface)]">
@@ -142,25 +185,46 @@ export default function ConversationPage() {
         <div ref={bottomRef} />
       </div>
 
-      <form
-        onSubmit={sendMessage}
-        className="fixed left-0 right-0 z-20 px-4 py-3 border-t border-[var(--gp-border)] bg-[var(--gp-nav-bg)] backdrop-blur flex gap-2 max-w-3xl mx-auto bottom-[calc(3.5rem+env(safe-area-inset-bottom))]"
-      >
-        <input
-          value={body}
-          onChange={(e) => setBody(e.target.value)}
-          placeholder="Write a message…"
-          maxLength={2000}
-          className="gp-input flex-1"
-        />
-        <button
-          type="submit"
-          disabled={sending || !body.trim()}
-          className="rounded-lg bg-accent text-accent-foreground font-semibold px-4 disabled:opacity-50 shrink-0"
+      {isRequest && !canReply ? (
+        <div className="fixed left-0 right-0 z-20 px-4 py-3 border-t border-[var(--gp-border)] bg-[var(--gp-nav-bg)] backdrop-blur flex gap-2 max-w-3xl mx-auto bottom-[calc(3.5rem+env(safe-area-inset-bottom))]">
+          <button
+            type="button"
+            onClick={() => void declineRequest()}
+            disabled={declining || accepting}
+            className="flex-1 rounded-lg border border-[var(--gp-border)] font-semibold py-2.5 disabled:opacity-50"
+          >
+            {declining ? "…" : "Decline"}
+          </button>
+          <button
+            type="button"
+            onClick={() => void acceptRequest()}
+            disabled={accepting || declining}
+            className="flex-1 rounded-lg bg-accent text-accent-foreground font-semibold py-2.5 disabled:opacity-50"
+          >
+            {accepting ? "…" : "Accept"}
+          </button>
+        </div>
+      ) : (
+        <form
+          onSubmit={sendMessage}
+          className="fixed left-0 right-0 z-20 px-4 py-3 border-t border-[var(--gp-border)] bg-[var(--gp-nav-bg)] backdrop-blur flex gap-2 max-w-3xl mx-auto bottom-[calc(3.5rem+env(safe-area-inset-bottom))]"
         >
-          Send
-        </button>
-      </form>
+          <input
+            value={body}
+            onChange={(e) => setBody(e.target.value)}
+            placeholder="Write a message…"
+            maxLength={2000}
+            className="gp-input flex-1"
+          />
+          <button
+            type="submit"
+            disabled={sending || !body.trim()}
+            className="rounded-lg bg-accent text-accent-foreground font-semibold px-4 disabled:opacity-50 shrink-0"
+          >
+            Send
+          </button>
+        </form>
+      )}
       {error && <p className="px-4 text-sm text-red-400">{error}</p>}
     </div>
   );

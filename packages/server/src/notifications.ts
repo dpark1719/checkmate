@@ -8,8 +8,9 @@ export async function countUnreadMessages(
 ): Promise<number> {
   const { data: memberships } = await supabase
     .from("conversation_participants")
-    .select("conversation_id, last_read_at")
-    .eq("user_id", userId);
+    .select("conversation_id, last_read_at, status")
+    .eq("user_id", userId)
+    .neq("status", "declined");
 
   if (!memberships?.length) return 0;
 
@@ -34,6 +35,10 @@ export async function countUnreadMessages(
 
   let unread = 0;
   for (const m of memberships) {
+    if ((m.status as string) === "pending") {
+      unread++;
+      continue;
+    }
     const last = lastByConv.get(m.conversation_id as string);
     if (!last || last.sender_id === userId) continue;
     const lastRead = m.last_read_at as string | null;
@@ -121,7 +126,7 @@ export async function notifyConversationMessage(options: {
 
   const { data: participants } = await admin
     .from("conversation_participants")
-    .select("user_id")
+    .select("user_id, status")
     .eq("conversation_id", options.conversationId);
 
   for (const p of participants ?? []) {
@@ -139,11 +144,14 @@ export async function notifyConversationMessage(options: {
       unknown
     >;
 
+    const isRequest = (p.status as string) === "pending";
+
     void sendMessageEmail({
       toUserId: recipientId,
       actorName: options.senderName,
       conversationId: options.conversationId,
       messagePreview: options.messageBody,
+      isRequest,
       prefs,
     });
   }

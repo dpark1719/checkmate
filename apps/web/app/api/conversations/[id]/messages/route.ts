@@ -15,6 +15,17 @@ export async function GET(request: NextRequest, { params }: Params) {
   const { searchParams } = new URL(request.url);
   const before = searchParams.get("before");
 
+  const { data: membership } = await supabase
+    .from("conversation_participants")
+    .select("status")
+    .eq("conversation_id", id)
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (!membership || membership.status === "declined") {
+    return jsonError("Conversation not found", "NOT_FOUND", 404);
+  }
+
   let query = supabase
     .from("messages")
     .select("id, conversation_id, sender_id, body, created_at")
@@ -52,13 +63,31 @@ export async function POST(request: NextRequest, { params }: Params) {
 
   const { data: membership } = await supabase
     .from("conversation_participants")
-    .select("conversation_id")
+    .select("status")
     .eq("conversation_id", id)
     .eq("user_id", user.id)
     .maybeSingle();
 
-  if (!membership) {
+  if (!membership || membership.status === "declined") {
     return jsonError("Conversation not found", "NOT_FOUND", 404);
+  }
+
+  const { data: conv } = await supabase
+    .from("conversations")
+    .select("initiated_by")
+    .eq("id", id)
+    .single();
+
+  const canReply =
+    membership.status === "accepted" ||
+    conv?.initiated_by === user.id;
+
+  if (!canReply) {
+    return jsonError(
+      "Accept this message request before replying",
+      "VALIDATION_ERROR",
+      403
+    );
   }
 
   const { data, error } = await supabase

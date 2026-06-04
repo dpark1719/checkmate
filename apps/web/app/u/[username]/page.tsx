@@ -5,7 +5,7 @@ import { ProfileActivityHeatmap } from "@/components/ProfileActivityHeatmap";
 import { SocialLinksDisplay } from "@/components/SocialLinksDisplay";
 import { UserAvatar } from "@/components/UserAvatar";
 import type { SocialLinks } from "@checkmate/shared";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 interface ActiveGoal {
@@ -17,6 +17,7 @@ interface ActiveGoal {
 
 export default function PublicProfilePage() {
   const params = useParams();
+  const router = useRouter();
   const username = params.username as string;
   const [profile, setProfile] = useState<{
     id: string;
@@ -33,6 +34,8 @@ export default function PublicProfilePage() {
   const [connecting, setConnecting] = useState(false);
   const [connectMessage, setConnectMessage] = useState<string | null>(null);
   const [connectError, setConnectError] = useState<string | null>(null);
+  const [messaging, setMessaging] = useState(false);
+  const [messageError, setMessageError] = useState<string | null>(null);
 
   useEffect(() => {
     fetch("/api/users/me")
@@ -118,6 +121,22 @@ export default function PublicProfilePage() {
     setIsFollowing(false);
   }
 
+  async function startMessage() {
+    if (!profile) return;
+    setMessaging(true);
+    setMessageError(null);
+    const res = await fetch(`/api/conversations/from-user/${profile.id}`, {
+      method: "POST",
+    });
+    const data = await res.json();
+    setMessaging(false);
+    if (!res.ok) {
+      setMessageError(data.error ?? "Could not start conversation");
+      return;
+    }
+    router.push(`/messages/${data.conversationId}`);
+  }
+
   if (!profile) {
     return <p className="gp-text-muted">Loading profile…</p>;
   }
@@ -138,26 +157,36 @@ export default function PublicProfilePage() {
             </div>
           </div>
           {!isOwnProfile && currentUserId && (
-            <div className="shrink-0 flex flex-col items-end gap-1">
-              {isFollowing ? (
+            <div className="shrink-0 flex flex-col items-end gap-2">
+              <div className="flex items-center gap-2">
                 <button
                   type="button"
-                  onClick={() => void disconnect()}
-                  disabled={connecting}
-                  className="gp-btn-text-neutral gp-btn-text-xs disabled:opacity-50"
+                  onClick={() => void startMessage()}
+                  disabled={messaging}
+                  className="rounded-lg border border-[var(--gp-border)] px-3 py-1.5 text-sm font-medium hover:bg-[var(--gp-card)] disabled:opacity-50"
                 >
-                  {connecting ? "…" : "Connected"}
+                  {messaging ? "…" : "Message"}
                 </button>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => void connect()}
-                  disabled={connecting}
-                  className="gp-btn-text gp-btn-text-xs disabled:opacity-50"
-                >
-                  {connecting ? "Connecting…" : "Connect"}
-                </button>
-              )}
+                {isFollowing ? (
+                  <button
+                    type="button"
+                    onClick={() => void disconnect()}
+                    disabled={connecting}
+                    className="gp-btn-text-neutral gp-btn-text-xs disabled:opacity-50"
+                  >
+                    {connecting ? "…" : "Connected"}
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => void connect()}
+                    disabled={connecting}
+                    className="gp-btn-text gp-btn-text-xs disabled:opacity-50"
+                  >
+                    {connecting ? "Connecting…" : "Connect"}
+                  </button>
+                )}
+              </div>
             </div>
           )}
         </div>
@@ -166,6 +195,9 @@ export default function PublicProfilePage() {
         )}
         {connectError && (
           <p className="text-sm text-red-400">{connectError}</p>
+        )}
+        {messageError && (
+          <p className="text-sm text-red-400">{messageError}</p>
         )}
         <div className="flex gap-4 items-start">
           <div className="flex-1 min-w-0 space-y-3">

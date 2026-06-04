@@ -11,19 +11,20 @@ export async function GET(request: NextRequest) {
 
   const { data: memberships, error: memErr } = await supabase
     .from("conversation_participants")
-    .select("conversation_id, last_read_at")
-    .eq("user_id", user.id);
+    .select("conversation_id, last_read_at, status")
+    .eq("user_id", user.id)
+    .neq("status", "declined");
 
   if (memErr) return jsonError(memErr.message, "DB_ERROR", 500);
 
   const convIds = (memberships ?? []).map((m) => m.conversation_id as string);
   if (convIds.length === 0) {
-    return jsonOk({ conversations: [] });
+    return jsonOk({ conversations: [], requests: [] });
   }
 
   const { data: convs, error: convErr } = await supabase
     .from("conversations")
-    .select("id, post_id, updated_at, created_at")
+    .select("id, post_id, initiated_by, updated_at, created_at")
     .in("id", convIds)
     .order("updated_at", { ascending: false });
 
@@ -31,7 +32,7 @@ export async function GET(request: NextRequest) {
 
   const { data: participants, error: partErr } = await supabase
     .from("conversation_participants")
-    .select("conversation_id, user_id, profiles(id, display_name, username, avatar_url)")
+    .select("conversation_id, user_id, status, profiles(id, display_name, username, avatar_url)")
     .in("conversation_id", convIds);
 
   if (partErr) return jsonError(partErr.message, "DB_ERROR", 500);
@@ -52,16 +53,32 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  const readMap = new Map(
-    (memberships ?? []).map((m) => [m.conversation_id as string, m.last_read_at])
+  const membershipMap = new Map(
+    (memberships ?? []).map((m) => [m.conversation_id as string, m])
   );
 
-  const conversations = await Promise.all(
-    (convs ?? []).map(async (c) => {
+  const mapped = await Promise.all(
+    (convs ?? [])
+      .filter((c) => {
+        const parts = (participants ?? []).filter(
+          (p) => p.conversation_id === c.id
+        );
+        const other = parts.find((p) => (p.user_id as string) !== user.id);
+        return other?.status !== "declined";
+      })
+      .map(async (c) => {
+      const membership = membershipMap.get(c.id as string);
+      const viewerStatus = (membership?.status as string) ?? "accepted";
+      const initiatedBy = c.initiated_by as string | null;
+      const isRequest =
+        viewerStatus === "pending" && initiatedBy !== user.id;
+
       const others = (participants ?? [])
         .filter(
           (p) =>
-            p.conversation_id === c.id && (p.user_id as string) !== user.id
+            p.conversation_id === c.id &&
+            (p.user_id as string) !== user.id &&
+            p.status !== "declined"
         )
         .map((p) => {
           const prof = p.profiles as
@@ -97,8 +114,9 @@ export async function GET(request: NextRequest) {
       }
 
       const last = lastByConv.get(c.id as string);
-      const lastRead = readMap.get(c.id as string);
+      const lastRead = membership?.last_read_at;
       const unread =
+        !isRequest &&
         last &&
         last.sender_id !== user.id &&
         (!lastRead ||
@@ -107,11 +125,15 @@ export async function GET(request: NextRequest) {
       return {
         id: c.id,
         postId: c.post_id,
+        initiatedBy,
         updatedAt: c.updated_at,
+        status: viewerStatus,
+        isRequest,
         otherUser: other ?? null,
         lastMessage: last
           ? {
-              body: last.body,
+              body: isRequest ? null : (last.body as string),
+              previewHidden: isRequest,
               createdAt: last.created_at,
               senderId: last.sender_id,
             }
@@ -121,5 +143,10 @@ export async function GET(request: NextRequest) {
     })
   );
 
-  return jsonOk({ conversations: conversations.map((x) => toCamelCase(x)) });
+  const conversations = mapped
+    .filter((c) => !c.isRequest)
+    .map((x) => toCamelCase(x));
+  const requests = mapped.filter((c) => c.isRequest).map((x) => toCamelCase(x));
+
+  return jsonOk({ conversations, requests });
 }
