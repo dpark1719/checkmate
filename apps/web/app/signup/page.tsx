@@ -1,16 +1,20 @@
 import { AuthForm } from "@/components/auth/AuthForm";
+import { AuthPageShell } from "@/components/auth/AuthPageShell";
 import Link from "next/link";
 
 export default function SignupPage() {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-6">
+    <AuthPageShell
+      footer={
+        <>
+          Already have an account?{" "}
+          <Link href="/login" className="gp-btn-text gp-btn-text-xs">
+            Log in
+          </Link>
+        </>
+      }
+    >
       <AuthForm mode="signup" />
-      <p className="mt-8 text-sm gp-text-muted">
-        Already have an account?{" "}
-        <Link href="/login" className="gp-btn-text">
-          Log in
-        </Link>
-      </p>
-    </div>
+    </AuthPageShell>
   );
 }

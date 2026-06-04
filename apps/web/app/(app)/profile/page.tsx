@@ -8,6 +8,7 @@ import {
   SocialLinksEditor,
   socialLinksToFormState,
 } from "@/components/SocialLinksEditor";
+import { ProfileConnections } from "@/components/ProfileConnections";
 import { ProfilePostsGallery } from "@/components/ProfilePostsGallery";
 import { ProfileActivityHeatmap } from "@/components/ProfileActivityHeatmap";
 import { SocialLinksDisplay } from "@/components/SocialLinksDisplay";
@@ -42,6 +43,7 @@ function ProfilePageContent() {
   const tab = profileTabFromParam(searchParams.get("tab"));
 
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [displayName, setDisplayName] = useState("");
   const [username, setUsername] = useState("");
@@ -60,6 +62,7 @@ function ProfilePageContent() {
     fetch("/api/users/me")
       .then((r) => r.json())
       .then((data) => {
+        setUserId(data.userId ?? data.profile?.id ?? null);
         const p = data.profile;
         if (!p) return;
         const links = (p.socialLinks ?? {}) as SocialLinks;
@@ -205,6 +208,11 @@ function ProfilePageContent() {
               <ProfileActivityHeatmap username={profile.username} />
             </div>
           </div>
+
+          <ProfileConnections
+            username={profile.username}
+            currentUserId={userId}
+          />
 
           <section className="space-y-3">
             <h2 className="text-lg font-semibold">Posts</h2>

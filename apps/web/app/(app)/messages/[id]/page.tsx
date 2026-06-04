@@ -33,30 +33,51 @@ export default function ConversationPage() {
   const [declining, setDeclining] = useState(false);
   const [isRequest, setIsRequest] = useState(false);
   const [canReply, setCanReply] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
   const bottomRef = useRef<HTMLDivElement>(null);
 
-  const loadMessages = useCallback(() => {
-    fetch(`/api/conversations/${id}/messages`)
-      .then((r) => r.json())
-      .then((d) => setMessages(d.messages ?? []));
+  const loadMessages = useCallback(async () => {
+    const res = await fetch(`/api/conversations/${id}/messages`);
+    const data = await res.json();
+    if (!res.ok) {
+      setLoadError((prev) => prev ?? data.error ?? "Could not load messages");
+      return;
+    }
+    setMessages(data.messages ?? []);
   }, [id]);
 
   useEffect(() => {
-    fetch("/api/users/me")
-      .then((r) => r.json())
-      .then((d) => setCurrentUserId(d.userId ?? d.profile?.id ?? null));
+    setLoading(true);
+    setLoadError(null);
 
-    fetch(`/api/conversations/${id}`)
+    const mePromise = fetch("/api/users/me")
       .then((r) => r.json())
-      .then((d) => {
+      .then((d) => setCurrentUserId(d.userId ?? d.profile?.id ?? null))
+      .catch(() => {});
+
+    const convPromise = fetch(`/api/conversations/${id}`)
+      .then(async (r) => {
+        const d = await r.json();
+        if (!r.ok) {
+          setLoadError(d.error ?? "Could not load conversation");
+          return;
+        }
         if (d.otherUser) setOtherUser(d.otherUser);
         if (d.postContext) setPostContext(d.postContext);
         setIsRequest(Boolean(d.isRequest));
         setCanReply(Boolean(d.canReply));
-      });
+      })
+      .catch(() => setLoadError("Could not load conversation"));
 
-    loadMessages();
+    const messagesPromise = loadMessages().catch(() =>
+      setLoadError((prev) => prev ?? "Could not load messages")
+    );
+
+    void Promise.all([mePromise, convPromise, messagesPromise]).finally(() =>
+      setLoading(false)
+    );
   }, [id, loadMessages]);
 
   useEffect(() => {
@@ -153,39 +174,56 @@ export default function ConversationPage() {
         )}
       </div>
 
+      {loadError && (
+        <div className="mx-4 mt-4 rounded-lg border border-red-400/30 bg-red-400/10 px-4 py-3 space-y-2">
+          <p className="text-sm text-red-400">{loadError}</p>
+          <p className="text-xs gp-text-muted">
+            Run{" "}
+            <code className="text-[var(--gp-fg)]">
+              supabase/migrations/20250602120000_message_requests.sql
+            </code>{" "}
+            in Supabase if messaging was recently enabled.
+          </p>
+        </div>
+      )}
+
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
-        {messages.map((m) => {
-          const mine = m.senderId === currentUserId;
-          return (
-            <div
-              key={m.id}
-              className={`flex ${mine ? "justify-end" : "justify-start"}`}
-            >
+        {loading ? (
+          <p className="text-sm gp-text-muted">Loading…</p>
+        ) : (
+          messages.map((m) => {
+            const mine = m.senderId === currentUserId;
+            return (
               <div
-                className={`flex flex-col max-w-[85%] ${
-                  mine ? "items-end" : "items-start"
-                }`}
+                key={m.id}
+                className={`flex ${mine ? "justify-end" : "justify-start"}`}
               >
                 <div
-                  className={`rounded-2xl px-4 py-2 text-sm ${
-                    mine
-                      ? "bg-accent text-accent-foreground"
-                      : "bg-[var(--gp-surface)] text-[var(--gp-fg)]"
+                  className={`flex flex-col max-w-[85%] ${
+                    mine ? "items-end" : "items-start"
                   }`}
                 >
-                  {m.body}
+                  <div
+                    className={`rounded-2xl px-4 py-2 text-sm ${
+                      mine
+                        ? "bg-accent text-accent-foreground"
+                        : "bg-[var(--gp-surface)] text-[var(--gp-fg)]"
+                    }`}
+                  >
+                    {m.body}
+                  </div>
+                  <span className="text-[10px] gp-text-muted mt-0.5 px-1">
+                    {formatMessageTime(m.createdAt)}
+                  </span>
                 </div>
-                <span className="text-[10px] gp-text-muted mt-0.5 px-1">
-                  {formatMessageTime(m.createdAt)}
-                </span>
               </div>
-            </div>
-          );
-        })}
+            );
+          })
+        )}
         <div ref={bottomRef} />
       </div>
 
-      {isRequest && !canReply ? (
+      {!loadError && isRequest && !canReply ? (
         <div className="fixed left-0 right-0 z-20 px-4 py-3 border-t border-[var(--gp-border)] bg-[var(--gp-nav-bg)] backdrop-blur flex gap-2 max-w-3xl mx-auto bottom-[calc(3.5rem+env(safe-area-inset-bottom))]">
           <button
             type="button"
@@ -204,7 +242,7 @@ export default function ConversationPage() {
             {accepting ? "…" : "Accept"}
           </button>
         </div>
-      ) : (
+      ) : !loadError ? (
         <form
           onSubmit={sendMessage}
           className="fixed left-0 right-0 z-20 px-4 py-3 border-t border-[var(--gp-border)] bg-[var(--gp-nav-bg)] backdrop-blur flex gap-2 max-w-3xl mx-auto bottom-[calc(3.5rem+env(safe-area-inset-bottom))]"
@@ -224,7 +262,7 @@ export default function ConversationPage() {
             Send
           </button>
         </form>
-      )}
+      ) : null}
       {error && <p className="px-4 text-sm text-red-400">{error}</p>}
     </div>
   );

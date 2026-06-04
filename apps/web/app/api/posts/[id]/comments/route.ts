@@ -1,10 +1,40 @@
 import { commentSchema } from "@checkmate/shared";
 import { notifyPostComment } from "@checkmate/server";
 import { NextRequest } from "next/server";
-import { jsonError, jsonOk, toCamelCase } from "@/lib/api/response";
+import { jsonError, jsonOk } from "@/lib/api/response";
 import { createClient, getAuthUser } from "@/lib/supabase/server";
 
 type Params = { params: Promise<{ id: string }> };
+
+type ProfileRow = { display_name: string; username: string };
+
+const PROFILE_SELECT =
+  "profiles!comments_user_id_fkey(display_name, username)";
+
+function extractAuthor(
+  profiles: ProfileRow | ProfileRow[] | null | undefined
+): { displayName: string; username: string } {
+  const row = Array.isArray(profiles) ? profiles[0] : profiles;
+  return {
+    displayName: row?.display_name ?? "Someone",
+    username: row?.username ?? "user",
+  };
+}
+
+function mapComment(row: Record<string, unknown>) {
+  const { profiles, ...rest } = row;
+  const author = extractAuthor(
+    profiles as ProfileRow | ProfileRow[] | null | undefined
+  );
+  return {
+    id: rest.id as string,
+    body: rest.body as string,
+    createdAt: rest.created_at as string,
+    userId: rest.user_id as string,
+    postId: rest.post_id as string,
+    author,
+  };
+}
 
 export async function POST(request: NextRequest, { params }: Params) {
   const user = await getAuthUser();
@@ -25,26 +55,22 @@ export async function POST(request: NextRequest, { params }: Params) {
       user_id: user.id,
       body: parsed.data.body,
     })
-    .select("*, profiles(display_name, username)")
+    .select(`*, ${PROFILE_SELECT}`)
     .single();
 
   if (error) return jsonError(error.message, "DB_ERROR", 500);
 
-  const profile = data.profiles as
-    | { display_name: string; username: string }
-    | { display_name: string; username: string }[]
-    | null;
-  const author = Array.isArray(profile) ? profile[0] : profile;
+  const comment = mapComment(data as Record<string, unknown>);
 
   void notifyPostComment({
     postId,
-    commentId: data.id as string,
+    commentId: comment.id,
     actorId: user.id,
-    actorName: author?.display_name ?? "Someone",
+    actorName: comment.author.displayName,
     commentBody: parsed.data.body,
   }).catch((e) => console.error("[notifyPostComment]", e));
 
-  return jsonOk({ comment: toCamelCase(data) }, 201);
+  return jsonOk({ comment }, 201);
 }
 
 export async function GET(_request: Request, { params }: Params) {
@@ -53,11 +79,15 @@ export async function GET(_request: Request, { params }: Params) {
 
   const { data, error } = await supabase
     .from("comments")
-    .select("*, profiles(display_name, username)")
+    .select(`*, ${PROFILE_SELECT}`)
     .eq("post_id", postId)
     .is("deleted_at", null)
     .order("created_at", { ascending: true });
 
   if (error) return jsonError(error.message, "DB_ERROR", 500);
-  return jsonOk({ comments: (data ?? []).map((c) => toCamelCase(c)) });
+  return jsonOk({
+    comments: (data ?? []).map((c) =>
+      mapComment(c as Record<string, unknown>)
+    ),
+  });
 }

@@ -74,16 +74,21 @@ export default function MessagesPage() {
   const [conversations, setConversations] = useState<ConversationRow[]>([]);
   const [requests, setRequests] = useState<ConversationRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
     fetch("/api/conversations")
-      .then((r) => r.json())
-      .then((d) => {
+      .then(async (r) => {
+        const d = await r.json();
+        if (!r.ok) {
+          setLoadError(d.error ?? "Could not load messages");
+          return;
+        }
         setConversations(d.conversations ?? []);
         setRequests(d.requests ?? []);
-        setLoading(false);
       })
-      .catch(() => setLoading(false));
+      .catch(() => setLoadError("Could not load messages"))
+      .finally(() => setLoading(false));
   }, []);
 
   const empty = conversations.length === 0 && requests.length === 0;
@@ -96,9 +101,26 @@ export default function MessagesPage() {
         <strong className="text-[var(--gp-fg)]">Message about this post</strong>.
       </p>
 
+      {loadError && (
+        <div className="rounded-lg border border-red-400/30 bg-red-400/10 px-4 py-3 space-y-2">
+          <p className="text-sm text-red-400">{loadError}</p>
+          <p className="text-xs gp-text-muted">
+            If messaging was recently added, run{" "}
+            <code className="text-[var(--gp-fg)]">
+              supabase/migrations/20250602120000_message_requests.sql
+            </code>{" "}
+            in Supabase, then check{" "}
+            <Link href="/api/conversations/health" className="gp-btn-text gp-btn-text-xs">
+              /api/conversations/health
+            </Link>
+            .
+          </p>
+        </div>
+      )}
+
       {loading ? (
         <p className="gp-text-muted">Loading…</p>
-      ) : empty ? (
+      ) : loadError ? null : empty ? (
         <p className="gp-text-muted text-sm">
           No conversations yet.{" "}
           <Link href="/discover" className="gp-btn-text gp-btn-text-xs">

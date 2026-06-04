@@ -23,6 +23,7 @@ cp .env.example .env
 # - supabase/migrations/20250524100000_user_notifications.sql
 # - supabase/migrations/20250524110000_posts_soft_delete_rls.sql
 # - supabase/migrations/20250524120000_avatars_bucket.sql  ← required for profile photos
+# - supabase/migrations/20250602120000_message_requests.sql  ← required for DMs + message requests
 
 npm run dev:web
 ```

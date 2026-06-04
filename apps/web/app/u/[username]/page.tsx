@@ -1,5 +1,6 @@
 "use client";
 
+import { ProfileConnections } from "@/components/ProfileConnections";
 import { ProfilePostsGallery } from "@/components/ProfilePostsGallery";
 import { ProfileActivityHeatmap } from "@/components/ProfileActivityHeatmap";
 import { SocialLinksDisplay } from "@/components/SocialLinksDisplay";
@@ -230,6 +231,11 @@ export default function PublicProfilePage() {
           </ul>
         )}
       </section>
+
+      <ProfileConnections
+        username={profile.username}
+        currentUserId={currentUserId}
+      />
 
       <section>
         <h2 className="text-lg font-semibold mb-4">Posts</h2>

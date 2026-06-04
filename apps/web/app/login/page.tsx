@@ -1,4 +1,5 @@
 import { AuthForm } from "@/components/auth/AuthForm";
+import { AuthPageShell } from "@/components/auth/AuthPageShell";
 import Link from "next/link";
 
 export default async function LoginPage({
@@ -8,34 +9,35 @@ export default async function LoginPage({
 }) {
   const { error, reason } = await searchParams;
 
+  const authError =
+    error === "auth" ? (
+      <>
+        Sign-in could not be completed.
+        {reason ? (
+          <span className="block mt-2 gp-text-muted text-xs">{reason}</span>
+        ) : (
+          <span className="block mt-2 gp-text-muted text-xs">
+            Check that Supabase redirect URLs include your site (
+            {process.env.NEXT_PUBLIC_APP_URL ?? "your Vercel URL"})
+            /auth/callback and that Google OAuth is enabled in Supabase →
+            Authentication → Providers.
+          </span>
+        )}
+      </>
+    ) : undefined;
+
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-6">
-      {error === "auth" && (
-        <p className="mb-4 max-w-md text-center text-sm text-red-400">
-          Sign-in could not be completed.
-          {reason ? (
-            <>
-              {" "}
-              <span className="block mt-2 gp-text-muted text-xs">{reason}</span>
-            </>
-          ) : (
-            <>
-              {" "}
-              Check that Supabase redirect URLs include your site (
-              {process.env.NEXT_PUBLIC_APP_URL ?? "your Vercel URL"})
-              /auth/callback and that Google OAuth is enabled in Supabase →
-              Authentication → Providers.
-            </>
-          )}
-        </p>
-      )}
-      <AuthForm mode="login" />
-      <p className="mt-8 text-sm gp-text-muted">
-        New here?{" "}
-        <Link href="/signup" className="gp-btn-text">
-          Sign up
-        </Link>
-      </p>
-    </div>
+    <AuthPageShell
+      footer={
+        <>
+          New here?{" "}
+          <Link href="/signup" className="gp-btn-text gp-btn-text-xs">
+            Sign up
+          </Link>
+        </>
+      }
+    >
+      <AuthForm mode="login" authError={authError} />
+    </AuthPageShell>
   );
 }

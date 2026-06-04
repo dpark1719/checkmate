@@ -2,10 +2,11 @@
 
 import { GOAL_CATEGORIES, type GoalCategory } from "@checkmate/shared";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function OnboardingPage() {
   const router = useRouter();
+  const [checkingExisting, setCheckingExisting] = useState(true);
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState<GoalCategory>("fitness");
   const [promiseTime, setPromiseTime] = useState("20:00");
@@ -14,6 +15,31 @@ export default function OnboardingPage() {
   );
   const [region, setRegion] = useState<"us" | "eu" | "other">("us");
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function checkExistingGoals() {
+      try {
+        const res = await fetch("/api/goals");
+        if (!res.ok) return;
+        const data = (await res.json()) as { goals?: unknown[] };
+        if (!cancelled && (data.goals?.length ?? 0) > 0) {
+          router.replace("/feed");
+          return;
+        }
+      } finally {
+        if (!cancelled) {
+          setCheckingExisting(false);
+        }
+      }
+    }
+
+    void checkExistingGoals();
+    return () => {
+      cancelled = true;
+    };
+  }, [router]);
 
   async function complete(event: React.FormEvent) {
     event.preventDefault();
@@ -59,6 +85,14 @@ export default function OnboardingPage() {
 
   async function skip() {
     router.push("/feed");
+  }
+
+  if (checkingExisting) {
+    return (
+      <div className="max-w-md mx-auto py-12 text-center gp-text-muted text-sm">
+        Loading…
+      </div>
+    );
   }
 
   return (

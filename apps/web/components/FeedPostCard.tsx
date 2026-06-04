@@ -1,12 +1,14 @@
 "use client";
 
 import { CommentsSection } from "@/components/CommentsSection";
+import { PostReactionButton } from "@/components/PostReactionButton";
 import { UserAvatar } from "@/components/UserAvatar";
+import { REACTION_TYPES, type ReactionType } from "@checkmate/shared";
 import {
-  REACTION_TYPES,
-  reactionEmoji,
-  type ReactionType,
-} from "@checkmate/shared";
+  type ReactionRow,
+  reactionMatches,
+  userHasReaction,
+} from "@/lib/reactions";
 import { PostDetailModal } from "@/components/PostDetailModal";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -24,14 +26,8 @@ interface FeedPost {
     avatarUrl: string | null;
   } | null;
   goal: { title: string; category: string } | null;
-  reactions: { type: string; user_id: string }[];
+  reactions: ReactionRow[];
   isFollowingAuthor?: boolean;
-}
-
-function reactionMatches(type: ReactionType, stored: string) {
-  if (stored === type) return true;
-  if (type === "cheers" && stored === "mind_blown") return true;
-  return false;
 }
 
 export function FeedPostCard({
@@ -70,7 +66,9 @@ export function FeedPostCard({
   }, []);
 
   async function toggleReaction(type: ReactionType) {
-    const has = reactions.some((r) => reactionMatches(type, r.type));
+    if (!currentUserId) return;
+
+    const has = userHasReaction(reactions, type, currentUserId);
     const res = await fetch(
       `/api/posts/${post.id}/reactions${has ? `?type=${type}` : ""}`,
       {
@@ -82,8 +80,14 @@ export function FeedPostCard({
     if (res.ok) {
       setReactions((prev) =>
         has
-          ? prev.filter((r) => !reactionMatches(type, r.type))
-          : [...prev, { type, user_id: "me" }]
+          ? prev.filter(
+              (r) =>
+                !(
+                  r.user_id === currentUserId &&
+                  reactionMatches(type, r.type)
+                )
+            )
+          : [...prev, { type, user_id: currentUserId }]
       );
     }
   }
@@ -246,29 +250,16 @@ export function FeedPostCard({
           <p className="px-4 py-2 text-sm">{post.caption}</p>
         ))}
       <div className="px-4 pb-2 flex gap-2 flex-wrap items-center">
-        {REACTION_TYPES.map((type) => {
-          const active = reactions.some((r) => reactionMatches(type, r.type));
-          const count = reactions.filter((r) => reactionMatches(type, r.type)).length;
-          return (
-            <button
-              key={type}
-              type="button"
-              title={type}
-              aria-label={type}
-              onClick={() => toggleReaction(type)}
-              className={`text-xl rounded-full min-w-[2.5rem] h-10 px-2 border flex items-center justify-center gap-1 ${
-                active
-                  ? "border-accent bg-[var(--gp-accent-subtle)]"
-                  : "border-[var(--gp-border)] opacity-80 hover:opacity-100"
-              }`}
-            >
-              <span aria-hidden>{reactionEmoji(type)}</span>
-              {count > 0 && (
-                <span className="text-xs gp-text-muted tabular-nums">{count}</span>
-              )}
-            </button>
-          );
-        })}
+        {REACTION_TYPES.map((type) => (
+          <PostReactionButton
+            key={type}
+            postId={post.id}
+            type={type}
+            reactions={reactions}
+            currentUserId={currentUserId}
+            onToggle={toggleReaction}
+          />
+        ))}
         {!isOwner && (
           <button
             type="button"
