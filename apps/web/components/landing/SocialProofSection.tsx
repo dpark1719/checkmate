@@ -13,21 +13,27 @@ interface SocialProofSectionProps {
   stats: MockStats;
   categories: CategoryCycleItem[];
   posts: MockPost[];
+  fill?: boolean;
 }
 
 export function SocialProofSection({
   stats,
   categories,
   posts,
+  fill,
 }: SocialProofSectionProps) {
   const { ref, inView } = useInView();
 
   return (
     <section
       ref={ref}
-      className="px-4 sm:px-6 max-w-5xl mx-auto w-full space-y-3 sm:space-y-4"
+      className={`px-4 sm:px-6 max-w-5xl mx-auto w-full ${
+        fill
+          ? "flex flex-col flex-1 min-h-0 gap-2 sm:gap-3"
+          : "space-y-3 sm:space-y-4"
+      }`}
     >
-      <div className="text-center space-y-1 max-w-2xl mx-auto">
+      <div className="text-center space-y-1 max-w-2xl mx-auto shrink-0">
         <h2 className="text-lg sm:text-xl font-bold tracking-tight">
           People are already locked in.
         </h2>
@@ -36,15 +42,17 @@ export function SocialProofSection({
         </p>
       </div>
 
-      <StatsBar
-        lockedInToday={stats.lockedInToday}
-        activeStreaks={stats.activeStreaks}
-        goalCategoriesActive={stats.goalCategoriesActive}
-        categories={categories}
-        animate={inView}
-      />
+      <div className="shrink-0">
+        <StatsBar
+          lockedInToday={stats.lockedInToday}
+          activeStreaks={stats.activeStreaks}
+          goalCategoriesActive={stats.goalCategoriesActive}
+          categories={categories}
+          animate={inView}
+        />
+      </div>
 
-      <ActivityFeed posts={posts} visible={inView} compact />
+      <ActivityFeed posts={posts} visible={inView} fill={fill} />
     </section>
   );
 }

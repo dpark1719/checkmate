@@ -128,12 +128,13 @@ export function LandingPageContent() {
         ref={(el) => {
           pageRefs.current[2] = el;
         }}
-        className="snap-start h-[100dvh] flex flex-col justify-center overflow-hidden py-10 sm:py-12"
+        className="snap-start h-[100dvh] flex flex-col overflow-hidden pt-5 sm:pt-6 pb-[5.5rem]"
       >
         <SocialProofSection
           stats={MOCK_STATS}
           categories={MOCK_CATEGORY_CYCLE}
           posts={MOCK_POSTS}
+          fill
         />
       </div>
 
