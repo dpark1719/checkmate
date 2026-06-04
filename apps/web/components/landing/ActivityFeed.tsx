@@ -18,7 +18,7 @@ function ActivityCard({
 }) {
   return (
     <article
-      className={`landing-fade-in flex-shrink-0 w-[min(100%,280px)] sm:w-auto snap-center rounded-2xl border border-[var(--gp-border)] bg-[var(--gp-card)] p-4 shadow-sm ${
+      className={`landing-fade-in rounded-2xl border border-[var(--gp-border)] bg-[var(--gp-card)] p-4 shadow-sm ${
         visible ? "landing-fade-in-visible" : ""
       }`}
       style={{
@@ -66,15 +66,13 @@ function ActivityCard({
 
 export function ActivityFeed({ posts, visible }: ActivityFeedProps) {
   return (
-    <div
-      className="flex sm:grid sm:grid-cols-3 gap-4 overflow-x-auto sm:overflow-visible pb-2 sm:pb-0 snap-x snap-mandatory sm:snap-none -mx-6 px-6 sm:mx-0 sm:px-0"
-    >
+    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
       {posts.map((post, index) => (
         <ActivityCard
           key={post.id}
           post={post}
           visible={visible}
-          delayMs={(index % 3) * 100 + Math.floor(index / 3) * 50}
+          delayMs={(index % 4) * 100 + Math.floor(index / 4) * 50}
         />
       ))}
     </div>
