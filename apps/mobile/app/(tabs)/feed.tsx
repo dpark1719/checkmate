@@ -19,15 +19,26 @@ interface Post {
 export default function FeedScreen() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     apiFetch("/api/users/me/feed")
-      .then((r) => r.json())
+      .then(async (r) => {
+        const d = await r.json();
+        if (!r.ok || d.error) {
+          throw new Error(d.error ?? "Could not load feed");
+        }
+        return d;
+      })
       .then((d) => {
         setPosts(d.posts ?? []);
+        setError(null);
         setLoading(false);
       })
-      .catch(() => setLoading(false));
+      .catch((e) => {
+        setError(e instanceof Error ? e.message : "Could not load feed");
+        setLoading(false);
+      });
   }, []);
 
   if (loading) {
@@ -65,6 +76,7 @@ const styles = StyleSheet.create({
   content: { padding: 16, gap: 16 },
   center: { flex: 1, backgroundColor: "#09090b", justifyContent: "center" },
   empty: { color: "#71717a", textAlign: "center", marginTop: 40 },
+  error: { color: "#f87171", textAlign: "center", paddingHorizontal: 24 },
   card: {
     borderColor: "#27272a",
     borderWidth: 1,

@@ -45,7 +45,7 @@ export async function GET(_request: Request, { params }: Params) {
 
   const { data: myPosts } = await supabase
     .from("posts")
-    .select("id, goal_id, created_at, goals!inner(title, category)")
+    .select("id, goal_id, created_at, goals!posts_goal_id_fkey!inner(title, category)")
     .eq("user_id", user.id)
     .eq("goals.category", parsed.data)
     .is("deleted_at", null)

@@ -24,11 +24,11 @@ type PostRow = {
 const POST_SELECT = `
   id, user_id, goal_id, photo_url, caption, is_late, created_at,
   profiles(display_name, username, avatar_url),
-  goals!inner(title, category),
+  goals!posts_goal_id_fkey!inner(title, category),
   reactions(type, user_id)
 `;
 
-function mapPostRows(
+async function mapPostRows(
   supabase: SupabaseClient,
   posts: PostRow[],
   limit: number,
@@ -44,50 +44,56 @@ function mapPostRows(
     })
     .filter(Boolean);
 
-  return Promise.all([
-    signPhotoUrls(supabase, photoPaths),
-    signAvatarUrls(supabase, avatarPaths),
-  ]).then(([signedPhotos, signedAvatars]) => {
-    const items = posts.map((post) => {
-      const profile = normalizeRelation(post.profiles) as {
-        display_name: string;
-        username: string;
-        avatar_url: string | null;
-      } | null;
-      const goal = normalizeRelation(post.goals) as {
-        title: string;
-        category: string;
-      } | null;
-      const avatarStored = profile?.avatar_url;
-      return {
-        id: post.id,
-        userId: post.user_id,
-        goalId: post.goal_id,
-        photoUrl:
-          signedPhotos.get(post.photo_url as string) ?? post.photo_url,
-        caption: post.caption,
-        isLate: post.is_late,
-        createdAt: post.created_at,
-        author: profile
-          ? {
-              displayName: profile.display_name,
-              username: profile.username,
-              avatarUrl: avatarStored
-                ? signedAvatars.get(avatarStored) ?? avatarStored
-                : null,
-            }
-          : null,
-        goal: goal ? { title: goal.title, category: goal.category } : null,
-        reactions: post.reactions ?? [],
-        isFollowingAuthor: followingAuthorIds?.has(post.user_id) ?? false,
-      };
-    });
+  let signedPhotos = new Map<string, string>();
+  let signedAvatars = new Map<string, string>();
+  try {
+    [signedPhotos, signedAvatars] = await Promise.all([
+      signPhotoUrls(supabase, photoPaths),
+      signAvatarUrls(supabase, avatarPaths),
+    ]);
+  } catch {
+    // Fall back to stored paths if signing fails (e.g. missing storage object).
+  }
 
-    const nextCursor =
-      items.length === limit ? items[items.length - 1]?.createdAt : null;
-
-    return { posts: items, nextCursor };
+  const items = posts.map((post) => {
+    const profile = normalizeRelation(post.profiles) as {
+      display_name: string;
+      username: string;
+      avatar_url: string | null;
+    } | null;
+    const goal = normalizeRelation(post.goals) as {
+      title: string;
+      category: string;
+    } | null;
+    const avatarStored = profile?.avatar_url;
+    return {
+      id: post.id,
+      userId: post.user_id,
+      goalId: post.goal_id,
+      photoUrl:
+        signedPhotos.get(post.photo_url as string) ?? post.photo_url,
+      caption: post.caption,
+      isLate: post.is_late,
+      createdAt: post.created_at,
+      author: profile
+        ? {
+            displayName: profile.display_name,
+            username: profile.username,
+            avatarUrl: avatarStored
+              ? signedAvatars.get(avatarStored) ?? avatarStored
+              : null,
+          }
+        : null,
+      goal: goal ? { title: goal.title, category: goal.category } : null,
+      reactions: post.reactions ?? [],
+      isFollowingAuthor: followingAuthorIds?.has(post.user_id) ?? false,
+    };
   });
+
+  const nextCursor =
+    items.length === limit ? items[items.length - 1]?.createdAt : null;
+
+  return { posts: items, nextCursor };
 }
 
 async function mySharedGoalIds(supabase: SupabaseClient, userId: string) {
@@ -149,7 +155,7 @@ export async function getHomeFeed(
       `
       id, user_id, goal_id, photo_url, caption, is_late, created_at,
       profiles(display_name, username, avatar_url),
-      goals(title, category),
+      goals!posts_goal_id_fkey(title, category),
       reactions(type, user_id)
     `
     )

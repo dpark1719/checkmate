@@ -27,12 +27,18 @@ export default function FeedPage() {
   const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const loadFeed = useCallback(async (cursor?: string) => {
     const params = new URLSearchParams({ limit: "20" });
     if (cursor) params.set("cursor", cursor);
-    const res = await fetch(`/api/users/me/feed?${params}`);
+    const res = await fetch(`/api/users/me/feed?${params}`, {
+      cache: "no-store",
+    });
     const data = await res.json();
+    if (!res.ok || data.error) {
+      throw new Error(data.error ?? "Could not load feed");
+    }
     return {
       posts: (data.posts ?? []) as FeedPost[],
       nextCursor: (data.nextCursor as string | null) ?? null,
@@ -44,9 +50,13 @@ export default function FeedPage() {
       .then(({ posts: fetched, nextCursor: cursor }) => {
         setPosts(fetched);
         setNextCursor(cursor);
+        setError(null);
         setLoading(false);
       })
-      .catch(() => setLoading(false));
+      .catch((e) => {
+        setError(e instanceof Error ? e.message : "Could not load feed");
+        setLoading(false);
+      });
   }, [loadFeed]);
 
   const dayGroups = useMemo(() => groupPostsByDay(posts), [posts]);
@@ -81,6 +91,8 @@ export default function FeedPage() {
 
       {loading ? (
         <p className="gp-text-muted">Loading…</p>
+      ) : error ? (
+        <p className="text-sm text-red-400">{error}</p>
       ) : posts.length === 0 ? (
         <div className="rounded-xl border border-dashed border-[var(--gp-border)] p-12 text-center space-y-4">
           <p className="gp-text-muted">

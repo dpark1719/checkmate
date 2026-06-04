@@ -22,7 +22,7 @@ type GalleryPostRow = {
 const GALLERY_POST_SELECT = `
   id, user_id, goal_id, photo_url, caption, is_late, created_at,
   profiles(display_name, username, avatar_url),
-  goals(title, category)
+  goals!posts_goal_id_fkey(title, category)
 `;
 
 async function mapGalleryPostRows(
