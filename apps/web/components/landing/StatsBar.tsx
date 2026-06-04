@@ -72,45 +72,42 @@ export function StatsBar({
   }, [categories.length]);
 
   return (
-    <div className="rounded-2xl border border-[var(--gp-border)] bg-[var(--gp-surface)] px-4 py-6 sm:px-8 sm:py-8">
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-6 text-center">
-        <div>
-          <div className="flex items-center justify-center gap-2">
+    <div className="rounded-xl border border-[var(--gp-border)] bg-[var(--gp-surface)] px-3 py-2.5 sm:px-4 sm:py-3">
+      <div className="grid grid-cols-3 gap-2 sm:gap-3">
+        <div className="text-center min-w-0">
+          <div className="flex items-center justify-center gap-1.5">
             <span
-              className="h-2 w-2 rounded-full bg-green-500 landing-live-pulse"
+              className="h-1.5 w-1.5 rounded-full bg-green-500 landing-live-pulse shrink-0"
               aria-hidden
             />
-            <p className="text-3xl sm:text-4xl font-bold tabular-nums">
+            <p className="text-lg sm:text-xl font-bold tabular-nums leading-none">
               {formatStat(lockedIn)}
             </p>
           </div>
-          <p className="text-xs sm:text-sm gp-text-muted mt-1">
+          <p className="text-[10px] sm:text-xs gp-text-muted mt-0.5 leading-tight">
             locked in today
           </p>
         </div>
 
-        <div>
-          <p className="text-3xl sm:text-4xl font-bold tabular-nums">
+        <div className="text-center min-w-0 border-x border-[var(--gp-border)] px-1">
+          <p className="text-lg sm:text-xl font-bold tabular-nums leading-none">
             {formatStat(streaks)}
           </p>
-          <p className="text-xs sm:text-sm gp-text-muted mt-1">
+          <p className="text-[10px] sm:text-xs gp-text-muted mt-0.5 leading-tight">
             active streaks
           </p>
         </div>
 
-        <div>
-          <p className="text-3xl sm:text-4xl font-bold tabular-nums">
+        <div className="text-center min-w-0">
+          <p className="text-lg sm:text-xl font-bold tabular-nums leading-none">
             {formatStat(categoriesCount)}
           </p>
-          <p className="text-xs sm:text-sm gp-text-muted mt-1">
-            goal categories active now
-          </p>
           <p
-            className={`text-xs sm:text-sm text-[var(--gp-fg)] mt-1 min-h-[1.25rem] transition-opacity duration-300 ${
+            className={`text-[10px] sm:text-xs text-[var(--gp-fg)] mt-0.5 leading-tight transition-opacity duration-300 truncate ${
               categoryVisible ? "opacity-100" : "opacity-0"
             }`}
           >
-            {categories[categoryIndex]?.label}
+            {categories[categoryIndex]?.label ?? "active categories"}
           </p>
         </div>
       </div>

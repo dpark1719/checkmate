@@ -29,13 +29,13 @@ export function SocialProofSection({
   return (
     <section
       ref={ref}
-      className="py-16 sm:py-24 px-6 max-w-5xl mx-auto w-full space-y-12"
+      className="px-4 sm:px-6 max-w-5xl mx-auto w-full space-y-3 sm:space-y-4"
     >
-      <div className="text-center space-y-3 max-w-2xl mx-auto">
-        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">
+      <div className="text-center space-y-1 max-w-2xl mx-auto">
+        <h2 className="text-lg sm:text-xl font-bold tracking-tight">
           People are already locked in.
         </h2>
-        <p className="gp-text-muted text-base sm:text-lg">
+        <p className="gp-text-muted text-xs sm:text-sm">
           Every day, thousands of people show up for their goals on CheckMate.
         </p>
       </div>
@@ -48,9 +48,9 @@ export function SocialProofSection({
         animate={inView}
       />
 
-      <ActivityFeed posts={posts} visible={inView} />
+      <ActivityFeed posts={posts} visible={inView} compact />
 
-      <LeaderboardTeaser entries={leaderboard} />
+      <LeaderboardTeaser entries={leaderboard} compact />
     </section>
   );
 }

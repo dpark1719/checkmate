@@ -129,7 +129,7 @@ export function LandingPageContent() {
         ref={(el) => {
           pageRefs.current[2] = el;
         }}
-        className="snap-start min-h-[100dvh] flex flex-col justify-center"
+        className="snap-start h-[100dvh] flex flex-col justify-center overflow-hidden py-10 sm:py-12"
       >
         <SocialProofSection
           stats={MOCK_STATS}
