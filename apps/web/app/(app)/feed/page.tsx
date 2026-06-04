@@ -1,8 +1,9 @@
 "use client";
 
 import { FeedPostCard } from "@/components/FeedPostCard";
+import { groupPostsByDay } from "@/lib/format-datetime";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 interface FeedPost {
   id: string;
@@ -23,17 +24,51 @@ interface FeedPost {
 
 export default function FeedPage() {
   const [posts, setPosts] = useState<FeedPost[]>([]);
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+
+  const loadFeed = useCallback(async (cursor?: string) => {
+    const params = new URLSearchParams({ limit: "20" });
+    if (cursor) params.set("cursor", cursor);
+    const res = await fetch(`/api/users/me/feed?${params}`);
+    const data = await res.json();
+    return {
+      posts: (data.posts ?? []) as FeedPost[],
+      nextCursor: (data.nextCursor as string | null) ?? null,
+    };
+  }, []);
 
   useEffect(() => {
-    fetch("/api/users/me/feed")
-      .then((r) => r.json())
-      .then((data) => {
-        setPosts(data.posts ?? []);
+    loadFeed()
+      .then(({ posts: fetched, nextCursor: cursor }) => {
+        setPosts(fetched);
+        setNextCursor(cursor);
         setLoading(false);
       })
       .catch(() => setLoading(false));
-  }, []);
+  }, [loadFeed]);
+
+  const dayGroups = useMemo(() => groupPostsByDay(posts), [posts]);
+
+  async function loadEarlier() {
+    if (!nextCursor || loadingMore) return;
+    setLoadingMore(true);
+    try {
+      const { posts: more, nextCursor: cursor } = await loadFeed(nextCursor);
+      setPosts((prev) => {
+        const seen = new Set(prev.map((p) => p.id));
+        const merged = [...prev];
+        for (const post of more) {
+          if (!seen.has(post.id)) merged.push(post);
+        }
+        return merged;
+      });
+      setNextCursor(cursor);
+    } finally {
+      setLoadingMore(false);
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -56,15 +91,41 @@ export default function FeedPage() {
           </Link>
         </div>
       ) : (
-        <div className="space-y-6">
-          {posts.map((post) => (
-            <FeedPostCard
-              key={post.id}
-              post={post}
-              openMessagingOnClick
-              onDeleted={(id) => setPosts((prev) => prev.filter((p) => p.id !== id))}
-            />
+        <div className="space-y-8">
+          {dayGroups.map((group) => (
+            <section key={group.dayKey} className="space-y-4">
+              <div className="sticky top-0 z-10 -mx-1 px-1 py-2 bg-[var(--background)]/95 backdrop-blur border-b border-[var(--gp-border)]">
+                <h2 className="text-sm font-semibold tracking-wide text-[var(--gp-muted)]">
+                  {group.label}
+                </h2>
+              </div>
+              <div className="space-y-6">
+                {group.posts.map((post) => (
+                  <FeedPostCard
+                    key={post.id}
+                    post={post}
+                    openMessagingOnClick
+                    onDeleted={(id) =>
+                      setPosts((prev) => prev.filter((p) => p.id !== id))
+                    }
+                  />
+                ))}
+              </div>
+            </section>
           ))}
+
+          {nextCursor && (
+            <div className="flex justify-center pt-2 pb-4">
+              <button
+                type="button"
+                onClick={() => void loadEarlier()}
+                disabled={loadingMore}
+                className="rounded-lg border border-[var(--gp-border)] px-4 py-2 text-sm font-medium hover:bg-[var(--gp-card)] disabled:opacity-50"
+              >
+                {loadingMore ? "Loading…" : "Load earlier posts"}
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>
