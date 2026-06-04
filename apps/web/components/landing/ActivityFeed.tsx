@@ -59,18 +59,14 @@ function ActivityCard({
       }}
     >
       <div
-        className={`flex items-start justify-between gap-1.5 shrink-0 ${
-          fill ? "mb-2 sm:mb-2.5" : compact ? "mb-1.5" : "mb-3"
-        }`}
+        className={`shrink-0 ${fill ? "mb-2 sm:mb-2.5" : compact ? "mb-1.5" : "mb-3"}`}
       >
-        <p className={`font-semibold leading-snug line-clamp-2 ${titleSize}`}>
+        <p
+          className={`font-semibold leading-snug truncate ${titleSize}`}
+          title={`${post.goalEmoji} ${post.goalTitle}`}
+        >
           <span aria-hidden>{post.goalEmoji}</span> {post.goalTitle}
         </p>
-        <span
-          className={`shrink-0 rounded-full bg-[var(--gp-accent-subtle)] font-medium text-accent ${streakSize}`}
-        >
-          {post.streakDays}🔥
-        </span>
       </div>
 
       <div
@@ -100,6 +96,14 @@ function ActivityCard({
       >
         &ldquo;{post.caption}&rdquo;
       </p>
+
+      <span
+        className={`shrink-0 rounded-full bg-[var(--gp-accent-subtle)] font-medium text-accent w-fit ${streakSize} ${
+          fill ? "mt-auto" : compact ? "mt-1" : "mt-2"
+        }`}
+      >
+        {post.streakDays}🔥
+      </span>
 
       {!compact && !fill && (
         <p className="text-xs gp-text-subtle">
