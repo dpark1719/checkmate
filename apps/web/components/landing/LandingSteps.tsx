@@ -5,15 +5,19 @@ import { useInView } from "@/lib/use-in-view";
 const STEPS = [
   {
     title: "Set a goal.",
-    body: "Studying, running, relationships.",
+    body: "Studying, running, relationships. Everyone has one.",
   },
   {
     title: "Commit to a time.",
-    body: "We'll hold you to it.",
+    body: "You don't rise to your goals. You fall to your systems.",
   },
   {
-    title: "Post your commit.",
-    body: "Keep each other accountable.",
+    title: "Post your progress.",
+    body: "Show up small. Compound big.",
+  },
+  {
+    title: "Join a community.",
+    body: "You are the average of who you surround yourself with. Choose wisely.",
   },
 ] as const;
 
@@ -23,22 +27,22 @@ export function LandingSteps() {
   return (
     <section
       ref={ref}
-      className={`min-h-[70dvh] py-16 sm:py-24 px-6 max-w-xl mx-auto w-full ${
+      className={`min-h-[100dvh] py-10 sm:py-12 px-6 max-w-xl mx-auto w-full flex flex-col justify-center ${
         inView ? "landing-steps-visible" : ""
       }`}
     >
       <h2
-        className="landing-step text-xl sm:text-2xl font-bold mb-10"
+        className="landing-step text-xl sm:text-2xl font-bold mb-6 sm:mb-8"
         style={{ transitionDelay: "0ms" }}
       >
-        Three steps, dead simple:
+        Four steps, dead simple:
       </h2>
 
-      <ol className="space-y-6">
+      <ol className="space-y-3 sm:space-y-4">
         {STEPS.map((step, index) => (
           <li
             key={step.title}
-            className="landing-step flex gap-4 rounded-xl border border-[var(--gp-border)] bg-[var(--gp-card)] p-5"
+            className="landing-step flex gap-3 sm:gap-4 rounded-xl border border-[var(--gp-border)] bg-[var(--gp-card)] p-4 sm:p-5"
             style={{ transitionDelay: `${(index + 1) * 140}ms` }}
           >
             <span
@@ -47,7 +51,7 @@ export function LandingSteps() {
             >
               {index + 1}
             </span>
-            <div className="text-base sm:text-lg leading-relaxed pt-0.5 space-y-1">
+            <div className="text-sm sm:text-base leading-relaxed pt-0.5 space-y-1">
               <p className="font-semibold text-[var(--gp-fg)]">{step.title}</p>
               <p className="gp-text-muted">{step.body}</p>
             </div>

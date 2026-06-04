@@ -118,7 +118,7 @@ export function LandingPageContent() {
         ref={(el) => {
           pageRefs.current[1] = el;
         }}
-        className="snap-start min-h-[100dvh] flex flex-col justify-center"
+        className="snap-start h-[100dvh] flex flex-col justify-center overflow-hidden py-8 sm:py-10 pb-[5.5rem]"
       >
         <LandingSteps />
       </div>
