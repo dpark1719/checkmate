@@ -1,4 +1,11 @@
 import { LandingSteps } from "@/components/landing/LandingSteps";
+import { SocialProofSection } from "@/components/landing/SocialProofSection";
+import {
+  MOCK_CATEGORY_CYCLE,
+  MOCK_LEADERBOARD,
+  MOCK_POSTS,
+  MOCK_STATS,
+} from "@/lib/landing/mockData";
 import { ChevronDown } from "lucide-react";
 import Link from "next/link";
 
@@ -48,6 +55,13 @@ export default function HomePage() {
           </p>
         </div>
       </section>
+
+      <SocialProofSection
+        stats={MOCK_STATS}
+        categories={MOCK_CATEGORY_CYCLE}
+        posts={MOCK_POSTS}
+        leaderboard={MOCK_LEADERBOARD}
+      />
 
       <LandingSteps />
 
