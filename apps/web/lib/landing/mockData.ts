@@ -106,7 +106,7 @@ export const MOCK_POSTS: MockPost[] = [
     avatarColor: "#84cc16",
     goalCategory: "diet",
     goalEmoji: "🥗",
-    goalTitle: "Mediterranean Diet",
+    goalTitle: "500 calorie deficit",
     caption: "Meal prepped for the whole week. No excuses now.",
     timeAgo: "52 min ago",
     reactions: { fire: 8, clap: 11 },
