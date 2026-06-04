@@ -207,9 +207,26 @@ select option {
     opacity: 1;
     transform: translateY(0);
   }
+
+  .landing-scroll-arrow {
+    animation: landing-scroll-bob 2s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+  }
+}
+
+@keyframes landing-scroll-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(6px);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .landing-scroll-arrow {
+    animation: none;
+  }
   .landing-step {
     opacity: 1;
     transform: none;
