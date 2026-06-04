@@ -1,11 +1,9 @@
 "use client";
 
 import { ActivityFeed } from "@/components/landing/ActivityFeed";
-import { LeaderboardTeaser } from "@/components/landing/LeaderboardTeaser";
 import { StatsBar } from "@/components/landing/StatsBar";
 import type {
   CategoryCycleItem,
-  MockLeaderboardEntry,
   MockPost,
   MockStats,
 } from "@/lib/landing/mockData";
@@ -15,14 +13,12 @@ interface SocialProofSectionProps {
   stats: MockStats;
   categories: CategoryCycleItem[];
   posts: MockPost[];
-  leaderboard: MockLeaderboardEntry[];
 }
 
 export function SocialProofSection({
   stats,
   categories,
   posts,
-  leaderboard,
 }: SocialProofSectionProps) {
   const { ref, inView } = useInView();
 
@@ -49,8 +45,6 @@ export function SocialProofSection({
       />
 
       <ActivityFeed posts={posts} visible={inView} compact />
-
-      <LeaderboardTeaser entries={leaderboard} compact />
     </section>
   );
 }

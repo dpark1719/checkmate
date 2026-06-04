@@ -1,6 +1,8 @@
 "use client";
 
 import { JoinCommunityModal } from "@/components/JoinCommunityModal";
+import { LeaderboardTeaser } from "@/components/LeaderboardTeaser";
+import { MOCK_LEADERBOARD } from "@/lib/landing/mockData";
 import type { GoalCategory } from "@checkmate/shared";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
@@ -70,6 +72,12 @@ export default function DiscoverPage() {
         Join a community and choose which goal to share. Only posts for that goal
         show in the community feed.
       </p>
+
+      <LeaderboardTeaser
+        entries={MOCK_LEADERBOARD}
+        ctaHref="/streaks"
+        ctaLabel="See full leaderboard →"
+      />
 
       {pageLoading ? (
         <p className="gp-text-muted">Loading…</p>

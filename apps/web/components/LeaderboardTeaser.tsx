@@ -4,9 +4,16 @@ import Link from "next/link";
 interface LeaderboardTeaserProps {
   entries: MockLeaderboardEntry[];
   compact?: boolean;
+  ctaHref?: string;
+  ctaLabel?: string;
 }
 
-export function LeaderboardTeaser({ entries, compact }: LeaderboardTeaserProps) {
+export function LeaderboardTeaser({
+  entries,
+  compact,
+  ctaHref = "/signup",
+  ctaLabel = "Where do you rank? Start your streak →",
+}: LeaderboardTeaserProps) {
   return (
     <div className={compact ? "space-y-2" : "space-y-4"}>
       <h3
@@ -75,8 +82,8 @@ export function LeaderboardTeaser({ entries, compact }: LeaderboardTeaserProps) 
       </ol>
 
       <p className={`text-center ${compact ? "pt-0" : "pt-2"}`}>
-        <Link href="/signup" className="gp-link text-xs sm:text-sm">
-          Where do you rank? Start your streak →
+        <Link href={ctaHref} className="gp-link text-xs sm:text-sm">
+          {ctaLabel}
         </Link>
       </p>
     </div>

@@ -4,7 +4,6 @@ import { LandingSteps } from "@/components/landing/LandingSteps";
 import { SocialProofSection } from "@/components/landing/SocialProofSection";
 import {
   MOCK_CATEGORY_CYCLE,
-  MOCK_LEADERBOARD,
   MOCK_POSTS,
   MOCK_STATS,
 } from "@/lib/landing/mockData";
@@ -135,7 +134,6 @@ export function LandingPageContent() {
           stats={MOCK_STATS}
           categories={MOCK_CATEGORY_CYCLE}
           posts={MOCK_POSTS}
-          leaderboard={MOCK_LEADERBOARD}
         />
       </div>
 
