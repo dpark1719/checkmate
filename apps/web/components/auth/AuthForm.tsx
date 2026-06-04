@@ -65,21 +65,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
         </p>
       </div>
 
-      <label className="flex items-center gap-2 text-sm gp-text-muted cursor-pointer select-none">
-        <input
-          type="checkbox"
-          checked={stayLoggedIn}
-          onChange={(e) => {
-            const next = e.target.checked;
-            setStayLoggedIn(next);
-            setRememberMeClientCookie(next);
-          }}
-          className="rounded border-[var(--gp-border)] accent-[var(--accent)]"
-        />
-        Stay logged in on this device
-      </label>
-
-      <div className="space-y-2">
+      <div className="space-y-3">
         <button
           type="button"
           onClick={signInWithGoogle}
@@ -87,6 +73,19 @@ export function AuthForm({ mode }: { mode: Mode }) {
         >
           Continue with Google
         </button>
+        <label className="flex items-center gap-2 text-sm gp-text-muted cursor-pointer select-none">
+          <input
+            type="checkbox"
+            checked={stayLoggedIn}
+            onChange={(e) => {
+              const next = e.target.checked;
+              setStayLoggedIn(next);
+              setRememberMeClientCookie(next);
+            }}
+            className="rounded border-[var(--gp-border)] accent-[var(--accent)]"
+          />
+          Stay logged in on this device
+        </label>
       </div>
 
       {message && (
