@@ -95,9 +95,14 @@ export default function FeedPage() {
           {dayGroups.map((group) => (
             <section key={group.dayKey} className="space-y-4">
               <div className="sticky top-0 z-10 -mx-1 px-1 py-2 bg-[var(--background)]/95 backdrop-blur border-b border-[var(--gp-border)]">
-                <h2 className="text-sm font-semibold tracking-wide text-[var(--gp-muted)]">
-                  {group.label}
-                </h2>
+                <div className="flex items-center justify-between gap-4">
+                  <h2 className="text-sm font-semibold tracking-wide text-[var(--gp-muted)]">
+                    {group.weekday}
+                  </h2>
+                  <span className="text-sm text-[var(--gp-subtle)] shrink-0">
+                    {group.date}
+                  </span>
+                </div>
               </div>
               <div className="space-y-6">
                 {group.posts.map((post) => (

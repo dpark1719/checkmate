@@ -17,38 +17,23 @@ export function getLocalDayKey(date: Date): string {
   return `${y}-${m}-${d}`;
 }
 
-export function formatFeedDayLabel(dayKey: string): string {
-  const now = new Date();
-  const todayKey = getLocalDayKey(now);
-  const yesterday = new Date(now);
-  yesterday.setDate(yesterday.getDate() - 1);
-  const yesterdayKey = getLocalDayKey(yesterday);
-
-  if (dayKey === todayKey) return "Today";
-  if (dayKey === yesterdayKey) return "Yesterday";
-
+export function formatFeedDayHeader(dayKey: string): {
+  weekday: string;
+  date: string;
+} {
   const [y, m, d] = dayKey.split("-").map(Number);
   const date = new Date(y, m - 1, d);
-
-  const weekAgo = new Date(now);
-  weekAgo.setDate(weekAgo.getDate() - 6);
-  weekAgo.setHours(0, 0, 0, 0);
-
-  if (date >= weekAgo) {
-    return date.toLocaleDateString(undefined, { weekday: "long" });
-  }
-
-  return date.toLocaleDateString(undefined, {
-    weekday: "long",
-    month: "long",
-    day: "numeric",
-    ...(date.getFullYear() !== now.getFullYear() ? { year: "numeric" as const } : {}),
-  });
+  const weekday = date.toLocaleDateString(undefined, { weekday: "long" });
+  const month = date.toLocaleDateString(undefined, { month: "long" });
+  return {
+    weekday,
+    date: `${month}/${d}/${y}`,
+  };
 }
 
 export function groupPostsByDay<T extends { createdAt: string }>(
   posts: T[]
-): { dayKey: string; label: string; posts: T[] }[] {
+): { dayKey: string; weekday: string; date: string; posts: T[] }[] {
   const groups = new Map<string, T[]>();
 
   for (const post of posts) {
@@ -60,9 +45,13 @@ export function groupPostsByDay<T extends { createdAt: string }>(
 
   return Array.from(groups.entries())
     .sort(([a], [b]) => b.localeCompare(a))
-    .map(([dayKey, dayPosts]) => ({
-      dayKey,
-      label: formatFeedDayLabel(dayKey),
-      posts: dayPosts,
-    }));
+    .map(([dayKey, dayPosts]) => {
+      const header = formatFeedDayHeader(dayKey);
+      return {
+        dayKey,
+        weekday: header.weekday,
+        date: header.date,
+        posts: dayPosts,
+      };
+    });
 }
