@@ -145,10 +145,11 @@ export function LandingPageContent() {
       >
         <div className="max-w-xl w-full text-center space-y-6">
           <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">
-            Ready to show up?
+            Ready to lock in?
           </h2>
           <p className="gp-text-muted">
-            Join thousands of people building streaks on CheckMate.
+            Join thousands of people showing up every day for themselves on
+            CheckMate.
           </p>
           <AuthLinks />
         </div>
