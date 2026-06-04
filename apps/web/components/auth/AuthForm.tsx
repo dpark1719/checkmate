@@ -60,8 +60,8 @@ export function AuthForm({ mode }: { mode: Mode }) {
         </h1>
         <p className="gp-text-muted mt-1">
           {mode === "login"
-            ? "Sign in to continue your streak."
-            : "Start documenting your goals today."}
+            ? "Good to see you showing up for yourself twin"
+            : "Start showing up for yourself today"}
         </p>
       </div>
 
