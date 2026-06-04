@@ -12,7 +12,7 @@ const STEPS = [
     body: "We'll hold you to it.",
   },
   {
-    title: "Post your commit.",
+    title: "post your commit.",
     body: "Keep each other accountable.",
   },
 ] as const;
