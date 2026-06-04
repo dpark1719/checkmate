@@ -8,8 +8,8 @@ const STEPS = [
     body: "anything. Running, saving money, studying, a relationship.",
   },
   {
-    title: "Get a daily nudge.",
-    body: "Promise yourself a time to show up.",
+    title: "Commit to a time.",
+    body: "We hold you to it.",
   },
   {
     title: "Post your photo.",
