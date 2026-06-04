@@ -38,42 +38,20 @@ function formatStat(n: number): string {
 interface StatsBarProps {
   lockedInToday: number;
   activeStreaks: number;
-  goalCategoriesActive: number;
-  categories: { label: string }[];
   animate: boolean;
 }
 
 export function StatsBar({
   lockedInToday,
   activeStreaks,
-  goalCategoriesActive,
-  categories,
   animate,
 }: StatsBarProps) {
   const lockedIn = useCountUp(lockedInToday, animate);
   const streaks = useCountUp(activeStreaks, animate);
-  const categoriesCount = useCountUp(goalCategoriesActive, animate);
-
-  const [categoryIndex, setCategoryIndex] = useState(0);
-  const [categoryVisible, setCategoryVisible] = useState(true);
-
-  useEffect(() => {
-    if (categories.length <= 1) return;
-
-    const interval = setInterval(() => {
-      setCategoryVisible(false);
-      setTimeout(() => {
-        setCategoryIndex((i) => (i + 1) % categories.length);
-        setCategoryVisible(true);
-      }, 300);
-    }, 2500);
-
-    return () => clearInterval(interval);
-  }, [categories.length]);
 
   return (
     <div className="rounded-xl border border-[var(--gp-border)] bg-[var(--gp-surface)] px-3 py-2.5 sm:px-4 sm:py-3">
-      <div className="grid grid-cols-3 gap-2 sm:gap-3">
+      <div className="grid grid-cols-2 gap-2 sm:gap-3">
         <div className="text-center min-w-0">
           <div className="flex items-center justify-center gap-1.5">
             <span
@@ -89,25 +67,12 @@ export function StatsBar({
           </p>
         </div>
 
-        <div className="text-center min-w-0 border-x border-[var(--gp-border)] px-1">
+        <div className="text-center min-w-0 border-l border-[var(--gp-border)] pl-2 sm:pl-3">
           <p className="text-lg sm:text-xl font-bold tabular-nums leading-none">
             {formatStat(streaks)}
           </p>
           <p className="text-[10px] sm:text-xs gp-text-muted mt-0.5 leading-tight">
             active streaks
-          </p>
-        </div>
-
-        <div className="text-center min-w-0">
-          <p className="text-lg sm:text-xl font-bold tabular-nums leading-none">
-            {formatStat(categoriesCount)}
-          </p>
-          <p
-            className={`text-[10px] sm:text-xs text-[var(--gp-fg)] mt-0.5 leading-tight transition-opacity duration-300 truncate ${
-              categoryVisible ? "opacity-100" : "opacity-0"
-            }`}
-          >
-            {categories[categoryIndex]?.label ?? "active categories"}
           </p>
         </div>
       </div>

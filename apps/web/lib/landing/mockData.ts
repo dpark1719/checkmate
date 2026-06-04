@@ -26,24 +26,12 @@ export interface MockLeaderboardEntry {
 export interface MockStats {
   lockedInToday: number;
   activeStreaks: number;
-  goalCategoriesActive: number;
-}
-
-export interface CategoryCycleItem {
-  label: string;
 }
 
 export const MOCK_STATS: MockStats = {
   lockedInToday: 1247,
   activeStreaks: 8392,
-  goalCategoriesActive: 3,
 };
-
-export const MOCK_CATEGORY_CYCLE: CategoryCycleItem[] = [
-  { label: "fitness goals 🏃" },
-  { label: "finance goals 💰" },
-  { label: "study goals 📚" },
-];
 
 export const MOCK_POSTS: MockPost[] = [
   {

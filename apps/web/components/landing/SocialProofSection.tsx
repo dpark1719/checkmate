@@ -2,23 +2,17 @@
 
 import { ActivityFeed } from "@/components/landing/ActivityFeed";
 import { StatsBar } from "@/components/landing/StatsBar";
-import type {
-  CategoryCycleItem,
-  MockPost,
-  MockStats,
-} from "@/lib/landing/mockData";
+import type { MockPost, MockStats } from "@/lib/landing/mockData";
 import { useInView } from "@/lib/use-in-view";
 
 interface SocialProofSectionProps {
   stats: MockStats;
-  categories: CategoryCycleItem[];
   posts: MockPost[];
   fill?: boolean;
 }
 
 export function SocialProofSection({
   stats,
-  categories,
   posts,
   fill,
 }: SocialProofSectionProps) {
@@ -46,8 +40,6 @@ export function SocialProofSection({
         <StatsBar
           lockedInToday={stats.lockedInToday}
           activeStreaks={stats.activeStreaks}
-          goalCategoriesActive={stats.goalCategoriesActive}
-          categories={categories}
           animate={inView}
         />
       </div>
