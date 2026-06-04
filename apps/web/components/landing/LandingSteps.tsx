@@ -12,7 +12,7 @@ const STEPS = [
     body: "We'll hold you to it.",
   },
   {
-    title: "post your commit.",
+    title: "Post your commit.",
     body: "Keep each other accountable.",
   },
 ] as const;
@@ -47,12 +47,10 @@ export function LandingSteps() {
             >
               {index + 1}
             </span>
-            <p className="text-base sm:text-lg leading-relaxed pt-0.5">
-              <span className="font-semibold text-[var(--gp-fg)]">
-                {step.title}
-              </span>{" "}
-              <span className="gp-text-muted">— {step.body}</span>
-            </p>
+            <div className="text-base sm:text-lg leading-relaxed pt-0.5 space-y-1">
+              <p className="font-semibold text-[var(--gp-fg)]">{step.title}</p>
+              <p className="gp-text-muted">{step.body}</p>
+            </div>
           </li>
         ))}
       </ol>
