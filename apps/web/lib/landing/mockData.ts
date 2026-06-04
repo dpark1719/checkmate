@@ -41,7 +41,7 @@ export const MOCK_POSTS: MockPost[] = [
     avatarColor: "#f97316",
     goalCategory: "fitness",
     goalEmoji: "🏃",
-    goalTitle: "Marathon Training",
+    goalTitle: "Train for Boston marathon",
     caption: "Day 23. Legs were dead but I showed up.",
     timeAgo: "4 min ago",
     reactions: { fire: 12, clap: 8 },
