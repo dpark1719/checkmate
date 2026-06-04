@@ -195,4 +195,24 @@ select option {
   .gp-heat-cell-3 { background-color: var(--gp-heat-3); }
   .gp-heat-cell-4 { background-color: var(--gp-heat-4); }
   .gp-heat-cell-5 { background-color: var(--gp-heat-5); }
+
+  .landing-step {
+    opacity: 0;
+    transform: translateY(-28px);
+    transition:
+      opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .landing-steps-visible .landing-step {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-step {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
 }
