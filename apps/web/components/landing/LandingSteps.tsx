@@ -4,16 +4,16 @@ import { useInView } from "@/lib/use-in-view";
 
 const STEPS = [
   {
-    title: "Set a goal",
-    body: "anything. Running, saving money, studying, a relationship.",
+    title: "Set a goal.",
+    body: "Studying, running, relationships.",
   },
   {
     title: "Commit to a time.",
-    body: "We hold you to it.",
+    body: "We'll hold you to it.",
   },
   {
-    title: "Post your photo.",
-    body: "Build your streak. Your people see it.",
+    title: "Post your commit.",
+    body: "Keep each other accountable.",
   },
 ] as const;
 
