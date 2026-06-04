@@ -102,10 +102,10 @@ export function LandingPageContent() {
         className="snap-start min-h-[100dvh] flex flex-col items-center justify-center px-6"
       >
         <div className="max-w-lg text-center space-y-6">
-          <p className="text-accent font-semibold tracking-wide uppercase text-sm">
+          <p className="text-accent font-bold tracking-tight text-5xl sm:text-7xl">
             CheckMate
           </p>
-          <h1 className="text-4xl sm:text-5xl font-bold tracking-tight">
+          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">
             One photo. One promise. Every day.
           </h1>
           <p className="gp-text-muted text-lg">Social media for doers.</p>
