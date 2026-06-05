@@ -1,22 +1,19 @@
-import { getAdminClient, getTopWeeklyStreaks, resolveAvatarUrl } from "@checkmate/server";
+import { getAdminClient, getTopWeeklyStreaks } from "@checkmate/server";
 import { jsonError, jsonOk } from "@/lib/api/response";
+import { formatLeaderboardEntries } from "@/lib/leaderboard-entries";
+import { NextRequest } from "next/server";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   const supabase = getAdminClient();
+  const limitParam = request.nextUrl.searchParams.get("limit");
+  const limit = Math.min(
+    Math.max(parseInt(limitParam ?? "3", 10) || 3, 1),
+    50
+  );
 
   try {
-    const rows = await getTopWeeklyStreaks(supabase, 3);
-    const entries = await Promise.all(
-      rows.map(async (row) => ({
-        rank: row.rank,
-        displayName: row.displayName,
-        username: row.username,
-        avatarUrl: await resolveAvatarUrl(supabase, row.avatarUrl),
-        goalCategory: row.goalCategory,
-        goalTitle: row.goalTitle,
-        streakDays: row.streakCount,
-      }))
-    );
+    const rows = await getTopWeeklyStreaks(supabase, limit);
+    const entries = await formatLeaderboardEntries(supabase, rows);
     return jsonOk({ entries });
   } catch (e) {
     const message = e instanceof Error ? e.message : "Leaderboard error";

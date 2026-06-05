@@ -140,7 +140,29 @@ export async function getLeaderboard(
   const { data, error } = await query;
   if (error) throw error;
 
-  return (data ?? []).map((row, index) => {
+  if ((data ?? []).length > 0) {
+    return mapLeaderboardTableRows(data ?? []);
+  }
+
+  if (period === "weekly") {
+    return getStreaksFromWeeklyPosts(supabase, weekStart, limit, category);
+  }
+
+  return getCategoryStreaksFromTable(supabase, category, limit);
+}
+
+function mapLeaderboardTableRows(
+  data: Array<{
+    user_id: string;
+    goal_id: string;
+    score: number;
+    streak_count: number;
+    post_count: number;
+    profiles: unknown;
+    goals: unknown;
+  }>
+) {
+  return data.map((row, index) => {
     const profile = normalizeProfile(row.profiles);
     const goal = normalizeGoal(row.goals);
     return {
@@ -150,13 +172,78 @@ export async function getLeaderboard(
       score: row.score,
       streakCount: row.streak_count,
       postCount: row.post_count,
-      displayName: profile?.display_name,
-      username: profile?.username,
-      avatarUrl: profile?.avatar_url,
+      displayName: profile?.display_name ?? "User",
+      username: profile?.username ?? "user",
+      avatarUrl: profile?.avatar_url ?? null,
       goalTitle: goal?.title,
-      goalCategory: goal?.category,
+      goalCategory: goal?.category ?? "other",
     };
   });
+}
+
+async function getCategoryStreaksFromTable(
+  supabase: SupabaseClient,
+  category: string,
+  limit: number
+) {
+  const { data, error } = await supabase
+    .from("streaks")
+    .select(
+      `
+      user_id, goal_id, current_count, longest_count,
+      goals!inner(title, category, is_active),
+      profiles!inner(display_name, username, avatar_url)
+    `
+    )
+    .eq("goals.category", category)
+    .eq("goals.is_active", true)
+    .or("current_count.gt.0,longest_count.gt.0")
+    .order("longest_count", { ascending: false })
+    .order("current_count", { ascending: false })
+    .limit(limit * 3);
+
+  if (error) throw error;
+
+  const userBest = new Map<
+    string,
+    {
+      score: number;
+      row: (typeof data)[number];
+    }
+  >();
+
+  for (const row of data ?? []) {
+    const userId = row.user_id as string;
+    const score = Math.max(
+      row.current_count as number,
+      row.longest_count as number
+    );
+    const existing = userBest.get(userId);
+    if (!existing || score > existing.score) {
+      userBest.set(userId, { score, row });
+    }
+  }
+
+  return [...userBest.values()]
+    .sort((a, b) => b.score - a.score)
+    .slice(0, limit)
+    .map((item, index) => {
+      const profile = normalizeProfile(item.row.profiles);
+      const goal = normalizeGoal(item.row.goals);
+      return {
+        rank: index + 1,
+        userId: item.row.user_id as string,
+        goalId: item.row.goal_id as string,
+        score: item.score,
+        streakCount: item.score,
+        postCount: item.score,
+        displayName: profile?.display_name ?? "User",
+        username: profile?.username ?? "user",
+        avatarUrl: profile?.avatar_url ?? null,
+        goalTitle: goal?.title,
+        goalCategory: goal?.category ?? category,
+      };
+    });
 }
 
 export async function getTopWeeklyStreaks(
@@ -226,16 +313,17 @@ export async function getTopWeeklyStreaks(
     });
   }
 
-  // Fall back to this week's on-time posts when denormalized data is not ready.
-  return getTopStreaksFromWeeklyPosts(supabase, weekStart, limit);
+  // Fall back to this week's posts when denormalized data is not ready.
+  return getStreaksFromWeeklyPosts(supabase, weekStart, limit);
 }
 
-async function getTopStreaksFromWeeklyPosts(
+async function getStreaksFromWeeklyPosts(
   supabase: SupabaseClient,
   weekStart: string,
-  limit: number
+  limit: number,
+  category?: string
 ) {
-  const { data, error } = await supabase
+  let query = supabase
     .from("posts")
     .select(
       `
@@ -248,6 +336,11 @@ async function getTopStreaksFromWeeklyPosts(
     .gte("created_at", `${weekStart}T00:00:00.000Z`)
     .eq("goals.is_active", true);
 
+  if (category) {
+    query = query.eq("goals.category", category);
+  }
+
+  const { data, error } = await query;
   if (error) throw error;
   if (!data?.length) return [];
 
@@ -283,13 +376,15 @@ async function getTopStreaksFromWeeklyPosts(
       return {
         rank: index + 1,
         userId: item.row.user_id as string,
+        goalId: item.row.goal_id as string,
         score: item.count,
         streakCount: item.count,
+        postCount: item.count,
         displayName: profile?.display_name ?? "User",
         username: profile?.username ?? "user",
         avatarUrl: profile?.avatar_url ?? null,
         goalTitle: goal?.title,
-        goalCategory: goal?.category ?? "other",
+        goalCategory: goal?.category ?? category ?? "other",
       };
     });
 }

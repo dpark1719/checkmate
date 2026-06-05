@@ -24,6 +24,9 @@ interface LeaderboardTeaserProps {
   compact?: boolean;
   ctaHref?: string;
   ctaLabel?: string;
+  title?: string;
+  showCta?: boolean;
+  emptyMessage?: string;
 }
 
 export function LeaderboardTeaser({
@@ -31,18 +34,39 @@ export function LeaderboardTeaser({
   compact,
   ctaHref = "/signup",
   ctaLabel = "Where do you rank? Start your streak →",
+  title = "Top Streaks This Week",
+  showCta = true,
+  emptyMessage,
 }: LeaderboardTeaserProps) {
-  if (entries.length === 0) return null;
+  if (entries.length === 0) {
+    if (!emptyMessage) return null;
+    return (
+      <div className={compact ? "space-y-2" : "space-y-4"}>
+        {title ? (
+          <h3
+            className={`font-semibold text-center ${
+              compact ? "text-sm" : "text-lg"
+            }`}
+          >
+            {title}
+          </h3>
+        ) : null}
+        <p className="gp-text-muted text-sm text-center">{emptyMessage}</p>
+      </div>
+    );
+  }
 
   return (
     <div className={compact ? "space-y-2" : "space-y-4"}>
-      <h3
-        className={`font-semibold text-center ${
-          compact ? "text-sm" : "text-lg"
-        }`}
-      >
-        Top Streaks This Week
-      </h3>
+      {title ? (
+        <h3
+          className={`font-semibold text-center ${
+            compact ? "text-sm" : "text-lg"
+          }`}
+        >
+          {title}
+        </h3>
+      ) : null}
 
       <ol className={compact ? "space-y-1.5" : "space-y-3"}>
         {entries.map((entry) => {
@@ -118,11 +142,13 @@ export function LeaderboardTeaser({
         })}
       </ol>
 
-      <p className={`text-center ${compact ? "pt-0" : "pt-2"}`}>
-        <Link href={ctaHref} className="gp-link text-xs sm:text-sm">
-          {ctaLabel}
-        </Link>
-      </p>
+      {showCta && (
+        <p className={`text-center ${compact ? "pt-0" : "pt-2"}`}>
+          <Link href={ctaHref} className="gp-link text-xs sm:text-sm">
+            {ctaLabel}
+          </Link>
+        </p>
+      )}
     </div>
   );
 }
