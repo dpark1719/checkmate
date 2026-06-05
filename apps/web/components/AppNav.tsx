@@ -1,3 +1,4 @@
+import { LogOutButton } from "@/components/LogOutButton";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import Link from "next/link";
 
@@ -11,7 +12,10 @@ export function AppNav() {
         >
           CheckMate
         </Link>
-        <ThemeToggle />
+        <div className="flex items-center gap-2 shrink-0">
+          <ThemeToggle />
+          <LogOutButton />
+        </div>
       </div>
     </header>
   );

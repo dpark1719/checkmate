@@ -18,9 +18,8 @@ import {
   type SocialLinkPlatformId,
   type SocialLinks,
 } from "@checkmate/shared";
-import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 
 interface Profile {
@@ -40,7 +39,6 @@ function profileTabFromParam(value: string | null): ProfileTabId {
 }
 
 function ProfilePageContent() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const tab = profileTabFromParam(searchParams.get("tab"));
 
@@ -173,12 +171,6 @@ function ProfilePageContent() {
     if (res.ok) window.location.href = "/";
   }
 
-  async function signOut() {
-    const supabase = createClient();
-    await supabase.auth.signOut();
-    router.push("/");
-  }
-
   if (!profile) {
     return <p className="gp-text-muted">Loading profile…</p>;
   }
@@ -250,13 +242,6 @@ function ProfilePageContent() {
             <ProfilePostsGallery username={profile.username} />
           </section>
 
-          <button
-            type="button"
-            onClick={signOut}
-            className="rounded-lg border border-[var(--gp-border)] px-6 py-2 text-sm hover:bg-[var(--gp-card)]"
-          >
-            Log out
-          </button>
         </div>
       )}
 
