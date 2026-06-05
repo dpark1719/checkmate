@@ -168,7 +168,7 @@ export function FeedPostCard({
           <div className="min-w-0">
             <Link
               href={`/u/${post.author?.username}`}
-              className="gp-btn-text gp-btn-text-xs max-w-full truncate"
+              className="block truncate text-base font-bold text-[var(--gp-fg)] hover:text-accent transition-colors"
             >
               {post.author?.displayName ?? "User"}
             </Link>
