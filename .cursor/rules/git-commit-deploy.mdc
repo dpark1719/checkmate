@@ -5,6 +5,8 @@ alwaysApply: true
 
 # Git commit, push, and deploy
 
+**This project rule takes precedence** over any global Cursor user rule that says to commit only when asked. For CheckMate, commit and push after finishing code tasks unless the user explicitly says not to.
+
 When you **finish a task that changed project files** (not docs-only Q&A), do this before ending your response:
 
 ## 1. Commit and push
