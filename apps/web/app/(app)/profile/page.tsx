@@ -187,15 +187,33 @@ function ProfilePageContent() {
         <div className="space-y-6">
           <PushRegistration />
           <div className="rounded-xl border border-[var(--gp-border)] p-4 space-y-3">
-            <div className="flex items-center gap-4">
-              <UserAvatar
-                displayName={profile.displayName}
-                avatarUrl={profile.avatarUrl}
-                size="lg"
-              />
-              <div>
-                <h2 className="text-xl font-semibold">{profile.displayName}</h2>
-                <p className="text-accent">@{profile.username}</p>
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-center gap-4 min-w-0">
+                <UserAvatar
+                  displayName={profile.displayName}
+                  avatarUrl={profile.avatarUrl}
+                  size="lg"
+                />
+                <div className="min-w-0">
+                  <h2 className="text-xl font-semibold truncate">
+                    {profile.displayName}
+                  </h2>
+                  <p className="text-accent truncate">@{profile.username}</p>
+                </div>
+              </div>
+              <div className="flex flex-col gap-2 text-sm items-end shrink-0">
+                <Link
+                  href={`/u/${profile.username}`}
+                  className="gp-btn-text gp-btn-text-xs text-right whitespace-nowrap"
+                >
+                  View public profile →
+                </Link>
+                <Link
+                  href="/goals"
+                  className="gp-btn-text gp-btn-text-xs text-right whitespace-nowrap"
+                >
+                  Manage goals →
+                </Link>
               </div>
             </div>
             <div className="flex gap-4 items-start">
@@ -212,21 +230,7 @@ function ProfilePageContent() {
                 </p>
                 <SocialLinksDisplay links={profile.socialLinks} />
               </div>
-              <div className="w-full max-w-[180px] ml-auto shrink-0 space-y-3">
-                <div className="flex flex-col gap-2 text-sm items-end">
-                  <Link
-                    href={`/u/${profile.username}`}
-                    className="gp-btn-text gp-btn-text-block text-right"
-                  >
-                    View public profile →
-                  </Link>
-                  <Link
-                    href="/goals"
-                    className="gp-btn-text gp-btn-text-block text-right"
-                  >
-                    Manage goals →
-                  </Link>
-                </div>
+              <div className="w-full max-w-[180px] ml-auto shrink-0">
                 <ProfileActivityHeatmap username={profile.username} />
               </div>
             </div>
