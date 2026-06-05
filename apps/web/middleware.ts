@@ -20,6 +20,18 @@ function isPublicApi(path: string) {
   );
 }
 
+function redirectWithCookies(
+  request: NextRequest,
+  pathname: string,
+  response: NextResponse
+) {
+  const redirect = NextResponse.redirect(new URL(pathname, request.url));
+  response.cookies.getAll().forEach((cookie) => {
+    redirect.cookies.set(cookie);
+  });
+  return redirect;
+}
+
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
   const isPublic =
@@ -76,11 +88,15 @@ export async function middleware(request: NextRequest) {
       const url = request.nextUrl.clone();
       url.pathname = "/login";
       url.searchParams.set("next", path);
-      return NextResponse.redirect(url);
+      const redirect = NextResponse.redirect(url);
+      response.cookies.getAll().forEach((cookie) => {
+        redirect.cookies.set(cookie);
+      });
+      return redirect;
     }
 
-    if (user && (path === "/login" || path === "/signup")) {
-      return NextResponse.redirect(new URL("/feed", request.url));
+    if (user && (path === "/" || path === "/login" || path === "/signup")) {
+      return redirectWithCookies(request, "/feed", response);
     }
   } catch {
     if (!isPublic && !path.startsWith("/api/")) {

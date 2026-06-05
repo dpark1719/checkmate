@@ -47,13 +47,10 @@ export function AuthForm({
     setStayLoggedIn(readRememberMeFromClient());
   }, []);
 
-  const envBase = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "");
   const appBase =
     typeof window !== "undefined"
-      ? envBase && !envBase.includes("localhost")
-        ? envBase
-        : window.location.origin
-      : envBase ?? "";
+      ? window.location.origin
+      : (process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") ?? "");
   const redirectTo = `${appBase}/auth/callback?next=/feed`;
 
   function applyRememberMePreference() {

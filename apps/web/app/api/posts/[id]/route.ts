@@ -13,7 +13,7 @@ export async function GET(_request: Request, { params }: Params) {
   const { data, error } = await supabase
     .from("posts")
     .select(
-      "*, profiles(display_name, username, avatar_url), goals!posts_goal_id_fkey(title, category)"
+      "*, reactions(type, user_id), profiles(display_name, username, avatar_url), goals!posts_goal_id_fkey(title, category)"
     )
     .eq("id", id)
     .is("deleted_at", null)

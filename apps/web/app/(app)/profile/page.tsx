@@ -205,7 +205,23 @@ function ProfilePageContent() {
                 <p className="text-xs gp-text-muted">Timezone: {profile.timezone}</p>
                 <SocialLinksDisplay links={profile.socialLinks} />
               </div>
-              <ProfileActivityHeatmap username={profile.username} />
+              <div className="w-full max-w-[180px] ml-auto shrink-0 space-y-3">
+                <div className="flex flex-col gap-2 text-sm items-end">
+                  <Link
+                    href={`/u/${profile.username}`}
+                    className="gp-btn-text gp-btn-text-block text-right"
+                  >
+                    View public profile →
+                  </Link>
+                  <Link
+                    href="/goals"
+                    className="gp-btn-text gp-btn-text-block text-right"
+                  >
+                    Manage goals →
+                  </Link>
+                </div>
+                <ProfileActivityHeatmap username={profile.username} />
+              </div>
             </div>
           </div>
 
@@ -219,17 +235,6 @@ function ProfilePageContent() {
             <ProfilePostsGallery username={profile.username} />
           </section>
 
-          <div className="flex flex-col gap-2 text-sm">
-            <Link
-              href={`/u/${profile.username}`}
-              className="gp-btn-text gp-btn-text-block"
-            >
-              View public profile →
-            </Link>
-            <Link href="/goals" className="gp-btn-text gp-btn-text-block">
-              Manage goals →
-            </Link>
-          </div>
           <button
             type="button"
             onClick={signOut}
