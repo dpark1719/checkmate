@@ -48,17 +48,21 @@ export function LeaderboardTeaser({
         {entries.map((entry) => {
           const isFirst = entry.rank === 1;
           const emoji = goalCategoryEmoji(entry.goalCategory);
-          return (
-            <li
-              key={`${entry.rank}-${entry.username ?? entry.displayName}`}
-              className={`flex items-center gap-2 rounded-lg border ${
-                compact ? "px-2.5 py-1.5" : "px-4 py-3"
-              } ${
-                isFirst
-                  ? "border-amber-500/40 bg-amber-500/10"
-                  : "border-[var(--gp-border)] bg-[var(--gp-card)]"
-              } ${isFirst && !compact ? "scale-[1.02] shadow-md" : ""}`}
-            >
+          const profileHref = entry.username ? `/u/${entry.username}` : null;
+          const rowClassName = `flex items-center gap-2 rounded-lg border ${
+            compact ? "px-2.5 py-1.5" : "px-4 py-3"
+          } ${
+            isFirst
+              ? "border-amber-500/40 bg-amber-500/10"
+              : "border-[var(--gp-border)] bg-[var(--gp-card)]"
+          } ${isFirst && !compact ? "scale-[1.02] shadow-md" : ""} ${
+            profileHref
+              ? "transition-colors hover:bg-[var(--gp-surface)] hover:border-accent/30"
+              : ""
+          }`;
+
+          const rowContent = (
+            <>
               <span
                 className={`text-center shrink-0 ${compact ? "text-sm w-5" : "text-xl w-8"}`}
                 aria-hidden
@@ -93,6 +97,22 @@ export function LeaderboardTeaser({
               >
                 {entry.streakDays}🔥
               </p>
+            </>
+          );
+
+          return (
+            <li key={`${entry.rank}-${entry.username ?? entry.displayName}`}>
+              {profileHref ? (
+                <Link
+                  href={profileHref}
+                  className={rowClassName}
+                  aria-label={`${entry.displayName}, ${entry.streakDays} day streak`}
+                >
+                  {rowContent}
+                </Link>
+              ) : (
+                <div className={rowClassName}>{rowContent}</div>
+              )}
             </li>
           );
         })}
