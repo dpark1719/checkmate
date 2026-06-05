@@ -154,10 +154,9 @@ export function PostDetailModal({
             >
               {post.author?.displayName ?? "User"}
             </Link>
-            <p className="text-xs gp-text-muted truncate">
-              @{post.author?.username}
-              {post.goal?.title ? ` · ${post.goal.title}` : ""}
-            </p>
+            {post.goal?.title && (
+              <p className="text-xs gp-text-muted truncate">{post.goal.title}</p>
+            )}
           </div>
           <button
             type="button"

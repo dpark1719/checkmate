@@ -142,21 +142,28 @@ export default function ConversationPage() {
   return (
     <div className="flex flex-col min-h-[calc(100dvh-7rem)] -mx-4 pb-[calc(4.5rem+env(safe-area-inset-bottom))]">
       <header className="sticky top-0 z-30 border-b border-[var(--gp-border)] bg-[var(--gp-nav-bg)] backdrop-blur-md">
-        <div className="relative flex items-center justify-center h-12 px-4 gap-3">
-          <Link href="/messages" className="absolute left-4 gp-btn-text text-sm">
+        <div className="grid grid-cols-[1fr_auto_1fr] items-center h-14 px-3 gap-2">
+          <Link
+            href="/messages"
+            className="gp-btn-text text-sm shrink-0 whitespace-nowrap justify-self-start"
+          >
             ← Messages
           </Link>
-          {otherUser ? (
-            <Link
-              href={`/u/${otherUser.username}`}
-              className="text-lg font-semibold text-[var(--gp-fg)] hover:text-accent truncate max-w-[50%] text-center"
-            >
-              {otherUser.displayName}
-            </Link>
-          ) : (
-            <span className="text-lg font-semibold gp-text-muted">Messages</span>
-          )}
-          <div className="absolute right-4">
+          <div className="flex justify-center min-w-0 max-w-[min(100%,14rem)]">
+            {otherUser ? (
+              <Link
+                href={`/u/${otherUser.username}`}
+                className="text-xl font-bold text-[var(--gp-fg)] hover:text-accent truncate text-center"
+              >
+                {otherUser.displayName ||
+                  (otherUser as { display_name?: string }).display_name ||
+                  "User"}
+              </Link>
+            ) : (
+              <span className="text-xl font-bold gp-text-muted">Messages</span>
+            )}
+          </div>
+          <div className="shrink-0 justify-self-end">
             <ThemeToggle />
           </div>
         </div>

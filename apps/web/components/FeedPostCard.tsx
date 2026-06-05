@@ -173,7 +173,7 @@ export function FeedPostCard({
               {post.author?.displayName ?? "User"}
             </Link>
             <p className="text-xs gp-text-muted truncate">
-              @{post.author?.username} · {post.goal?.title}
+              {post.goal?.title}
               {post.isLate && (
                 <span className="ml-2 text-amber-500">Late</span>
               )}
