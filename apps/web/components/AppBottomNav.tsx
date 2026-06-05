@@ -2,6 +2,7 @@
 
 import { NavBadge } from "@/components/NavBadge";
 import { formatBadgeCount, useUnreadCounts } from "@/hooks/useUnreadCounts";
+import { markAllCommentsRead } from "@/lib/notifications-client";
 import {
   Compass,
   Home,
@@ -66,6 +67,11 @@ export function AppBottomNav() {
               href={tab.href}
               className="gp-nav-item"
               aria-current={active ? "page" : undefined}
+              onClick={() => {
+                if (tab.href === "/feed") {
+                  void markAllCommentsRead().catch(() => {});
+                }
+              }}
             >
               <span className="relative flex items-center justify-center">
                 <Icon className="h-5 w-5 shrink-0" strokeWidth={2} aria-hidden />

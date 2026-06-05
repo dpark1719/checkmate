@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { formatMessageTime } from "@/lib/format-datetime";
+import { refreshNotificationBadges } from "@/lib/notifications-client";
 
 interface Message {
   id: string;
@@ -69,6 +70,7 @@ export default function ConversationPage() {
         if (d.postContext) setPostContext(d.postContext);
         setIsRequest(Boolean(d.isRequest));
         setCanReply(Boolean(d.canReply));
+        refreshNotificationBadges();
       })
       .catch(() => setLoadError("Could not load conversation"));
 
@@ -122,6 +124,7 @@ export default function ConversationPage() {
     }
     setIsRequest(false);
     setCanReply(true);
+    refreshNotificationBadges();
   }
 
   async function declineRequest() {
@@ -136,6 +139,7 @@ export default function ConversationPage() {
       setError(data.error ?? "Could not decline");
       return;
     }
+    refreshNotificationBadges();
     router.push("/messages");
   }
 

@@ -78,13 +78,11 @@ export async function GET(request: NextRequest, { params }: Params) {
   const isRequest = viewerStatus === "pending" && initiatedBy !== user.id;
   const canReply = viewerStatus === "accepted" || initiatedBy === user.id;
 
-  if (!isRequest) {
-    await supabase
-      .from("conversation_participants")
-      .update({ last_read_at: new Date().toISOString() })
-      .eq("conversation_id", id)
-      .eq("user_id", user.id);
-  }
+  await supabase
+    .from("conversation_participants")
+    .update({ last_read_at: new Date().toISOString() })
+    .eq("conversation_id", id)
+    .eq("user_id", user.id);
 
   return jsonOk({
     conversation: toCamelCase(conv),

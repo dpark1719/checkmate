@@ -2,6 +2,7 @@
 
 import { FeedPostCard } from "@/components/FeedPostCard";
 import { groupPostsByDay } from "@/lib/format-datetime";
+import { markAllCommentsRead } from "@/lib/notifications-client";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
@@ -43,6 +44,10 @@ export default function FeedPage() {
       posts: (data.posts ?? []) as FeedPost[],
       nextCursor: (data.nextCursor as string | null) ?? null,
     };
+  }, []);
+
+  useEffect(() => {
+    void markAllCommentsRead().catch(() => {});
   }, []);
 
   useEffect(() => {

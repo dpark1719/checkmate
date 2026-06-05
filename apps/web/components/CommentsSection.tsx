@@ -1,5 +1,6 @@
 "use client";
 
+import { markPostCommentsRead } from "@/lib/notifications-client";
 import { useEffect, useState } from "react";
 
 interface CommentAuthor {
@@ -52,15 +53,7 @@ export function CommentsSection({ postId }: { postId: string }) {
 
   useEffect(() => {
     void load();
-    fetch("/api/notifications/mark-read", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ type: "comments", postId }),
-    })
-      .then(() => {
-        window.dispatchEvent(new Event("checkmate:notifications-changed"));
-      })
-      .catch(() => {});
+    void markPostCommentsRead(postId).catch(() => {});
   }, [postId]);
 
   async function submit(event: React.FormEvent) {

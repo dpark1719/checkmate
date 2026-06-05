@@ -35,13 +35,16 @@ export async function countUnreadMessages(
 
   let unread = 0;
   for (const m of memberships) {
-    if ((m.status as string) === "pending") {
-      unread++;
+    const last = lastByConv.get(m.conversation_id as string);
+    const lastRead = m.last_read_at as string | null;
+    const status = m.status as string;
+
+    if (status === "pending") {
+      if (!lastRead) unread++;
       continue;
     }
-    const last = lastByConv.get(m.conversation_id as string);
+
     if (!last || last.sender_id === userId) continue;
-    const lastRead = m.last_read_at as string | null;
     if (!lastRead || new Date(last.created_at) > new Date(lastRead)) {
       unread++;
     }
