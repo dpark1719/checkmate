@@ -17,10 +17,11 @@ export default async function LoginPage({
           <span className="block mt-2 gp-text-muted text-xs">{reason}</span>
         ) : (
           <span className="block mt-2 gp-text-muted text-xs">
-            Check that Supabase redirect URLs include your site (
-            {process.env.NEXT_PUBLIC_APP_URL ?? "your Vercel URL"})
-            /auth/callback and that Google OAuth is enabled in Supabase →
-            Authentication → Providers.
+            For local dev, Supabase redirect URLs must include{" "}
+            <code className="text-xs">http://localhost:3004/auth/callback</code>{" "}
+            (and production <code className="text-xs">/auth/callback</code> on
+            Vercel). Google OAuth must be enabled in Supabase → Authentication
+            → Providers.
           </span>
         )}
       </>

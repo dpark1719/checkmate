@@ -1,5 +1,7 @@
 "use client";
 
+import { LocalDevAuthHint } from "@/components/auth/LocalDevAuthHint";
+import { getOAuthCallbackUrl } from "@/lib/auth/oauth-redirect";
 import {
   readRememberMeFromClient,
   setRememberMeClientCookie,
@@ -47,12 +49,6 @@ export function AuthForm({
     setStayLoggedIn(readRememberMeFromClient());
   }, []);
 
-  const appBase =
-    typeof window !== "undefined"
-      ? window.location.origin
-      : (process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") ?? "");
-  const redirectTo = `${appBase}/auth/callback?next=/feed`;
-
   function applyRememberMePreference() {
     setRememberMeClientCookie(stayLoggedIn);
   }
@@ -61,6 +57,7 @@ export function AuthForm({
     setMessage(null);
     setMessageIsError(false);
     applyRememberMePreference();
+    const redirectTo = getOAuthCallbackUrl(window.location.origin);
     const supabase = createClient();
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
@@ -96,6 +93,8 @@ export function AuthForm({
           {authError}
         </div>
       )}
+
+      <LocalDevAuthHint />
 
       <div className="space-y-4">
         <button
