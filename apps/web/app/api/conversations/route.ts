@@ -143,10 +143,75 @@ export async function GET(request: NextRequest) {
     })
   );
 
-  const conversations = mapped
-    .filter((c) => !c.isRequest)
-    .map((x) => toCamelCase(x));
-  const requests = mapped.filter((c) => c.isRequest).map((x) => toCamelCase(x));
+  const conversations = dedupeInboxThreads(
+    mapped.filter((c) => !c.isRequest)
+  ).map((x) => toCamelCase(x));
+  const requests = dedupeInboxThreads(mapped.filter((c) => c.isRequest)).map((x) =>
+    toCamelCase(x)
+  );
 
   return jsonOk({ conversations, requests });
+}
+
+type MappedConversation = {
+  id: string;
+  postId: string | null;
+  initiatedBy: string | null;
+  updatedAt: string;
+  status: string;
+  isRequest: boolean;
+  otherUser: {
+    id: string;
+    displayName: string;
+    username: string;
+    avatarUrl: string | null;
+  } | null;
+  lastMessage: {
+    body: string | null;
+    previewHidden?: boolean;
+    createdAt: string;
+    senderId: string;
+  } | null;
+  unread: boolean;
+};
+
+/** One inbox row per person; newest activity wins, unread if any thread is unread. */
+function threadActivityTime(item: MappedConversation): number {
+  if (item.lastMessage?.createdAt) {
+    return new Date(item.lastMessage.createdAt).getTime();
+  }
+  return new Date(item.updatedAt).getTime();
+}
+
+function mergeInboxThreads(
+  existing: MappedConversation,
+  incoming: MappedConversation
+): MappedConversation {
+  const keepIncoming =
+    threadActivityTime(incoming) >= threadActivityTime(existing);
+  const primary = keepIncoming ? incoming : existing;
+  const secondary = keepIncoming ? existing : incoming;
+  return {
+    ...primary,
+    unread: primary.unread || secondary.unread,
+  };
+}
+
+function dedupeInboxThreads(items: MappedConversation[]): MappedConversation[] {
+  const byPerson = new Map<string, MappedConversation>();
+
+  for (const item of items) {
+    const otherId = item.otherUser?.id;
+    if (!otherId) continue;
+
+    const existing = byPerson.get(otherId);
+    byPerson.set(
+      otherId,
+      existing ? mergeInboxThreads(existing, item) : item
+    );
+  }
+
+  return Array.from(byPerson.values()).sort(
+    (a, b) => threadActivityTime(b) - threadActivityTime(a)
+  );
 }

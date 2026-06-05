@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { formatMessageTime } from "@/lib/format-datetime";
 
 interface Message {
@@ -139,22 +140,29 @@ export default function ConversationPage() {
   }
 
   return (
-    <div className="flex flex-col min-h-[calc(100dvh-10rem)] -mx-4 pb-[calc(4.5rem+env(safe-area-inset-bottom))]">
-      <div className="px-4 pb-3 border-b border-[var(--gp-border)] space-y-2">
-        <Link href="/messages" className="gp-btn-text">
-          ← Messages
-        </Link>
-        {otherUser && (
-          <div>
+    <div className="flex flex-col min-h-[calc(100dvh-7rem)] -mx-4 pb-[calc(4.5rem+env(safe-area-inset-bottom))]">
+      <header className="sticky top-0 z-30 border-b border-[var(--gp-border)] bg-[var(--gp-nav-bg)] backdrop-blur-md">
+        <div className="relative flex items-center justify-center h-12 px-4 gap-3">
+          <Link href="/messages" className="absolute left-4 gp-btn-text text-sm">
+            ← Messages
+          </Link>
+          {otherUser ? (
             <Link
               href={`/u/${otherUser.username}`}
-              className="gp-btn-text gp-btn-text-xs"
+              className="text-lg font-semibold text-[var(--gp-fg)] hover:text-accent truncate max-w-[50%] text-center"
             >
               {otherUser.displayName}
             </Link>
-            <p className="text-xs gp-text-muted">@{otherUser.username}</p>
+          ) : (
+            <span className="text-lg font-semibold gp-text-muted">Messages</span>
+          )}
+          <div className="absolute right-4">
+            <ThemeToggle />
           </div>
-        )}
+        </div>
+      </header>
+
+      <div className="px-4 pb-3 border-b border-[var(--gp-border)] space-y-2">
         {isRequest && (
           <p className="text-sm gp-text-muted">
             This is a message request. Accept to reply and move it to your inbox.

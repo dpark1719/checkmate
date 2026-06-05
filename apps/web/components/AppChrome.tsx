@@ -12,6 +12,10 @@ function shouldShowChrome(pathname: string) {
   return true;
 }
 
+function isConversationDetail(pathname: string) {
+  return /^\/messages\/[^/]+$/.test(pathname);
+}
+
 export function AppChrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
@@ -19,10 +23,16 @@ export function AppChrome({ children }: { children: React.ReactNode }) {
     return <>{children}</>;
   }
 
+  const conversationDetail = isConversationDetail(pathname);
+
   return (
     <>
-      <AppNav />
-      <main className="max-w-3xl mx-auto px-4 pt-6 pb-[calc(5.5rem+env(safe-area-inset-bottom))]">
+      {!conversationDetail && <AppNav />}
+      <main
+        className={`max-w-3xl mx-auto px-4 pb-[calc(5.5rem+env(safe-area-inset-bottom))] ${
+          conversationDetail ? "pt-0" : "pt-6"
+        }`}
+      >
         {children}
       </main>
       <AppBottomNav />
