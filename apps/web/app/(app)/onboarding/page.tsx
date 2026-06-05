@@ -1,8 +1,10 @@
 "use client";
 
+import { CityTimezonePicker } from "@/components/CityTimezonePicker";
 import { GOAL_CATEGORIES, type GoalCategory } from "@checkmate/shared";
+import { defaultTargetEndDate } from "@/lib/goal-dates";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 export default function OnboardingPage() {
   const router = useRouter();
@@ -10,11 +12,19 @@ export default function OnboardingPage() {
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState<GoalCategory>("fitness");
   const [promiseTime, setPromiseTime] = useState("20:00");
+  const [targetEndDate, setTargetEndDate] = useState(defaultTargetEndDate);
   const [birthYear, setBirthYear] = useState(
     String(new Date().getFullYear() - 18)
   );
   const [region, setRegion] = useState<"us" | "eu" | "other">("us");
+  const [timezone, setTimezone] = useState("");
+  const [timezoneLabel, setTimezoneLabel] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  const browserTimezone = useMemo(
+    () => Intl.DateTimeFormat().resolvedOptions().timeZone,
+    []
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -53,12 +63,17 @@ export default function OnboardingPage() {
       return;
     }
 
-    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    if (!timezone || !timezoneLabel) {
+      setError("Please select your city from the list.");
+      return;
+    }
+
     await fetch("/api/users/me", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        timezone: tz,
+        timezone,
+        timezoneLabel,
         region: region === "us" ? "US" : region === "eu" ? "EU" : null,
         notificationPreferences: { ageVerified: true, birthYear: year },
       }),
@@ -70,6 +85,7 @@ export default function OnboardingPage() {
       body: JSON.stringify({
         title,
         category,
+        targetEndDate,
         defaultPromiseTime: `${promiseTime}:00`,
       }),
     });
@@ -140,6 +156,25 @@ export default function OnboardingPage() {
           <option value="eu">EU / UK (16+)</option>
           <option value="other">Other (13+)</option>
         </select>
+        <CityTimezonePicker
+          timezone={timezone}
+          timezoneLabel={timezoneLabel}
+          prefillTimezone={browserTimezone}
+          required
+          onChange={({ timezone: tz, timezoneLabel: label }) => {
+            setTimezone(tz);
+            setTimezoneLabel(label);
+          }}
+        />
+        <label className="block text-sm gp-text-muted">Target end date</label>
+        <input
+          type="date"
+          value={targetEndDate}
+          min={defaultTargetEndDate(0)}
+          onChange={(e) => setTargetEndDate(e.target.value)}
+          required
+          className="w-full rounded-lg bg-[var(--gp-card)] border border-[var(--gp-border)] px-4 py-3"
+        />
         <label className="block text-sm gp-text-muted">
           Default promise time (if you skip after trigger, 8pm is used)
         </label>

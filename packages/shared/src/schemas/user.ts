@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { isValidIanaTimezone } from "../city-timezone";
 import { SOCIAL_LINK_PLATFORM_IDS } from "../social-links";
 
 const socialLinkValue = z
@@ -26,7 +27,12 @@ export const updateProfileSchema = z.object({
   /** Set to null to remove profile photo */
   avatarPath: z.string().max(120).nullable().optional(),
   avatarUrl: z.string().url().optional(),
-  timezone: z.string().min(1).optional(),
+  timezone: z
+    .string()
+    .min(1)
+    .refine(isValidIanaTimezone, "Invalid timezone")
+    .optional(),
+  timezoneLabel: z.string().min(1).max(120).nullable().optional(),
   region: z.string().max(10).nullable().optional(),
   notificationPreferences: z.record(z.unknown()).optional(),
   socialLinks: socialLinksInputSchema.optional(),

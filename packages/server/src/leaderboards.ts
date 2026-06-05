@@ -154,6 +154,169 @@ export async function getLeaderboard(
       username: profile?.username,
       avatarUrl: profile?.avatar_url,
       goalTitle: goal?.title,
+      goalCategory: goal?.category,
+    };
+  });
+}
+
+export async function getTopWeeklyStreaks(
+  supabase: SupabaseClient,
+  limit = 3
+) {
+  const weekStart = weekStartUtc();
+
+  const { data, error } = await supabase
+    .from("leaderboards")
+    .select(
+      `
+      user_id, score, streak_count, category,
+      profiles(display_name, username, avatar_url),
+      goals(title, category)
+    `
+    )
+    .eq("period", "weekly")
+    .eq("week_start", weekStart)
+    .is("region", null)
+    .order("score", { ascending: false })
+    .limit(limit);
+
+  if (error) throw error;
+
+  if ((data ?? []).length > 0) {
+    return mapTopStreakRows(data ?? []);
+  }
+
+  // Streak counts are reconciled at midnight; until then current_count is often 0.
+  const { data: streakRows, error: streakError } = await supabase
+    .from("streaks")
+    .select(
+      `
+      user_id, goal_id, current_count, longest_count,
+      goals!inner(title, category, is_active),
+      profiles!inner(display_name, username, avatar_url)
+    `
+    )
+    .eq("goals.is_active", true)
+    .or("current_count.gt.0,longest_count.gt.0")
+    .order("current_count", { ascending: false })
+    .order("longest_count", { ascending: false })
+    .limit(limit);
+
+  if (streakError) throw streakError;
+
+  if ((streakRows ?? []).length > 0) {
+    return (streakRows ?? []).map((row, index) => {
+      const profile = normalizeProfile(row.profiles);
+      const goal = normalizeGoal(row.goals);
+      const count = Math.max(
+        row.current_count as number,
+        row.longest_count as number
+      );
+      return {
+        rank: index + 1,
+        userId: row.user_id as string,
+        score: count,
+        streakCount: count,
+        displayName: profile?.display_name ?? "User",
+        username: profile?.username ?? "user",
+        avatarUrl: profile?.avatar_url ?? null,
+        goalTitle: goal?.title,
+        goalCategory: goal?.category ?? "other",
+      };
+    });
+  }
+
+  // Fall back to this week's on-time posts when denormalized data is not ready.
+  return getTopStreaksFromWeeklyPosts(supabase, weekStart, limit);
+}
+
+async function getTopStreaksFromWeeklyPosts(
+  supabase: SupabaseClient,
+  weekStart: string,
+  limit: number
+) {
+  const { data, error } = await supabase
+    .from("posts")
+    .select(
+      `
+      user_id, goal_id,
+      profiles!inner(display_name, username, avatar_url),
+      goals!posts_goal_id_fkey(title, category, is_active)
+    `
+    )
+    .is("deleted_at", null)
+    .gte("created_at", `${weekStart}T00:00:00.000Z`)
+    .eq("goals.is_active", true);
+
+  if (error) throw error;
+  if (!data?.length) return [];
+
+  const goalCounts = new Map<
+    string,
+    { count: number; row: (typeof data)[number] }
+  >();
+  for (const row of data) {
+    const key = `${row.user_id}:${row.goal_id}`;
+    const entry = goalCounts.get(key);
+    if (entry) entry.count += 1;
+    else goalCounts.set(key, { count: 1, row });
+  }
+
+  const userBest = new Map<
+    string,
+    { count: number; row: (typeof data)[number] }
+  >();
+  for (const { count, row } of goalCounts.values()) {
+    const userId = row.user_id as string;
+    const existing = userBest.get(userId);
+    if (!existing || count > existing.count) {
+      userBest.set(userId, { count, row });
+    }
+  }
+
+  return [...userBest.values()]
+    .sort((a, b) => b.count - a.count)
+    .slice(0, limit)
+    .map((item, index) => {
+      const profile = normalizeProfile(item.row.profiles);
+      const goal = normalizeGoal(item.row.goals);
+      return {
+        rank: index + 1,
+        userId: item.row.user_id as string,
+        score: item.count,
+        streakCount: item.count,
+        displayName: profile?.display_name ?? "User",
+        username: profile?.username ?? "user",
+        avatarUrl: profile?.avatar_url ?? null,
+        goalTitle: goal?.title,
+        goalCategory: goal?.category ?? "other",
+      };
+    });
+}
+
+function mapTopStreakRows(
+  data: Array<{
+    user_id: string;
+    score: number;
+    streak_count: number;
+    category: string;
+    profiles: unknown;
+    goals: unknown;
+  }>
+) {
+  return data.map((row, index) => {
+    const profile = normalizeProfile(row.profiles);
+    const goal = normalizeGoal(row.goals);
+    return {
+      rank: index + 1,
+      userId: row.user_id,
+      score: row.score,
+      streakCount: row.streak_count,
+      displayName: profile?.display_name ?? "User",
+      username: profile?.username ?? "user",
+      avatarUrl: profile?.avatar_url ?? null,
+      goalTitle: goal?.title,
+      goalCategory: goal?.category ?? row.category,
     };
   });
 }

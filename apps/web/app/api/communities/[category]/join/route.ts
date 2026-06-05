@@ -37,6 +37,7 @@ export async function POST(request: Request, { params }: Params) {
     .eq("id", parsedBody.data.goalId)
     .eq("user_id", user.id)
     .is("archived_at", null)
+    .is("completed_at", null)
     .single();
 
   if (goalError || !goal) {

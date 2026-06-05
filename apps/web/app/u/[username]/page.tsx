@@ -5,6 +5,11 @@ import { ProfilePostsGallery } from "@/components/ProfilePostsGallery";
 import { ProfileActivityHeatmap } from "@/components/ProfileActivityHeatmap";
 import { SocialLinksDisplay } from "@/components/SocialLinksDisplay";
 import { UserAvatar } from "@/components/UserAvatar";
+import {
+  GoalProgressComparison,
+  type GoalComparisonPost,
+  type GoalStatsDisplay,
+} from "@/components/GoalProgressComparison";
 import type { SocialLinks } from "@checkmate/shared";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -14,6 +19,17 @@ interface ActiveGoal {
   title: string;
   category: string;
   currentCount: number;
+}
+
+interface CompletedGoalCard {
+  id: string;
+  title: string;
+  category: string;
+  completedAt: string;
+  completionNote: string | null;
+  stats: GoalStatsDisplay;
+  startPost: GoalComparisonPost | null;
+  endPost: GoalComparisonPost | null;
 }
 
 export default function PublicProfilePage() {
@@ -30,6 +46,7 @@ export default function PublicProfilePage() {
     socialLinks: SocialLinks;
   } | null>(null);
   const [activeGoals, setActiveGoals] = useState<ActiveGoal[]>([]);
+  const [completedGoals, setCompletedGoals] = useState<CompletedGoalCard[]>([]);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [isFollowing, setIsFollowing] = useState(false);
   const [connecting, setConnecting] = useState(false);
@@ -80,6 +97,7 @@ export default function PublicProfilePage() {
           })
         );
         setActiveGoals(goals);
+        setCompletedGoals(d.completedGoals ?? []);
       });
   }, [username]);
 
@@ -231,6 +249,25 @@ export default function PublicProfilePage() {
           </ul>
         )}
       </section>
+
+      {completedGoals.length > 0 ? (
+        <section>
+          <h2 className="text-lg font-semibold mb-3">Completed goals</h2>
+          <div className="grid gap-4 sm:grid-cols-2">
+            {completedGoals.map((g) => (
+              <GoalProgressComparison
+                key={g.id}
+                title={g.title}
+                category={g.category}
+                stats={g.stats}
+                startPost={g.startPost}
+                endPost={g.endPost}
+                completionNote={g.completionNote}
+              />
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       <ProfileConnections
         username={profile.username}

@@ -13,11 +13,17 @@ export async function GET(request: NextRequest) {
   if (!user) return jsonError("Unauthorized", "UNAUTHORIZED", 401);
 
   const archived = request.nextUrl.searchParams.get("archived") === "true";
+  const completed = request.nextUrl.searchParams.get("completed") === "true";
   const supabase = await createClient();
 
   let query = supabase.from("goals").select("*").eq("user_id", user.id);
 
-  if (archived) {
+  if (completed) {
+    query = query
+      .not("completed_at", "is", null)
+      .is("archived_at", null)
+      .order("completed_at", { ascending: false });
+  } else if (archived) {
     query = query.not("archived_at", "is", null).order("archived_at", {
       ascending: false,
     });
@@ -25,10 +31,29 @@ export async function GET(request: NextRequest) {
     query = query
       .eq("is_active", true)
       .is("archived_at", null)
+      .is("completed_at", null)
       .order("created_at", { ascending: false });
   }
 
-  const { data, error } = await query;
+  let { data, error } = await query;
+
+  if (error?.message?.includes("completed_at")) {
+    let fallback = supabase.from("goals").select("*").eq("user_id", user.id);
+    if (completed) {
+      return jsonOk({ goals: [] });
+    }
+    if (archived) {
+      fallback = fallback.not("archived_at", "is", null).order("archived_at", {
+        ascending: false,
+      });
+    } else {
+      fallback = fallback
+        .eq("is_active", true)
+        .is("archived_at", null)
+        .order("created_at", { ascending: false });
+    }
+    ({ data, error } = await fallback);
+  }
 
   if (error) return jsonError(error.message, "DB_ERROR", 500);
   return jsonOk({ goals: (data ?? []).map((g) => toCamelCase(g)) });
@@ -49,7 +74,8 @@ export async function POST(request: NextRequest) {
   const gate = assertCanAddGoal(activeCount);
   if (!gate.ok) return jsonError(gate.error, gate.code, 400);
 
-  const { title, category, description, defaultPromiseTime } = parsed.data;
+  const { title, category, description, defaultPromiseTime, targetEndDate } =
+    parsed.data;
 
   if (await hasDuplicateActiveGoalTitle(supabase, user.id, title)) {
     return jsonError(
@@ -66,12 +92,22 @@ export async function POST(request: NextRequest) {
       title,
       category,
       description: description ?? null,
+      target_end_date: targetEndDate,
       default_promise_time: defaultPromiseTime ?? "20:00:00",
     })
     .select()
     .single();
 
-  if (error) return jsonError(error.message, "DB_ERROR", 500);
+  if (error) {
+    if (error.message.includes("target_end_date")) {
+      return jsonError(
+        "Goal completion is not set up yet. Run supabase/migrations/20250605120000_goal_completion.sql in Supabase.",
+        "MIGRATION_REQUIRED",
+        503
+      );
+    }
+    return jsonError(error.message, "DB_ERROR", 500);
+  }
 
   await supabase.from("streaks").insert({
     user_id: user.id,

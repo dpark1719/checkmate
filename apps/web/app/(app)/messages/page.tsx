@@ -55,7 +55,6 @@ function ConversationListItem({
             )}
           </div>
         </div>
-        <p className="text-xs gp-text-muted">@{conversation.otherUser?.username}</p>
         {isRequest ? (
           <p className="text-sm gp-text-muted mt-1 italic">New message request</p>
         ) : (

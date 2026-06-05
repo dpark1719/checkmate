@@ -35,10 +35,12 @@ export function PostChallengeCard({
   challenge,
   onPosted,
   duplicateTitle = false,
+  showHeader = true,
 }: {
   challenge: Challenge;
   onPosted: () => void;
   duplicateTitle?: boolean;
+  showHeader?: boolean;
 }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [caption, setCaption] = useState("");
@@ -184,22 +186,30 @@ export function PostChallengeCard({
   }
 
   return (
-    <li className="rounded-xl border border-[var(--gp-border)] p-4 space-y-4">
-      <div>
-        <p className="font-semibold">{title}</p>
-        <p className="text-sm gp-text-muted capitalize">
-          {challenge.goals?.category}
-          {defaultTime
-            ? ` · Default ${formatDefaultPromiseTime(defaultTime)}`
-            : null}
-        </p>
-        {duplicateTitle && (
-          <p className="text-xs text-amber-500 mt-1">
-            Duplicate goal — you have another active goal with this name. Remove
-            one on the Goals tab.
+    <div className="space-y-4">
+      {showHeader && (
+        <div>
+          <p className="font-semibold">{title}</p>
+          <p className="text-sm gp-text-muted capitalize">
+            {challenge.goals?.category}
+            {defaultTime
+              ? ` · Default ${formatDefaultPromiseTime(defaultTime)}`
+              : null}
           </p>
-        )}
-      </div>
+          {duplicateTitle && (
+            <p className="text-xs text-amber-500 mt-1">
+              Duplicate goal — you have another active goal with this name.
+              Remove one on the Goals tab.
+            </p>
+          )}
+        </div>
+      )}
+
+      {!showHeader && duplicateTitle && (
+        <p className="text-xs text-amber-500">
+          Duplicate goal name — remove the extra on the Goals tab.
+        </p>
+      )}
 
       {!done && <PromiseCountdown expiresAt={challenge.leewayExpiresAt} />}
 
@@ -289,6 +299,6 @@ export function PostChallengeCard({
       )}
 
       {error && <p className="text-sm text-red-400">{error}</p>}
-    </li>
+    </div>
   );
 }

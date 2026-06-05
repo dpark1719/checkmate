@@ -1,8 +1,26 @@
-import type { MockLeaderboardEntry } from "@/lib/landing/mockData";
+import { UserAvatar } from "@/components/UserAvatar";
+import { goalCategoryEmoji } from "@/lib/goal-categories";
 import Link from "next/link";
 
+export interface LeaderboardTeaserEntry {
+  rank: number;
+  displayName: string;
+  username?: string;
+  avatarUrl?: string | null;
+  goalCategory: string;
+  goalTitle?: string | null;
+  streakDays: number;
+}
+
+function rankBadge(rank: number): string {
+  if (rank === 1) return "👑";
+  if (rank === 2) return "🥈";
+  if (rank === 3) return "🥉";
+  return `#${rank}`;
+}
+
 interface LeaderboardTeaserProps {
-  entries: MockLeaderboardEntry[];
+  entries: LeaderboardTeaserEntry[];
   compact?: boolean;
   ctaHref?: string;
   ctaLabel?: string;
@@ -14,6 +32,8 @@ export function LeaderboardTeaser({
   ctaHref = "/signup",
   ctaLabel = "Where do you rank? Start your streak →",
 }: LeaderboardTeaserProps) {
+  if (entries.length === 0) return null;
+
   return (
     <div className={compact ? "space-y-2" : "space-y-4"}>
       <h3
@@ -27,9 +47,10 @@ export function LeaderboardTeaser({
       <ol className={compact ? "space-y-1.5" : "space-y-3"}>
         {entries.map((entry) => {
           const isFirst = entry.rank === 1;
+          const emoji = goalCategoryEmoji(entry.goalCategory);
           return (
             <li
-              key={entry.rank}
+              key={`${entry.rank}-${entry.username ?? entry.displayName}`}
               className={`flex items-center gap-2 rounded-lg border ${
                 compact ? "px-2.5 py-1.5" : "px-4 py-3"
               } ${
@@ -42,25 +63,21 @@ export function LeaderboardTeaser({
                 className={`text-center shrink-0 ${compact ? "text-sm w-5" : "text-xl w-8"}`}
                 aria-hidden
               >
-                {entry.badge}
+                {rankBadge(entry.rank)}
               </span>
-              <span
-                className={`flex shrink-0 items-center justify-center rounded-full font-bold text-white ${
-                  compact ? "h-6 w-6 text-[9px]" : "h-10 w-10 text-sm"
-                }`}
-                style={{ backgroundColor: entry.avatarColor }}
-                aria-hidden
-              >
-                {entry.avatarInitials}
-              </span>
+              <UserAvatar
+                displayName={entry.displayName}
+                avatarUrl={entry.avatarUrl}
+                size={compact ? "sm" : "md"}
+              />
               <div className="min-w-0 flex-1">
                 <p
                   className={`font-medium truncate ${compact ? "text-xs" : ""}`}
                 >
-                  {entry.username}
+                  {entry.displayName}
                 </p>
                 <p className="text-[10px] gp-text-muted capitalize truncate">
-                  {entry.goalEmoji} {entry.goalCategory}
+                  {emoji} {entry.goalCategory}
                 </p>
               </div>
               <p

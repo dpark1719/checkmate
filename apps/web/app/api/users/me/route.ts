@@ -58,6 +58,7 @@ export async function PATCH(request: NextRequest) {
     }
   }
   if (d.timezone !== undefined) updates.timezone = d.timezone;
+  if (d.timezoneLabel !== undefined) updates.timezone_label = d.timezoneLabel;
   if (d.region !== undefined) updates.region = d.region;
   const supabase = await getSupabaseForRequest(request);
 

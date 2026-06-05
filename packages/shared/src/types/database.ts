@@ -11,6 +11,7 @@ export interface Profile {
   bio: string | null;
   avatarUrl: string | null;
   timezone: string;
+  timezoneLabel: string | null;
   region: string | null;
   notificationPreferences: Record<string, unknown>;
   createdAt: string;
@@ -23,9 +24,14 @@ export interface Goal {
   category: GoalCategory;
   description: string | null;
   defaultPromiseTime: string;
+  targetEndDate: string | null;
   isActive: boolean;
   createdAt: string;
   archivedAt: string | null;
+  completedAt: string | null;
+  completionNote: string | null;
+  startPostId: string | null;
+  endPostId: string | null;
 }
 
 export interface DailyChallenge {

@@ -1,6 +1,7 @@
 "use client";
 
 import { AvatarUpload } from "@/components/AvatarUpload";
+import { CityTimezonePicker } from "@/components/CityTimezonePicker";
 import { ProfileTabs, type ProfileTabId } from "@/components/ProfileTabs";
 import { UserAvatar } from "@/components/UserAvatar";
 import { PushRegistration } from "@/components/PushRegistration";
@@ -28,6 +29,7 @@ interface Profile {
   bio: string | null;
   avatarUrl: string | null;
   timezone: string;
+  timezoneLabel: string | null;
   region: string | null;
   socialLinks: SocialLinks;
 }
@@ -49,6 +51,7 @@ function ProfilePageContent() {
   const [username, setUsername] = useState("");
   const [bio, setBio] = useState("");
   const [timezone, setTimezone] = useState("UTC");
+  const [timezoneLabel, setTimezoneLabel] = useState<string | null>(null);
   const [region, setRegion] = useState("");
   const [socialLinks, setSocialLinks] = useState<
     Record<SocialLinkPlatformId, string>
@@ -72,6 +75,7 @@ function ProfilePageContent() {
           bio: p.bio ?? null,
           avatarUrl: p.avatarUrl ?? null,
           timezone: p.timezone,
+          timezoneLabel: p.timezoneLabel ?? null,
           region: p.region ?? null,
           socialLinks: links,
         });
@@ -80,6 +84,7 @@ function ProfilePageContent() {
         setUsername(p.username ?? "");
         setBio(p.bio ?? "");
         setTimezone(p.timezone ?? "UTC");
+        setTimezoneLabel(p.timezoneLabel ?? null);
         setRegion(p.region ?? "");
         setSocialLinks(socialLinksToFormState(links));
         const prefs = (p.notificationPreferences ?? {}) as Record<
@@ -129,11 +134,17 @@ function ProfilePageContent() {
     setError(null);
     setMessage(null);
 
+    if (!timezone || !timezoneLabel) {
+      setError("Please select your city from the list.");
+      return;
+    }
+
     const res = await fetch("/api/users/me", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         timezone,
+        timezoneLabel,
         region: region.trim() || null,
         notificationPreferences: {
           emailComments,
@@ -202,7 +213,11 @@ function ProfilePageContent() {
                 ) : (
                   <p className="gp-text-muted text-sm italic">No bio yet.</p>
                 )}
-                <p className="text-xs gp-text-muted">Timezone: {profile.timezone}</p>
+                <p className="text-xs gp-text-muted">
+                  {profile.timezoneLabel
+                    ? `${profile.timezoneLabel} (${profile.timezone})`
+                    : `Timezone: ${profile.timezone}`}
+                </p>
                 <SocialLinksDisplay links={profile.socialLinks} />
               </div>
               <div className="w-full max-w-[180px] ml-auto shrink-0 space-y-3">
@@ -316,14 +331,15 @@ function ProfilePageContent() {
       {tab === "settings" && (
         <div className="max-w-md space-y-8">
           <form onSubmit={saveSettings} className="space-y-4">
-            <div>
-              <label className="text-sm gp-text-muted">Timezone</label>
-              <input
-                value={timezone}
-                onChange={(e) => setTimezone(e.target.value)}
-                className="w-full mt-1 gp-input"
-              />
-            </div>
+            <CityTimezonePicker
+              timezone={timezone}
+              timezoneLabel={timezoneLabel}
+              prefillTimezone={timezoneLabel ? null : timezone}
+              onChange={({ timezone: tz, timezoneLabel: label }) => {
+                setTimezone(tz);
+                setTimezoneLabel(label);
+              }}
+            />
             <div>
               <label className="text-sm gp-text-muted">Country (region code)</label>
               <input

@@ -24,6 +24,8 @@ cp .env.example .env
 # - supabase/migrations/20250524110000_posts_soft_delete_rls.sql
 # - supabase/migrations/20250524120000_avatars_bucket.sql  ← required for profile photos
 # - supabase/migrations/20250602120000_message_requests.sql  ← required for DMs + message requests
+# - supabase/migrations/20250604120000_dedupe_dm_conversations.sql  ← merges duplicate threads (same user + post); inbox hides dupes
+# - supabase/migrations/20250605120000_goal_completion.sql  ← completable goals with target dates + before/after
 
 npm run dev:web
 ```

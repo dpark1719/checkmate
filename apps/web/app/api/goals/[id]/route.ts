@@ -27,6 +27,7 @@ export async function PATCH(request: NextRequest, { params }: Params) {
   if (d.title !== undefined) updates.title = d.title;
   if (d.category !== undefined) updates.category = d.category;
   if (d.description !== undefined) updates.description = d.description;
+  if (d.targetEndDate !== undefined) updates.target_end_date = d.targetEndDate;
   if (d.defaultPromiseTime !== undefined) {
     updates.default_promise_time = d.defaultPromiseTime;
   }

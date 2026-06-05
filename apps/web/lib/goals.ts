@@ -1,9 +1,7 @@
-import { MAX_ACTIVE_GOALS } from "@checkmate/shared";
+import { MAX_ACTIVE_GOALS, normalizeGoalTitle } from "@checkmate/shared";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-export function normalizeGoalTitle(title: string): string {
-  return title.trim().toLowerCase();
-}
+export { normalizeGoalTitle };
 
 export async function hasDuplicateActiveGoalTitle(
   supabase: SupabaseClient,
@@ -17,7 +15,8 @@ export async function hasDuplicateActiveGoalTitle(
     .select("id, title")
     .eq("user_id", userId)
     .eq("is_active", true)
-    .is("archived_at", null);
+    .is("archived_at", null)
+    .is("completed_at", null);
 
   if (error) throw error;
   return (data ?? []).some(
@@ -30,12 +29,18 @@ export async function countActiveGoals(
   supabase: SupabaseClient,
   userId: string
 ): Promise<number> {
-  const { count, error } = await supabase
+  const query = supabase
     .from("goals")
     .select("*", { count: "exact", head: true })
     .eq("user_id", userId)
     .eq("is_active", true)
     .is("archived_at", null);
+
+  let { count, error } = await query.is("completed_at", null);
+
+  if (error?.message?.includes("completed_at")) {
+    ({ count, error } = await query);
+  }
 
   if (error) throw error;
   return count ?? 0;

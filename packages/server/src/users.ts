@@ -1,4 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { getCompletedGoalsForUser } from "./goals";
+import { signAvatarUrls } from "./storage";
 
 export async function getProfileByUsername(
   supabase: SupabaseClient,
@@ -23,12 +25,31 @@ export async function getProfileByUsername(
     if (block) return null;
   }
 
-  const { data: goals } = await supabase
+  let goalsQuery = supabase
     .from("goals")
     .select("id, title, category, is_active")
     .eq("user_id", profile.id)
     .eq("is_active", true)
     .is("archived_at", null);
+
+  let { data: goals, error: goalsError } = await goalsQuery.is(
+    "completed_at",
+    null
+  );
+
+  if (goalsError?.message?.includes("completed_at")) {
+    ({ data: goals } = await goalsQuery);
+  }
+
+  let completedGoals: Awaited<ReturnType<typeof getCompletedGoalsForUser>> = [];
+  try {
+    completedGoals = await getCompletedGoalsForUser(
+      supabase,
+      profile.id as string
+    );
+  } catch {
+    // Goal completion columns may be missing before migration is applied.
+  }
 
   const { data: streaks } = await supabase
     .from("streaks")
@@ -46,7 +67,31 @@ export async function getProfileByUsername(
     isFollowing = Boolean(follow);
   }
 
-  return { profile, goals: goals ?? [], streaks: streaks ?? [], isFollowing };
+  const avatarPaths = completedGoals
+    .map((g) => g.user.avatarUrl)
+    .filter(Boolean) as string[];
+  const signedAvatars =
+    avatarPaths.length > 0
+      ? await signAvatarUrls(supabase, avatarPaths)
+      : new Map<string, string>();
+
+  const completedGoalsWithAvatars = completedGoals.map((g) => ({
+    ...g,
+    user: {
+      ...g.user,
+      avatarUrl: g.user.avatarUrl
+        ? signedAvatars.get(g.user.avatarUrl) ?? g.user.avatarUrl
+        : null,
+    },
+  }));
+
+  return {
+    profile,
+    goals: goals ?? [],
+    streaks: streaks ?? [],
+    completedGoals: completedGoalsWithAvatars,
+    isFollowing,
+  };
 }
 
 export interface UserConnection {

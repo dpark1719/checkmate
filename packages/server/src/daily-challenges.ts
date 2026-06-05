@@ -26,7 +26,8 @@ export async function ensureDailyChallengesForUser(
     .select("id, default_promise_time")
     .eq("user_id", userId)
     .eq("is_active", true)
-    .is("archived_at", null);
+    .is("archived_at", null)
+    .is("completed_at", null);
 
   if (goalsError) throw goalsError;
 
@@ -87,7 +88,8 @@ export async function pruneOrphanDailyChallenges(
     .select("id")
     .eq("user_id", userId)
     .eq("is_active", true)
-    .is("archived_at", null);
+    .is("archived_at", null)
+    .is("completed_at", null);
 
   if (goalsError) throw goalsError;
 

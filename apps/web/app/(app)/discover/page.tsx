@@ -1,8 +1,10 @@
 "use client";
 
 import { JoinCommunityModal } from "@/components/JoinCommunityModal";
-import { LeaderboardTeaser } from "@/components/LeaderboardTeaser";
-import { MOCK_LEADERBOARD } from "@/lib/landing/mockData";
+import {
+  LeaderboardTeaser,
+  type LeaderboardTeaserEntry,
+} from "@/components/LeaderboardTeaser";
 import type { GoalCategory } from "@checkmate/shared";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
@@ -26,6 +28,7 @@ export default function DiscoverPage() {
   const [loading, setLoading] = useState<string | null>(null);
   const [modalCategory, setModalCategory] = useState<GoalCategory | null>(null);
   const [editingMembership, setEditingMembership] = useState<Membership | null>(null);
+  const [topStreaks, setTopStreaks] = useState<LeaderboardTeaserEntry[]>([]);
 
   const load = useCallback(() => {
     setPageLoading(true);
@@ -41,6 +44,13 @@ export default function DiscoverPage() {
   useEffect(() => {
     load();
   }, [load]);
+
+  useEffect(() => {
+    fetch("/api/leaderboards/top")
+      .then((r) => r.json())
+      .then((data) => setTopStreaks(data.entries ?? []))
+      .catch(() => setTopStreaks([]));
+  }, []);
 
   function membershipFor(category: string) {
     return memberships.find((m) => m.category === category);
@@ -74,7 +84,7 @@ export default function DiscoverPage() {
       </p>
 
       <LeaderboardTeaser
-        entries={MOCK_LEADERBOARD}
+        entries={topStreaks}
         ctaHref="/streaks"
         ctaLabel="See full leaderboard →"
       />
