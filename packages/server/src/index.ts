@@ -12,3 +12,4 @@ export * from "./activity";
 export * from "./email";
 export * from "./notifications";
 export * from "./goals";
+export * from "./moderation";

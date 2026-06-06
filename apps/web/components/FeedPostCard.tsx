@@ -44,6 +44,7 @@ export function FeedPostCard({
   const [connected, setConnected] = useState(post.isFollowingAuthor ?? false);
   const [connecting, setConnecting] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [canModeratePosts, setCanModeratePosts] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [removed, setRemoved] = useState(false);
@@ -61,6 +62,7 @@ export function FeedPostCard({
       .then((data) => {
         if (data.userId) setCurrentUserId(data.userId);
         else if (data.profile?.id) setCurrentUserId(data.profile.id);
+        if (data.canModeratePosts) setCanModeratePosts(true);
       })
       .catch(() => {});
   }, []);
@@ -92,14 +94,16 @@ export function FeedPostCard({
     }
   }
 
-  async function deletePost() {
-    if (
-      !window.confirm(
-        "Delete this post? It will be removed from feeds. Your streak for this day may still count."
-      )
-    ) {
-      return;
-    }
+  async function removePost(moderated: boolean) {
+    const confirmed = moderated
+      ? window.confirm(
+          "Remove this post from feeds? This moderation action cannot be undone by the author."
+        )
+      : window.confirm(
+          "Delete this post? It will be removed from feeds. Your streak for this day may still count."
+        );
+    if (!confirmed) return;
+
     setDeleting(true);
     setDeleteError(null);
     const res = await fetch(`/api/posts/${post.id}`, { method: "DELETE" });
@@ -114,7 +118,9 @@ export function FeedPostCard({
       (data as { error?: string }).error ??
         (res.status === 401
           ? "Please log in again to delete this post."
-          : "Could not delete post. Try again.")
+          : moderated
+            ? "Could not remove post. Try again."
+            : "Could not delete post. Try again.")
     );
   }
 
@@ -184,11 +190,21 @@ export function FeedPostCard({
           {isOwner && (
             <button
               type="button"
-              onClick={deletePost}
+              onClick={() => void removePost(false)}
               disabled={deleting}
               className="gp-btn-text-danger gp-btn-text-xs shrink-0"
             >
               {deleting ? "Deleting…" : "Delete"}
+            </button>
+          )}
+          {!isOwner && canModeratePosts && (
+            <button
+              type="button"
+              onClick={() => void removePost(true)}
+              disabled={deleting}
+              className="gp-btn-text-danger gp-btn-text-xs shrink-0"
+            >
+              {deleting ? "Removing…" : "Remove"}
             </button>
           )}
           {!isOwner && (
@@ -275,7 +291,12 @@ export function FeedPostCard({
         <PostDetailModal
           post={post}
           currentUserId={currentUserId}
+          canModeratePosts={canModeratePosts}
           onClose={() => setDetailOpen(false)}
+          onRemoved={() => {
+            setRemoved(true);
+            onDeleted?.(post.id);
+          }}
         />
       )}
     </article>

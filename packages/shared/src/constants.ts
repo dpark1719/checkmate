@@ -39,3 +39,5 @@ export const TRIGGER_WINDOW_START_HOUR = 5;
 export const TRIGGER_WINDOW_END_HOUR = 22;
 
 export const HARD_DEADLINE_HOUR = 22;
+
+export const USER_ROLES = ["user", "moderator", "admin"] as const;

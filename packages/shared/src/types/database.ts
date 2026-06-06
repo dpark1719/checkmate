@@ -1,8 +1,14 @@
-import type { GOAL_CATEGORIES, REACTION_TYPES, LEADERBOARD_PERIODS } from "../constants";
+import type {
+  GOAL_CATEGORIES,
+  REACTION_TYPES,
+  LEADERBOARD_PERIODS,
+  USER_ROLES,
+} from "../constants";
 
 export type GoalCategory = (typeof GOAL_CATEGORIES)[number];
 export type ReactionType = (typeof REACTION_TYPES)[number];
 export type LeaderboardPeriod = (typeof LEADERBOARD_PERIODS)[number];
+export type UserRole = (typeof USER_ROLES)[number];
 
 export interface Profile {
   id: string;
@@ -14,6 +20,7 @@ export interface Profile {
   timezoneLabel: string | null;
   region: string | null;
   notificationPreferences: Record<string, unknown>;
+  role: UserRole;
   createdAt: string;
 }
 

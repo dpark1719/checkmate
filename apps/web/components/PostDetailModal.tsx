@@ -34,15 +34,19 @@ export interface ThumbnailPost {
 interface PostDetailModalProps {
   post: ThumbnailPost;
   currentUserId: string | null;
+  canModeratePosts?: boolean;
   onClose: () => void;
   onUpdated?: (post: ThumbnailPost) => void;
+  onRemoved?: () => void;
 }
 
 export function PostDetailModal({
   post,
   currentUserId,
+  canModeratePosts = false,
   onClose,
   onUpdated,
+  onRemoved,
 }: PostDetailModalProps) {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -55,6 +59,7 @@ export function PostDetailModal({
   const [photoUrl, setPhotoUrl] = useState(post.photoUrl);
   const [photoPath, setPhotoPath] = useState<string | null>(null);
   const [reactions, setReactions] = useState<ReactionRow[]>([]);
+  const [removing, setRemoving] = useState(false);
 
   const isOwner = currentUserId === post.userId;
 
@@ -156,6 +161,32 @@ export function PostDetailModal({
       setUploading(false);
       setError(e instanceof Error ? e.message : "Could not process photo");
     }
+  }
+
+  async function removePost() {
+    if (
+      !window.confirm(
+        "Remove this post from feeds? This moderation action cannot be undone by the author."
+      )
+    ) {
+      return;
+    }
+
+    setRemoving(true);
+    setError(null);
+    const res = await fetch(`/api/posts/${post.id}`, { method: "DELETE" });
+    const data = await res.json().catch(() => ({}));
+    setRemoving(false);
+
+    if (!res.ok) {
+      setError(
+        (data as { error?: string }).error ?? "Could not remove post. Try again."
+      );
+      return;
+    }
+
+    onRemoved?.();
+    onClose();
   }
 
   async function saveEdit() {
@@ -317,14 +348,26 @@ export function PostDetailModal({
               </button>
             )
           ) : (
-            <button
-              type="button"
-              onClick={startMessage}
-              disabled={starting || !currentUserId}
-              className="w-full rounded-lg bg-accent text-accent-foreground font-semibold py-3 disabled:opacity-50"
-            >
-              {starting ? "Opening chat…" : "Message about this post"}
-            </button>
+            <div className="space-y-2">
+              {canModeratePosts && (
+                <button
+                  type="button"
+                  onClick={() => void removePost()}
+                  disabled={removing}
+                  className="w-full rounded-lg border border-red-500/40 py-2 text-sm font-medium text-red-400 hover:bg-red-500/10 disabled:opacity-50"
+                >
+                  {removing ? "Removing…" : "Remove post"}
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={startMessage}
+                disabled={starting || !currentUserId}
+                className="w-full rounded-lg bg-accent text-accent-foreground font-semibold py-3 disabled:opacity-50"
+              >
+                {starting ? "Opening chat…" : "Message about this post"}
+              </button>
+            </div>
           )}
         </div>
       </div>

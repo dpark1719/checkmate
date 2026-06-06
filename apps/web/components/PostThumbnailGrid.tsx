@@ -15,6 +15,7 @@ export function PostThumbnailGrid({
   const [gridPosts, setGridPosts] = useState(posts);
   const [selectedPost, setSelectedPost] = useState<ThumbnailPost | null>(null);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [canModeratePosts, setCanModeratePosts] = useState(false);
 
   useEffect(() => {
     setGridPosts(posts);
@@ -26,6 +27,7 @@ export function PostThumbnailGrid({
       .then((data) => {
         if (data.userId) setCurrentUserId(data.userId);
         else if (data.profile?.id) setCurrentUserId(data.profile.id);
+        if (data.canModeratePosts) setCanModeratePosts(true);
       })
       .catch(() => {});
   }, []);
@@ -36,6 +38,11 @@ export function PostThumbnailGrid({
     );
     setSelectedPost(updated);
     onPostUpdated?.(updated);
+  }
+
+  function handleRemoved(postId: string) {
+    setGridPosts((prev) => prev.filter((p) => p.id !== postId));
+    setSelectedPost(null);
   }
 
   if (gridPosts.length === 0) {
@@ -75,8 +82,10 @@ export function PostThumbnailGrid({
         <PostDetailModal
           post={selectedPost}
           currentUserId={currentUserId}
+          canModeratePosts={canModeratePosts}
           onClose={() => setSelectedPost(null)}
           onUpdated={handleUpdated}
+          onRemoved={() => handleRemoved(selectedPost.id)}
         />
       )}
     </>

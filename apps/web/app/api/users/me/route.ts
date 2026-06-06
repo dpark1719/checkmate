@@ -1,4 +1,4 @@
-import { resolveAvatarUrl } from "@checkmate/server";
+import { canModeratePosts, getUserRole, resolveAvatarUrl } from "@checkmate/server";
 import { sanitizeSocialLinks, updateProfileSchema } from "@checkmate/shared";
 import { NextRequest } from "next/server";
 import { jsonError, jsonOk, toCamelCase } from "@/lib/api/response";
@@ -27,7 +27,12 @@ export async function GET(request: NextRequest) {
 
   if (error) return jsonError(error.message, "DB_ERROR", 500);
   const profile = await profileWithSignedAvatar(supabase, data as Record<string, unknown>);
-  return jsonOk({ userId: user.id, profile });
+  const role = await getUserRole(supabase, user.id);
+  return jsonOk({
+    userId: user.id,
+    profile: { ...profile, role },
+    canModeratePosts: canModeratePosts(role),
+  });
 }
 
 export async function PATCH(request: NextRequest) {

@@ -1,4 +1,9 @@
-import { signPhotoUrl, updatePost } from "@checkmate/server";
+import {
+  canModeratePosts,
+  getUserRole,
+  signPhotoUrl,
+  updatePost,
+} from "@checkmate/server";
 import { updatePostSchema } from "@checkmate/shared";
 import { jsonError, jsonOk, toCamelCase } from "@/lib/api/response";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -34,9 +39,8 @@ export async function DELETE(_request: Request, { params }: Params) {
 
   const { data: existing, error: fetchError } = await supabase
     .from("posts")
-    .select("id, daily_challenge_id")
+    .select("id, user_id, daily_challenge_id")
     .eq("id", id)
-    .eq("user_id", user.id)
     .is("deleted_at", null)
     .single();
 
@@ -44,9 +48,42 @@ export async function DELETE(_request: Request, { params }: Params) {
     return jsonError("Post not found", "NOT_FOUND", 404);
   }
 
+  const isOwner = existing.user_id === user.id;
+  const role = await getUserRole(supabase, user.id);
+  const isModerator = canModeratePosts(role);
+
+  if (!isOwner && !isModerator) {
+    return jsonError("Forbidden", "FORBIDDEN", 403);
+  }
+
   const deletedAt = new Date().toISOString();
-  // Prefer soft-delete with the user's session (RLS-correct) so deletes work
-  // even if the service role env var isn't configured.
+
+  if (isModerator && !isOwner) {
+    let admin;
+    try {
+      admin = createAdminClient();
+    } catch {
+      return jsonError(
+        "Could not remove post (missing server config)",
+        "MODERATE_POST_BLOCKED",
+        500
+      );
+    }
+
+    const { data: adminUpdated, error: adminError } = await admin
+      .from("posts")
+      .update({ deleted_at: deletedAt })
+      .eq("id", id)
+      .is("deleted_at", null)
+      .select("id")
+      .maybeSingle();
+
+    if (adminError) return jsonError(adminError.message, "DB_ERROR", 500);
+    if (!adminUpdated) return jsonError("Post not found", "NOT_FOUND", 404);
+
+    return jsonOk({ success: true, moderated: true });
+  }
+
   const { data: updated, error: updateError } = await supabase
     .from("posts")
     .update({ deleted_at: deletedAt })
@@ -57,7 +94,6 @@ export async function DELETE(_request: Request, { params }: Params) {
     .maybeSingle();
 
   if (updateError) {
-    // Fallback: use service role if available (bypasses RLS) for server-only mutation.
     let admin;
     try {
       admin = createAdminClient();
@@ -80,9 +116,9 @@ export async function DELETE(_request: Request, { params }: Params) {
 
     if (adminError) return jsonError(adminError.message, "DB_ERROR", 500);
     if (!adminUpdated) return jsonError("Post not found", "NOT_FOUND", 404);
+  } else if (!updated) {
+    return jsonError("Post not found", "NOT_FOUND", 404);
   }
-
-  if (!updated) return jsonError("Post not found", "NOT_FOUND", 404);
 
   if (existing.daily_challenge_id) {
     const { error: challengeError } = await supabase
