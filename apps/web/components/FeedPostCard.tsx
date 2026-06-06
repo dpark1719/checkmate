@@ -197,16 +197,6 @@ export function FeedPostCard({
               {deleting ? "Deleting…" : "Delete"}
             </button>
           )}
-          {!isOwner && canModeratePosts && (
-            <button
-              type="button"
-              onClick={() => void removePost(true)}
-              disabled={deleting}
-              className="gp-btn-text-danger gp-btn-text-xs shrink-0"
-            >
-              {deleting ? "Removing…" : "Remove"}
-            </button>
-          )}
           {!isOwner && (
             connected ? (
               <button
@@ -277,13 +267,25 @@ export function FeedPostCard({
           />
         ))}
         {!isOwner && (
-          <button
-            type="button"
-            onClick={reportPost}
-            className="gp-btn-text-neutral gp-btn-text-xs ml-auto shrink-0"
-          >
-            Report
-          </button>
+          <div className="ml-auto flex items-center gap-3 shrink-0">
+            {canModeratePosts && (
+              <button
+                type="button"
+                onClick={() => void removePost(true)}
+                disabled={deleting}
+                className="gp-btn-text-danger gp-btn-text-xs"
+              >
+                {deleting ? "Removing…" : "Remove"}
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={reportPost}
+              className="gp-btn-text-neutral gp-btn-text-xs"
+            >
+              Report
+            </button>
+          </div>
         )}
       </div>
       <CommentsSection postId={post.id} />

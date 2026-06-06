@@ -1,9 +1,4 @@
-import {
-  canModeratePosts,
-  getUserRole,
-  signPhotoUrl,
-  updatePost,
-} from "@checkmate/server";
+import { signPhotoUrl, updatePost, userCanModeratePosts } from "@checkmate/server";
 import { updatePostSchema } from "@checkmate/shared";
 import { jsonError, jsonOk, toCamelCase } from "@/lib/api/response";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -49,8 +44,7 @@ export async function DELETE(_request: Request, { params }: Params) {
   }
 
   const isOwner = existing.user_id === user.id;
-  const role = await getUserRole(supabase, user.id);
-  const isModerator = canModeratePosts(role);
+  const isModerator = await userCanModeratePosts(supabase, user.id, user.email);
 
   if (!isOwner && !isModerator) {
     return jsonError("Forbidden", "FORBIDDEN", 403);
