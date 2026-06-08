@@ -179,10 +179,13 @@ Apple/Google sign-in for mobile need extra OAuth client IDs and redirect URIs in
 
 ## 5. Custom domain (optional)
 
-1. Vercel → Project → **Domains** → add `checkmate.com` (example).
-2. Set `NEXT_PUBLIC_APP_URL=https://checkmate.com` and redeploy.
-3. Update Supabase **Site URL** and **Redirect URLs** to the custom domain.
-4. Update Inngest serve URL if you use a custom domain.
+Production domain: **`https://lockinatcheckmate.app`** — see [CUSTOM_DOMAIN_lockinatcheckmate.md](./CUSTOM_DOMAIN_lockinatcheckmate.md) for Cloudflare DNS steps.
+
+1. Vercel → Project → **Domains** → add apex + `www`.
+2. Cloudflare DNS: `A` `@` → `76.76.21.21`, `CNAME` `www` → `cname.vercel-dns.com` (DNS only / grey cloud).
+3. Set `NEXT_PUBLIC_APP_URL=https://lockinatcheckmate.app` and redeploy.
+4. Update Supabase **Site URL** and **Redirect URLs** to the custom domain.
+5. Inngest serve URL (optional, can skip for launch).
 
 ---
 
