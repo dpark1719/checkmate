@@ -85,3 +85,31 @@ Sign in with Google — you should return to `lockinatcheckmate.app`, not Vercel
 ## Skip for now
 
 - **Inngest** — not required for the site to load or for auth.
+
+---
+
+## Troubleshooting: “Safari Can’t Find the Server” but Vercel shows green
+
+DNS can be correct on Cloudflare / public resolvers while your **home router** still returns nothing.
+
+**Verify:** Public DNS works when `dig @1.1.1.1 lockinatcheckmate.app A` returns IPs (e.g. `64.29.17.1`). If your Mac’s default DNS (often `192.168.0.1`) returns empty, the site will fail in Safari until that cache updates.
+
+**Fix (pick one):**
+
+1. **Use Cloudflare DNS on your Mac** (fastest): System Settings → Network → Wi‑Fi → Details → DNS → add `1.1.1.1` and `8.8.8.8`, remove others, apply.
+2. **Flush Mac DNS cache:**
+   ```bash
+   sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder
+   ```
+3. **Restart your router** — forces it to drop stale negative cache.
+4. **Wait** — some ISP routers lag 30 min–24 h after DNS changes.
+
+**Expected Cloudflare records after Vercel authorize:**
+
+| Name | Type | Content |
+|------|------|---------|
+| `@` | CNAME | `278ecc811abfa8eb.vercel-dns-017.com` |
+| `www` | CNAME | `cname.vercel-dns.com` |
+| `_vercel` | TXT | verification string |
+
+All **DNS only** (grey cloud). No A record needed on `@` after Vercel CNAME is in place.
