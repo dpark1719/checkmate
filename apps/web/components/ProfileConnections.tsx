@@ -22,6 +22,7 @@ export function ProfileConnections({
   const [connections, setConnections] = useState<Connection[]>([]);
   const [loading, setLoading] = useState(true);
   const [connectingId, setConnectingId] = useState<string | null>(null);
+  const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -53,79 +54,92 @@ export function ProfileConnections({
     }
   }
 
-  if (loading) {
-    return (
-      <section>
-        <h2 className="text-lg font-semibold mb-3">Connections</h2>
-        <p className="text-sm gp-text-muted">Loading…</p>
-      </section>
-    );
-  }
-
-  if (connections.length === 0) {
-    return (
-      <section>
-        <h2 className="text-lg font-semibold mb-3">Connections</h2>
-        <p className="text-sm gp-text-muted">No connections yet.</p>
-      </section>
-    );
-  }
+  const countLabel = loading ? "…" : String(connections.length);
 
   return (
     <section>
-      <h2 className="text-lg font-semibold mb-3">Connections</h2>
-      <ul className="space-y-2">
-        {connections.map((c) => {
-          const isSelf = currentUserId === c.id;
-          const showConnect =
-            currentUserId && !isSelf && !c.isFollowing;
+      <button
+        type="button"
+        onClick={() => setExpanded((open) => !open)}
+        aria-expanded={expanded}
+        className="flex w-full items-center justify-between gap-2 text-left group"
+      >
+        <h2 className="text-lg font-semibold group-hover:text-accent transition-colors">
+          Connections ({countLabel})
+        </h2>
+        <span
+          className="text-sm gp-text-muted shrink-0 transition-transform duration-200"
+          aria-hidden
+          style={{ transform: expanded ? "rotate(180deg)" : "rotate(0deg)" }}
+        >
+          ▼
+        </span>
+      </button>
 
-          return (
-            <li
-              key={c.id}
-              className="flex items-center gap-3 rounded-xl border border-[var(--gp-border)] px-3 py-2.5"
-            >
-              <Link
-                href={`/u/${c.username}`}
-                className="flex items-center gap-3 min-w-0 flex-1"
-              >
-                <UserAvatar
-                  displayName={c.displayName}
-                  avatarUrl={c.avatarUrl}
-                  size="sm"
-                />
-                <div className="min-w-0">
-                  <p className="font-medium truncate">{c.displayName}</p>
-                  <p className="text-xs gp-text-muted truncate">
-                    @{c.username}
-                  </p>
-                </div>
-              </Link>
-              {isSelf ? (
-                <span className="text-xs gp-text-muted shrink-0">You</span>
-              ) : c.isFollowing ? (
-                <span className="text-xs gp-text-muted shrink-0">Connected</span>
-              ) : showConnect ? (
-                <button
-                  type="button"
-                  onClick={() => void connect(c.id)}
-                  disabled={connectingId === c.id}
-                  className="gp-btn-text gp-btn-text-xs shrink-0 disabled:opacity-50"
-                >
-                  {connectingId === c.id ? "…" : "Connect"}
-                </button>
-              ) : !currentUserId ? (
-                <Link
-                  href="/login"
-                  className="gp-btn-text gp-btn-text-xs shrink-0"
-                >
-                  Connect
-                </Link>
-              ) : null}
-            </li>
-          );
-        })}
-      </ul>
+      {expanded && (
+        <div className="mt-3">
+          {loading ? (
+            <p className="text-sm gp-text-muted">Loading…</p>
+          ) : connections.length === 0 ? (
+            <p className="text-sm gp-text-muted">No connections yet.</p>
+          ) : (
+            <ul className="space-y-2">
+              {connections.map((c) => {
+                const isSelf = currentUserId === c.id;
+                const showConnect =
+                  currentUserId && !isSelf && !c.isFollowing;
+
+                return (
+                  <li
+                    key={c.id}
+                    className="flex items-center gap-3 rounded-xl border border-[var(--gp-border)] px-3 py-2.5"
+                  >
+                    <Link
+                      href={`/u/${c.username}`}
+                      className="flex items-center gap-3 min-w-0 flex-1"
+                    >
+                      <UserAvatar
+                        displayName={c.displayName}
+                        avatarUrl={c.avatarUrl}
+                        size="sm"
+                      />
+                      <div className="min-w-0">
+                        <p className="font-medium truncate">{c.displayName}</p>
+                        <p className="text-xs gp-text-muted truncate">
+                          @{c.username}
+                        </p>
+                      </div>
+                    </Link>
+                    {isSelf ? (
+                      <span className="text-xs gp-text-muted shrink-0">You</span>
+                    ) : c.isFollowing ? (
+                      <span className="text-xs gp-text-muted shrink-0">
+                        Connected
+                      </span>
+                    ) : showConnect ? (
+                      <button
+                        type="button"
+                        onClick={() => void connect(c.id)}
+                        disabled={connectingId === c.id}
+                        className="gp-btn-text gp-btn-text-xs shrink-0 disabled:opacity-50"
+                      >
+                        {connectingId === c.id ? "…" : "Connect"}
+                      </button>
+                    ) : !currentUserId ? (
+                      <Link
+                        href="/login"
+                        className="gp-btn-text gp-btn-text-xs shrink-0"
+                      >
+                        Connect
+                      </Link>
+                    ) : null}
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </div>
+      )}
     </section>
   );
 }
