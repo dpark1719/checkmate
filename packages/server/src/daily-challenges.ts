@@ -5,6 +5,7 @@ import {
   todayInTimezone,
 } from "@checkmate/shared";
 import { notifyUser } from "./push";
+import { getUserPhone, sendTriggerSms, smsEnabled } from "./sms";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { getAdminClient } from "./supabase";
 
@@ -140,6 +141,20 @@ export async function fireDueTriggers(
   if (error) throw error;
   if (!challenges?.length) return 0;
 
+  const { data: profileRow } = await supabase
+    .from("profiles")
+    .select("notification_preferences")
+    .eq("id", userId)
+    .single();
+
+  const notificationPrefs = (profileRow?.notification_preferences ?? {}) as Record<
+    string,
+    unknown
+  >;
+  const userPhone = await getUserPhone(userId);
+  const shouldSendSms =
+    Boolean(userPhone) && smsEnabled(notificationPrefs, "smsDailyTrigger");
+
   let fired = 0;
   for (const row of challenges) {
     const triggerAt = deterministicTriggerTime(userId, row.goal_id, timezone, date);
@@ -172,12 +187,18 @@ export async function fireDueTriggers(
       .eq("id", row.goal_id)
       .single();
 
+    const goalTitle = goalRow?.title ?? "your goal";
+
     await notifyUser(
       userId,
       "CheckMate — daily trigger",
-      `Time to check in on "${goalRow?.title ?? "your goal"}"`,
+      `Time to check in on "${goalTitle}"`,
       { challengeId: row.id, goalId: row.goal_id }
     );
+
+    if (shouldSendSms && userPhone) {
+      void sendTriggerSms({ toPhone: userPhone, goalTitle });
+    }
 
     fired++;
   }

@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { GOAL_CATEGORIES, LEADERBOARD_PERIODS } from "../constants";
+import { isValidE164 } from "../phone";
 
 export const pushTokenSchema = z.object({
   token: z.string().min(1),
@@ -21,12 +22,18 @@ export const leaderboardQuerySchema = z.object({
   scope: z.enum(["global", "regional"]).default("global"),
 });
 
+const e164Phone = z
+  .string()
+  .min(8)
+  .max(16)
+  .refine(isValidE164, "Phone must be E.164 format, e.g. +15551234567");
+
 export const phoneOtpSchema = z.object({
-  phone: z.string().min(8).max(20),
+  phone: e164Phone,
 });
 
 export const verifyOtpSchema = z.object({
-  phone: z.string().min(8).max(20),
+  phone: e164Phone,
   token: z.string().min(4).max(10),
 });
 

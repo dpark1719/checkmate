@@ -94,6 +94,14 @@ Copy from `.env` and set for **Production** (and Preview if you want):
 | `NEXT_PUBLIC_POSTHOG_HOST` | Optional |
 | `UPSTASH_REDIS_REST_URL` | Optional |
 | `UPSTASH_REDIS_REST_TOKEN` | Optional |
+| `RESEND_API_KEY` | Email alerts for comments + DMs |
+| `EMAIL_FROM` | Verified sender, e.g. `CheckMate <alerts@lockinatcheckmate.app>` |
+| `TWILIO_ACCOUNT_SID` | SMS daily check-in triggers |
+| `TWILIO_AUTH_TOKEN` | SMS daily check-in triggers |
+| `TWILIO_MESSAGING_SERVICE_SID` | Preferred over `TWILIO_FROM_NUMBER` |
+| `CRON_SECRET` | Vercel Cron → `/api/cron/fire-triggers` (hourly) |
+
+See **[ALERTS_SETUP.md](./ALERTS_SETUP.md)** for Resend, Supabase Phone + Twilio OTP, and SMS trigger setup.
 
 Do **not** commit `.env` to git.
 
@@ -197,7 +205,10 @@ Production domain: **`https://lockinatcheckmate.app`** — see [CUSTOM_DOMAIN_lo
 - [ ] Google OAuth enabled + test sign-in on production URL
 - [ ] Apple Sign In enabled (Services ID + secret in Supabase) + test on production URL
 - [ ] Custom SMTP configured (if relying on email auth)
-- [ ] Inngest synced to `https://<domain>/api/inngest`
+- [ ] Inngest synced to `https://<domain>/api/inngest` (optional — Vercel Cron handles triggers if `CRON_SECRET` set)
+- [ ] `RESEND_API_KEY` + `EMAIL_FROM` for comment/DM email alerts
+- [ ] Supabase Phone provider + Twilio for OTP login
+- [ ] `TWILIO_*` + `CRON_SECRET` for daily check-in SMS
 - [ ] `SUPABASE_SERVICE_ROLE_KEY` only in server env (Vercel), never in mobile
 - [ ] Service role not exposed in `NEXT_PUBLIC_*` vars
 

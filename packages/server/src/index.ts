@@ -13,3 +13,4 @@ export * from "./email";
 export * from "./notifications";
 export * from "./goals";
 export * from "./moderation";
+export * from "./sms";

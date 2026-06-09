@@ -1,5 +1,5 @@
 import { resolveAvatarUrl, resolveUserRole, userCanModeratePosts } from "@checkmate/server";
-import { sanitizeSocialLinks, updateProfileSchema } from "@checkmate/shared";
+import { maskPhone, sanitizeSocialLinks, updateProfileSchema } from "@checkmate/shared";
 import { NextRequest } from "next/server";
 import { jsonError, jsonOk, toCamelCase } from "@/lib/api/response";
 import { getAuthUserFromRequest, getSupabaseForRequest } from "@/lib/supabase/auth";
@@ -29,10 +29,13 @@ export async function GET(request: NextRequest) {
   const profile = await profileWithSignedAvatar(supabase, data as Record<string, unknown>);
   const role = await resolveUserRole(supabase, user.id, user.email);
   const canModerate = await userCanModeratePosts(supabase, user.id, user.email);
+  const rawPhone = user.phone ?? null;
   return jsonOk({
     userId: user.id,
     profile: { ...profile, role },
     canModeratePosts: canModerate,
+    hasPhone: Boolean(rawPhone),
+    phone: rawPhone ? maskPhone(rawPhone) : null,
   });
 }
 

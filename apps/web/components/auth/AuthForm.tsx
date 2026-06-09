@@ -7,9 +7,11 @@ import {
   setRememberMeClientCookie,
 } from "@/lib/auth/remember-me";
 import { createClient } from "@/lib/supabase/client";
+import { normalizePhoneInput } from "@checkmate/shared";
 import { useEffect, useState } from "react";
 
 type Mode = "login" | "signup";
+type PhoneStep = "phone" | "otp";
 
 function GoogleIcon() {
   return (
@@ -44,6 +46,11 @@ export function AuthForm({
   const [message, setMessage] = useState<string | null>(null);
   const [messageIsError, setMessageIsError] = useState(false);
   const [stayLoggedIn, setStayLoggedIn] = useState(true);
+  const [phoneStep, setPhoneStep] = useState<PhoneStep>("phone");
+  const [phoneInput, setPhoneInput] = useState("");
+  const [normalizedPhone, setNormalizedPhone] = useState<string | null>(null);
+  const [otpCode, setOtpCode] = useState("");
+  const [phoneLoading, setPhoneLoading] = useState(false);
 
   useEffect(() => {
     setStayLoggedIn(readRememberMeFromClient());
@@ -51,6 +58,11 @@ export function AuthForm({
 
   function applyRememberMePreference() {
     setRememberMeClientCookie(stayLoggedIn);
+  }
+
+  function showMessage(text: string, isError: boolean) {
+    setMessage(text);
+    setMessageIsError(isError);
   }
 
   async function signInWithGoogle() {
@@ -67,9 +79,68 @@ export function AuthForm({
       },
     });
     if (error) {
-      setMessage(error.message);
-      setMessageIsError(true);
+      showMessage(error.message, true);
     }
+  }
+
+  async function sendPhoneCode(event: React.FormEvent) {
+    event.preventDefault();
+    setMessage(null);
+    setMessageIsError(false);
+
+    const phone = normalizePhoneInput(phoneInput);
+    if (!phone) {
+      showMessage("Enter a valid phone number (e.g. +1 555 123 4567).", true);
+      return;
+    }
+
+    setPhoneLoading(true);
+    applyRememberMePreference();
+    const supabase = createClient();
+    const { error } = await supabase.auth.signInWithOtp({ phone });
+    setPhoneLoading(false);
+
+    if (error) {
+      showMessage(error.message, true);
+      return;
+    }
+
+    setNormalizedPhone(phone);
+    setPhoneStep("otp");
+    showMessage("Code sent. Check your texts.", false);
+  }
+
+  async function verifyPhoneCode(event: React.FormEvent) {
+    event.preventDefault();
+    if (!normalizedPhone) return;
+
+    setMessage(null);
+    setMessageIsError(false);
+    setPhoneLoading(true);
+    applyRememberMePreference();
+
+    const supabase = createClient();
+    const { error } = await supabase.auth.verifyOtp({
+      phone: normalizedPhone,
+      token: otpCode.trim(),
+      type: "sms",
+    });
+    setPhoneLoading(false);
+
+    if (error) {
+      showMessage(error.message, true);
+      return;
+    }
+
+    window.location.href = "/feed";
+  }
+
+  function resetPhoneFlow() {
+    setPhoneStep("phone");
+    setOtpCode("");
+    setNormalizedPhone(null);
+    setMessage(null);
+    setMessageIsError(false);
   }
 
   return (
@@ -105,6 +176,86 @@ export function AuthForm({
           <GoogleIcon />
           Continue with Google
         </button>
+
+        <div className="flex items-center gap-3">
+          <div className="h-px flex-1 bg-[var(--gp-border)]" />
+          <span className="text-xs gp-text-muted">or</span>
+          <div className="h-px flex-1 bg-[var(--gp-border)]" />
+        </div>
+
+        {phoneStep === "phone" ? (
+          <form onSubmit={sendPhoneCode} className="space-y-3">
+            <div>
+              <label
+                htmlFor="phone"
+                className="block text-sm font-medium text-[var(--gp-fg)]"
+              >
+                Phone number
+              </label>
+              <input
+                id="phone"
+                type="tel"
+                autoComplete="tel"
+                value={phoneInput}
+                onChange={(e) => setPhoneInput(e.target.value)}
+                placeholder="+1 555 123 4567"
+                className="gp-input w-full mt-1"
+              />
+              <p className="text-xs gp-text-muted mt-1">
+                US numbers can be 10 digits. We&apos;ll text you a login code and
+                daily check-in reminders.
+              </p>
+            </div>
+            <button
+              type="submit"
+              disabled={phoneLoading}
+              className="w-full rounded-xl bg-accent text-accent-foreground py-3 font-semibold disabled:opacity-50"
+            >
+              {phoneLoading ? "Sending…" : "Send code"}
+            </button>
+          </form>
+        ) : (
+          <form onSubmit={verifyPhoneCode} className="space-y-3">
+            <p className="text-sm gp-text-muted">
+              Code sent to{" "}
+              <span className="text-[var(--gp-fg)]">{normalizedPhone}</span>
+            </p>
+            <div>
+              <label
+                htmlFor="otp"
+                className="block text-sm font-medium text-[var(--gp-fg)]"
+              >
+                Verification code
+              </label>
+              <input
+                id="otp"
+                type="text"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                value={otpCode}
+                onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ""))}
+                maxLength={6}
+                placeholder="123456"
+                className="gp-input w-full mt-1 tracking-widest"
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={phoneLoading || otpCode.length < 4}
+              className="w-full rounded-xl bg-accent text-accent-foreground py-3 font-semibold disabled:opacity-50"
+            >
+              {phoneLoading ? "Verifying…" : "Verify & continue"}
+            </button>
+            <button
+              type="button"
+              onClick={resetPhoneFlow}
+              className="gp-btn-text gp-btn-text-xs w-full"
+            >
+              Use a different number
+            </button>
+          </form>
+        )}
+
         <label className="flex items-center gap-2.5 text-sm gp-text-muted cursor-pointer select-none">
           <input
             type="checkbox"

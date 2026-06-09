@@ -56,6 +56,9 @@ function ProfilePageContent() {
   >(socialLinksToFormState({}));
   const [emailComments, setEmailComments] = useState(true);
   const [emailMessages, setEmailMessages] = useState(true);
+  const [smsDailyTrigger, setSmsDailyTrigger] = useState(true);
+  const [hasPhone, setHasPhone] = useState(false);
+  const [maskedPhone, setMaskedPhone] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -91,6 +94,9 @@ function ProfilePageContent() {
         >;
         setEmailComments(prefs.emailComments !== false);
         setEmailMessages(prefs.emailMessages !== false);
+        setSmsDailyTrigger(prefs.smsDailyTrigger !== false);
+        setHasPhone(Boolean(data.hasPhone));
+        setMaskedPhone(data.phone ?? null);
       });
   }
 
@@ -147,6 +153,7 @@ function ProfilePageContent() {
         notificationPreferences: {
           emailComments,
           emailMessages,
+          ...(hasPhone ? { smsDailyTrigger } : {}),
         },
       }),
     });
@@ -363,6 +370,37 @@ function ProfilePageContent() {
                 the server. In-app badges work without email.
               </p>
             </div>
+            {hasPhone && (
+              <div className="border-t border-[var(--gp-border)] pt-4 space-y-3">
+                <p className="text-sm font-medium text-[var(--gp-fg)]">
+                  Text alerts
+                </p>
+                <p className="text-xs gp-text-muted">
+                  Account phone: {maskedPhone ?? "on file"}
+                </p>
+                <label className="flex items-center gap-3 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={smsDailyTrigger}
+                    onChange={(e) => setSmsDailyTrigger(e.target.checked)}
+                    className="rounded"
+                  />
+                  Daily check-in text messages
+                </label>
+                <p className="text-xs text-[var(--gp-muted)]">
+                  Sent when your daily trigger fires. Comments and DMs stay
+                  email-only. Requires Twilio on the server.
+                </p>
+              </div>
+            )}
+            {!hasPhone && (
+              <p className="text-xs gp-text-muted border-t border-[var(--gp-border)] pt-4">
+                Sign in with your phone number to get daily check-in texts.{" "}
+                <Link href="/login" className="gp-btn-text">
+                  Log in with phone →
+                </Link>
+              </p>
+            )}
             <button
               type="submit"
               className="rounded-lg bg-accent text-accent-foreground font-semibold px-6 py-2"

@@ -25,9 +25,12 @@ export async function sendEmail(payload: EmailPayload): Promise<boolean> {
     process.env.EMAIL_FROM ?? "CheckMate <onboarding@resend.dev>";
 
   if (!apiKey) {
-    if (process.env.NODE_ENV === "development") {
-      console.info("[email] RESEND_API_KEY not set — would send:", payload.subject, "→", payload.to);
-    }
+    console.warn(
+      "[email] RESEND_API_KEY not set — skipped:",
+      payload.subject,
+      "→",
+      payload.to
+    );
     return false;
   }
 

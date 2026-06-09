@@ -1,4 +1,8 @@
-import { phoneOtpSchema, verifyOtpSchema } from "@checkmate/shared";
+import {
+  normalizePhoneInput,
+  phoneOtpSchema,
+  verifyOtpSchema,
+} from "@checkmate/shared";
 import { NextRequest } from "next/server";
 import { jsonError, jsonOk } from "@/lib/api/response";
 import { createClient } from "@/lib/supabase/server";
@@ -8,9 +12,10 @@ export async function POST(request: NextRequest) {
   const supabase = await createClient();
 
   if (body.token) {
-    const parsed = verifyOtpSchema.safeParse(body);
-    if (!parsed.success) {
-      return jsonError(parsed.error.message, "VALIDATION_ERROR", 400);
+    const phone = normalizePhoneInput(String(body.phone ?? ""));
+    const parsed = verifyOtpSchema.safeParse({ ...body, phone: phone ?? "" });
+    if (!parsed.success || !phone) {
+      return jsonError(parsed.success ? "Invalid phone" : parsed.error.message, "VALIDATION_ERROR", 400);
     }
 
     const { error } = await supabase.auth.verifyOtp({
@@ -23,9 +28,10 @@ export async function POST(request: NextRequest) {
     return jsonOk({ verified: true });
   }
 
-  const parsed = phoneOtpSchema.safeParse(body);
-  if (!parsed.success) {
-    return jsonError(parsed.error.message, "VALIDATION_ERROR", 400);
+  const phone = normalizePhoneInput(String(body.phone ?? ""));
+  const parsed = phoneOtpSchema.safeParse({ phone: phone ?? "" });
+  if (!parsed.success || !phone) {
+    return jsonError(parsed.success ? "Invalid phone" : parsed.error.message, "VALIDATION_ERROR", 400);
   }
 
   const { error } = await supabase.auth.signInWithOtp({

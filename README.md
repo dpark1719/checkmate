@@ -89,5 +89,6 @@ Repo: [github.com/dpark1719/CheckMate](https://github.com/dpark1719/CheckMate) �
 
 - `docs/CHECKMATE_PLAN.md` — product spec
 - `docs/DEPLOYMENT.md` — production deploy guide
+- `docs/ALERTS_SETUP.md` — email alerts, phone login, SMS triggers
 - `.cursorrules` — Cursor rules
 - `CONTEXT.md` — paste into new chats
