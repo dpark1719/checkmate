@@ -1,4 +1,4 @@
-import { getHomeFeed } from "@checkmate/server";
+import { getFeedLastViewedAt, getHomeFeed } from "@checkmate/server";
 import { NextRequest, NextResponse } from "next/server";
 import { jsonError } from "@/lib/api/response";
 import { getAuthUserFromRequest } from "@/lib/supabase/auth";
@@ -18,8 +18,11 @@ export async function GET(request: NextRequest) {
 
   try {
     const supabase = createAdminClient();
-    const feed = await getHomeFeed(supabase, user.id, { cursor, limit });
-    return NextResponse.json(feed, {
+    const [feed, feedLastViewedAt] = await Promise.all([
+      getHomeFeed(supabase, user.id, { cursor, limit }),
+      getFeedLastViewedAt(supabase, user.id),
+    ]);
+    return NextResponse.json({ ...feed, feedLastViewedAt }, {
       status: 200,
       headers: {
         "Cache-Control": "private, no-store, max-age=0",

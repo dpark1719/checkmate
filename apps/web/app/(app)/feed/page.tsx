@@ -2,8 +2,10 @@
 
 import { FeedPostCard } from "@/components/FeedPostCard";
 import { groupPostsByDay } from "@/lib/format-datetime";
+import { markFeedViewed, splitFeedPosts } from "@/lib/feed-client";
 import { markAllCommentsRead } from "@/lib/notifications-client";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 interface FeedPost {
@@ -24,7 +26,10 @@ interface FeedPost {
 }
 
 export default function FeedPage() {
+  const pathname = usePathname();
   const [posts, setPosts] = useState<FeedPost[]>([]);
+  const [feedLastViewedAt, setFeedLastViewedAt] = useState<string | null>(null);
+  const [showAll, setShowAll] = useState(false);
   const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -43,6 +48,7 @@ export default function FeedPage() {
     return {
       posts: (data.posts ?? []) as FeedPost[],
       nextCursor: (data.nextCursor as string | null) ?? null,
+      feedLastViewedAt: (data.feedLastViewedAt as string | null) ?? null,
     };
   }, []);
 
@@ -51,10 +57,12 @@ export default function FeedPage() {
   }, []);
 
   useEffect(() => {
+    setShowAll(false);
     loadFeed()
-      .then(({ posts: fetched, nextCursor: cursor }) => {
+      .then(({ posts: fetched, nextCursor: cursor, feedLastViewedAt: viewed }) => {
         setPosts(fetched);
         setNextCursor(cursor);
+        setFeedLastViewedAt(viewed);
         setError(null);
         setLoading(false);
       })
@@ -64,7 +72,33 @@ export default function FeedPage() {
       });
   }, [loadFeed]);
 
-  const dayGroups = useMemo(() => groupPostsByDay(posts), [posts]);
+  useEffect(() => {
+    return () => {
+      void markFeedViewed().catch(() => {});
+    };
+  }, []);
+
+  useEffect(() => {
+    if (pathname !== "/feed") {
+      void markFeedViewed().catch(() => {});
+    }
+  }, [pathname]);
+
+  const { newPosts, seenPosts } = useMemo(
+    () => splitFeedPosts(posts, feedLastViewedAt),
+    [posts, feedLastViewedAt]
+  );
+
+  const caughtUp =
+    !loading &&
+    !error &&
+    !showAll &&
+    feedLastViewedAt !== null &&
+    newPosts.length === 0 &&
+    posts.length > 0;
+
+  const visiblePosts = showAll || feedLastViewedAt === null ? posts : newPosts;
+  const dayGroups = useMemo(() => groupPostsByDay(visiblePosts), [visiblePosts]);
 
   async function loadEarlier() {
     if (!nextCursor || loadingMore) return;
@@ -107,8 +141,29 @@ export default function FeedPage() {
             Discover communities
           </Link>
         </div>
+      ) : caughtUp ? (
+        <button
+          type="button"
+          onClick={() => setShowAll(true)}
+          className="w-full rounded-xl border border-dashed border-[var(--gp-border)] p-12 text-center space-y-2 transition-colors hover:bg-[var(--gp-card)] hover:border-accent/40"
+        >
+          <p className="text-lg font-semibold text-[var(--gp-fg)]">
+            Nothing new yet
+          </p>
+          <p className="text-sm gp-text-muted">
+            Tap to see posts from earlier
+          </p>
+        </button>
       ) : (
         <div className="space-y-8">
+          {!showAll && feedLastViewedAt !== null && newPosts.length > 0 && (
+            <p className="text-sm gp-text-muted">
+              {newPosts.length === 1
+                ? "1 new post since your last visit"
+                : `${newPosts.length} new posts since your last visit`}
+            </p>
+          )}
+
           {dayGroups.map((group) => (
             <section key={group.dayKey} className="space-y-4">
               <div className="sticky top-0 z-10 -mx-1 px-1 py-2 bg-[var(--background)]/95 backdrop-blur border-b border-[var(--gp-border)]">
@@ -131,7 +186,19 @@ export default function FeedPage() {
             </section>
           ))}
 
-          {nextCursor && (
+          {!showAll && seenPosts.length > 0 && (
+            <div className="flex justify-center pt-2">
+              <button
+                type="button"
+                onClick={() => setShowAll(true)}
+                className="gp-btn-text text-sm"
+              >
+                See earlier posts
+              </button>
+            </div>
+          )}
+
+          {showAll && nextCursor && (
             <div className="flex justify-center pt-2 pb-4">
               <button
                 type="button"

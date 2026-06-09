@@ -234,3 +234,50 @@ export async function getCommunityFeed(
 
   return mapPostRows(supabase, (posts ?? []) as PostRow[], limit);
 }
+
+export async function getFeedLastViewedAt(
+  supabase: SupabaseClient,
+  userId: string
+): Promise<string | null> {
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("notification_preferences")
+    .eq("id", userId)
+    .single();
+
+  if (error || !data) return null;
+
+  const prefs = (data.notification_preferences ?? {}) as Record<string, unknown>;
+  const viewed = prefs.feedLastViewedAt;
+  return typeof viewed === "string" ? viewed : null;
+}
+
+export async function setFeedLastViewedAt(
+  supabase: SupabaseClient,
+  userId: string,
+  viewedAt: string = new Date().toISOString()
+): Promise<string> {
+  const { data: current, error: fetchError } = await supabase
+    .from("profiles")
+    .select("notification_preferences")
+    .eq("id", userId)
+    .single();
+
+  if (fetchError) throw fetchError;
+
+  const existing =
+    (current?.notification_preferences as Record<string, unknown>) ?? {};
+
+  const { error: updateError } = await supabase
+    .from("profiles")
+    .update({
+      notification_preferences: {
+        ...existing,
+        feedLastViewedAt: viewedAt,
+      },
+    })
+    .eq("id", userId);
+
+  if (updateError) throw updateError;
+  return viewedAt;
+}
