@@ -52,10 +52,10 @@ function ActivityCard({
       ? "px-2 pt-2 sm:px-2.5 sm:pt-2.5 pb-1.5"
       : "px-4 pt-4 pb-3";
   const footerPadding = fill
-    ? "px-3 pb-3 sm:px-4 sm:pb-4"
+    ? "px-3 pt-3 pb-3 sm:px-4 sm:pt-3.5 sm:pb-4"
     : compact
-      ? "px-2 pb-2 sm:px-2.5 sm:pb-2.5"
-      : "px-4 pb-4";
+      ? "px-2 pt-2 pb-2 sm:px-2.5 sm:pt-2.5 sm:pb-2.5"
+      : "px-4 pt-3.5 pb-4";
 
   return (
     <article
@@ -71,9 +71,9 @@ function ActivityCard({
       <div className={`shrink-0 ${goalPadding}`}>
         <p
           className={`font-semibold leading-snug truncate ${titleSize}`}
-          title={`${post.goalEmoji} ${post.goalTitle}`}
+          title={post.goalTitle}
         >
-          <span aria-hidden>{post.goalEmoji}</span> {post.goalTitle}
+          {post.goalTitle}
         </p>
       </div>
 
@@ -97,9 +97,9 @@ function ActivityCard({
             fill ? "mb-1.5" : compact ? "mb-1" : "mb-2"
           }`}
         >
-          <div className="flex min-w-0 items-center gap-1.5">
+          <div className="flex min-w-0 items-center gap-2">
             <span
-              className={`flex shrink-0 items-center justify-center rounded-full font-bold text-white ${avatarSize}`}
+              className={`flex shrink-0 items-center justify-center rounded-full font-bold text-white ring-2 ring-[var(--gp-card)] ${avatarSize}`}
               style={{ backgroundColor: post.avatarColor }}
               aria-hidden
             >
