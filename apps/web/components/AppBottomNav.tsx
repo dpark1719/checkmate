@@ -91,7 +91,7 @@ export function AppBottomNav() {
                   <Icon className="h-5 w-5 shrink-0" strokeWidth={2} aria-hidden />
                   {badgeLabel && <NavBadge count={badgeCount} />}
                 </span>
-                <span className="text-[10px] font-medium leading-tight truncate max-w-full">
+                <span className="hidden sm:block text-[10px] font-medium leading-tight truncate max-w-full">
                   {tab.label}
                 </span>
               </Link>

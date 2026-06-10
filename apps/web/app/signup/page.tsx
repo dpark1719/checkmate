@@ -8,7 +8,7 @@ export default function SignupPage() {
       footer={
         <>
           Already have an account?{" "}
-          <Link href="/login" className="gp-btn-text gp-btn-text-xs">
+          <Link href="/login" className="gp-btn-text">
             Log in
           </Link>
         </>

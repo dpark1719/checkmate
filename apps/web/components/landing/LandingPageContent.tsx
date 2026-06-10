@@ -34,7 +34,7 @@ function ScrollDownCue({ onClick }: { onClick: () => void }) {
     <button
       type="button"
       onClick={onClick}
-      className="fixed bottom-8 left-1/2 z-20 -translate-x-1/2 flex flex-col items-center gap-1.5 gp-text-subtle hover:text-[var(--gp-muted)] transition-colors cursor-pointer"
+      className="fixed bottom-[calc(2rem+env(safe-area-inset-bottom))] left-1/2 z-20 -translate-x-1/2 flex flex-col items-center justify-center gap-1 min-h-11 min-w-11 px-4 py-2 gp-text-subtle hover:text-[var(--gp-muted)] transition-colors cursor-pointer"
       aria-label="Scroll to next section"
     >
       <ChevronDown className="h-5 w-5 landing-scroll-arrow" aria-hidden />
@@ -92,19 +92,19 @@ export function LandingPageContent() {
   return (
     <div
       ref={containerRef}
-      className="relative h-[100dvh] overflow-y-auto snap-y snap-mandatory scroll-smooth"
+      className="landing-scroll-container relative h-[100dvh] overflow-y-auto snap-y snap-proximity sm:snap-mandatory scroll-smooth"
     >
       <div
         ref={(el) => {
           pageRefs.current[0] = el;
         }}
-        className="snap-start min-h-[100dvh] flex flex-col items-center justify-center px-6"
+        className="snap-start min-h-[100dvh] flex flex-col items-center justify-center px-6 pt-[env(safe-area-inset-top)]"
       >
         <div className="max-w-lg text-center space-y-6">
-          <p className="text-accent font-bold tracking-tight text-5xl sm:text-7xl">
+          <p className="text-accent font-bold tracking-tight text-4xl sm:text-5xl md:text-7xl">
             CheckMate
           </p>
-          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight">
             One photo. One promise. Every day.
           </h1>
           <p className="gp-text-muted text-lg">Social media for doers.</p>
@@ -118,7 +118,7 @@ export function LandingPageContent() {
         ref={(el) => {
           pageRefs.current[1] = el;
         }}
-        className="snap-start h-[100dvh] flex flex-col justify-center overflow-hidden py-8 sm:py-10 pb-[5.5rem]"
+        className="snap-start min-h-[100dvh] flex flex-col justify-center py-8 sm:py-10 pb-[calc(5.5rem+env(safe-area-inset-bottom))]"
       >
         <LandingSteps />
       </div>
@@ -127,7 +127,7 @@ export function LandingPageContent() {
         ref={(el) => {
           pageRefs.current[2] = el;
         }}
-        className="snap-start h-[100dvh] flex flex-col overflow-hidden pt-5 sm:pt-6 pb-[5.5rem]"
+        className="snap-start min-h-[100dvh] flex flex-col pt-5 sm:pt-6 pb-[calc(5.5rem+env(safe-area-inset-bottom))]"
       >
         <SocialProofSection
           stats={MOCK_STATS}
@@ -140,7 +140,7 @@ export function LandingPageContent() {
         ref={(el) => {
           pageRefs.current[3] = el;
         }}
-        className="snap-start min-h-[100dvh] flex flex-col items-center justify-center px-6"
+        className="snap-start min-h-[100dvh] flex flex-col items-center justify-center px-6 pb-[env(safe-area-inset-bottom)]"
       >
         <div className="max-w-xl w-full text-center space-y-6">
           <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">

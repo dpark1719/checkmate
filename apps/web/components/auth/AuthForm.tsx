@@ -250,7 +250,7 @@ export function AuthForm({
             <button
               type="button"
               onClick={resetPhoneFlow}
-              className="gp-btn-text gp-btn-text-xs w-full"
+              className="gp-btn-text w-full"
             >
               Use a different number
             </button>

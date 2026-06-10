@@ -62,7 +62,7 @@ export function StatsBar({
               {formatStat(lockedIn)}
             </p>
           </div>
-          <p className="text-[10px] sm:text-xs gp-text-muted mt-0.5 leading-tight">
+          <p className="text-xs gp-text-muted mt-0.5 leading-tight">
             locked in today
           </p>
         </div>
@@ -71,7 +71,7 @@ export function StatsBar({
           <p className="text-lg sm:text-xl font-bold tabular-nums leading-none">
             {formatStat(streaks)}
           </p>
-          <p className="text-[10px] sm:text-xs gp-text-muted mt-0.5 leading-tight">
+          <p className="text-xs gp-text-muted mt-0.5 leading-tight">
             active streaks
           </p>
         </div>

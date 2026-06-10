@@ -268,7 +268,14 @@ select option {
   }
 }
 
+.landing-scroll-container {
+  -webkit-overflow-scrolling: touch;
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .landing-scroll-container {
+    scroll-snap-type: none !important;
+  }
   .landing-scroll-arrow {
     animation: none;
   }

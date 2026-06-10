@@ -27,7 +27,7 @@ export function LandingSteps() {
   return (
     <section
       ref={ref}
-      className={`min-h-[100dvh] py-10 sm:py-12 px-6 max-w-xl mx-auto w-full flex flex-col justify-center ${
+      className={`py-6 sm:py-10 px-6 max-w-xl mx-auto w-full flex flex-col justify-center ${
         inView ? "landing-steps-visible" : ""
       }`}
     >

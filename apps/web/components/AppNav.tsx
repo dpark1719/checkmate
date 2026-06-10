@@ -4,7 +4,7 @@ import Link from "next/link";
 
 export function AppNav() {
   return (
-    <header className="border-b border-[var(--gp-border)] bg-[var(--gp-nav-bg)] backdrop-blur-md sticky top-0 z-30">
+    <header className="border-b border-[var(--gp-border)] bg-[var(--gp-nav-bg)] backdrop-blur-md sticky top-0 z-30 pt-[env(safe-area-inset-top)]">
       <div className="max-w-3xl mx-auto flex items-center justify-between px-4 h-12 gap-3">
         <Link
           href="/feed"

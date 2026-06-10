@@ -32,7 +32,7 @@ export default async function LoginPage({
       footer={
         <>
           New here?{" "}
-          <Link href="/signup" className="gp-btn-text gp-btn-text-xs">
+          <Link href="/signup" className="gp-btn-text">
             Sign up
           </Link>
         </>

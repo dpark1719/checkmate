@@ -28,7 +28,7 @@ export function ThemeToggle() {
     0,
     options.findIndex((o) => o.value === highlighted)
   );
-  const overlayX = expanded ? highlightedIndex * 32 : 0;
+  const overlayX = expanded ? highlightedIndex * 44 : 0;
 
   function collapse() {
     setExpanded(false);
@@ -37,7 +37,7 @@ export function ThemeToggle() {
 
   return (
     <div
-      className="group relative flex h-8 w-8 rounded-lg border border-[var(--gp-border)] overflow-hidden bg-[var(--gp-surface)] transition-[width] duration-200 ease-[var(--gp-ease-out)] hover:w-24 focus-within:w-24"
+      className="group relative flex h-11 w-11 rounded-lg border border-[var(--gp-border)] overflow-hidden bg-[var(--gp-surface)] transition-[width] duration-200 ease-[var(--gp-ease-out)] hover:w-[8.25rem] focus-within:w-[8.25rem]"
       role="group"
       aria-label="Theme"
       aria-expanded={expanded}
@@ -52,7 +52,7 @@ export function ThemeToggle() {
     >
       <motion.span
         aria-hidden
-        className="absolute top-0 left-0 z-0 h-8 w-8 bg-[var(--gp-accent)] pointer-events-none"
+        className="absolute top-0 left-0 z-0 h-11 w-11 bg-[var(--gp-accent)] pointer-events-none"
         animate={{ x: overlayX }}
         transition={reduced ? { duration: 0 } : tweenFast}
       />
@@ -74,10 +74,10 @@ export function ThemeToggle() {
             aria-hidden={!visible}
             tabIndex={visible ? 0 : -1}
             title={label}
-            className={`relative z-10 inline-flex h-8 shrink-0 items-center justify-center transition-all duration-200 ease-[var(--gp-ease-out)] ${
+            className={`relative z-10 inline-flex h-11 shrink-0 items-center justify-center transition-all duration-200 ease-[var(--gp-ease-out)] ${
               active
-                ? "w-8 opacity-100"
-                : "w-0 opacity-0 overflow-hidden pointer-events-none group-hover:w-8 group-hover:opacity-100 group-hover:pointer-events-auto group-focus-within:w-8 group-focus-within:opacity-100 group-focus-within:pointer-events-auto"
+                ? "w-11 opacity-100"
+                : "w-0 opacity-0 overflow-hidden pointer-events-none group-hover:w-11 group-hover:opacity-100 group-hover:pointer-events-auto group-focus-within:w-11 group-focus-within:opacity-100 group-focus-within:pointer-events-auto"
             } ${
               highlightedOption
                 ? "text-[var(--gp-accent-fg)]"

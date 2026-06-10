@@ -17,7 +17,7 @@ export function LogOutButton() {
     <button
       type="button"
       onClick={signOut}
-      className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-[var(--gp-border)] bg-[var(--gp-surface)] px-2.5 text-xs font-medium gp-text-muted transition-colors hover:bg-[var(--gp-card)] hover:text-[var(--gp-fg)]"
+      className="inline-flex h-11 min-w-11 items-center justify-center gap-1.5 rounded-lg border border-[var(--gp-border)] bg-[var(--gp-surface)] px-3 text-xs font-medium gp-text-muted transition-colors hover:bg-[var(--gp-card)] hover:text-[var(--gp-fg)]"
       aria-label="Log out"
     >
       <LogOut className="h-3.5 w-3.5 shrink-0" strokeWidth={2} aria-hidden />

@@ -8,7 +8,7 @@ export function AuthPageShell({
   footer?: React.ReactNode;
 }) {
   return (
-    <div className="relative min-h-[100dvh] flex flex-col items-center justify-center px-6 py-12">
+    <div className="relative min-h-[100dvh] flex flex-col items-center justify-center px-4 sm:px-6 py-8 sm:py-12 pt-[max(2rem,env(safe-area-inset-top))] pb-[max(2rem,env(safe-area-inset-bottom))]">
       <div
         className="pointer-events-none absolute inset-0 overflow-hidden"
         aria-hidden
@@ -33,7 +33,7 @@ export function AuthPageShell({
           <p className="text-sm gp-text-muted">Social media for doers.</p>
         </div>
 
-        <div className="rounded-2xl border border-[var(--gp-border)] bg-[var(--gp-card)] p-8 shadow-lg shadow-black/20 space-y-6">
+        <div className="rounded-2xl border border-[var(--gp-border)] bg-[var(--gp-card)] p-6 sm:p-8 shadow-lg shadow-black/20 space-y-6">
           {children}
         </div>
 
