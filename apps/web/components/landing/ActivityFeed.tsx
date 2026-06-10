@@ -52,10 +52,10 @@ function ActivityCard({
       ? "px-2 pt-2 sm:px-2.5 sm:pt-2.5 pb-1.5"
       : "px-4 pt-4 pb-3";
   const footerPadding = fill
-    ? "px-3 pt-3 pb-3 sm:px-4 sm:pt-3.5 sm:pb-4"
+    ? "px-3 pt-1.5 pb-3 sm:px-4 sm:pt-2 sm:pb-4"
     : compact
-      ? "px-2 pt-2 pb-2 sm:px-2.5 sm:pt-2.5 sm:pb-2.5"
-      : "px-4 pt-3.5 pb-4";
+      ? "px-2 pt-1 pb-2 sm:px-2.5 sm:pt-1.5 sm:pb-2.5"
+      : "px-4 pt-2 pb-4";
 
   return (
     <article
