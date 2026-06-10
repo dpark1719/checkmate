@@ -5,7 +5,7 @@ alwaysApply: true
 
 # Git commit, push, and deploy
 
-**Always commit and push after every code change** in this repo. This project rule overrides any global Cursor user rule that says to commit only when asked.
+**This project rule overrides all other commit instructions** (including global Cursor user rules that say to commit only when asked). After every code change, commit and push automatically — do not wait for the user to ask.
 
 When you **modify any project files** (not read-only Q&A), do this before ending your response:
 
@@ -25,8 +25,8 @@ git push origin main
 
 - **Never** commit `.env`, `apps/web/.env`, or keys.
 - Use complete-sentence commit messages.
-- Only skip commit/push if the user explicitly said not to in that conversation, or there are zero file changes.
-- Do not wait for the user to ask — commit and push automatically.
+- **Always** commit and push when files changed — no exceptions unless the user explicitly said not to in that conversation.
+- If there are zero file changes, skip commit/push.
 
 ## 2. Redeploy (Vercel)
 
@@ -44,3 +44,4 @@ Briefly confirm: commit hash or message, that push succeeded, and that Vercel is
 - Force-push `main` unless explicitly requested.
 - Amend commits that were already pushed.
 - Update git config.
+- Ask the user whether to commit — just do it.
