@@ -23,7 +23,7 @@ function ActivityCard({
   fill?: boolean;
 }) {
   const titleSize = fill
-    ? "text-base"
+    ? "text-sm"
     : compact
       ? "text-[10px] sm:text-[11px]"
       : "text-sm";
@@ -47,7 +47,7 @@ function ActivityCard({
     : "text-[9px] px-1.5 py-px";
 
   const goalPadding = fill
-    ? "px-3 pt-3 sm:px-4 sm:pt-4 pb-2"
+    ? "flex items-center px-3 py-2.5 sm:px-4 sm:py-3 min-h-[2.5rem] sm:min-h-[2.75rem]"
     : compact
       ? "px-2 pt-2 sm:px-2.5 sm:pt-2.5 pb-1.5"
       : "px-4 pt-4 pb-3";
