@@ -45,7 +45,10 @@ export async function ensureDailyChallengesForUser(
   const existingGoalIds = new Set((existing ?? []).map((r) => r.goal_id));
   const toCreate = (goals as ActiveGoal[]).filter((g) => !existingGoalIds.has(g.id));
 
-  if (toCreate.length === 0) return 0; // prune already ran above
+  if (toCreate.length === 0) {
+    await backfillDailyChallengeDeadlines(userId, timezone, supabase);
+    return 0;
+  }
 
   const rows = toCreate.map((goal) => {
     const triggerAt = deterministicTriggerTime(userId, goal.id, timezone, date);
@@ -60,8 +63,8 @@ export async function ensureDailyChallengesForUser(
       goal_id: goal.id,
       date,
       trigger_fired_at: shouldFire ? now.toISOString() : null,
-      promise_time: shouldFire ? promiseTime.toISOString() : null,
-      leeway_expires_at: shouldFire ? leeway.toISOString() : null,
+      promise_time: promiseTime.toISOString(),
+      leeway_expires_at: leeway.toISOString(),
     };
   });
 
@@ -69,8 +72,55 @@ export async function ensureDailyChallengesForUser(
   if (insertError) throw insertError;
 
   await pruneOrphanDailyChallenges(userId, timezone, supabase);
+  await backfillDailyChallengeDeadlines(userId, timezone, supabase);
 
   return rows.length;
+}
+
+/** Set promise/leeway from goal default for today's challenges missing a deadline. */
+export async function backfillDailyChallengeDeadlines(
+  userId: string,
+  timezone: string,
+  supabase: SupabaseClient = getAdminClient()
+): Promise<number> {
+  const date = todayInTimezone(timezone);
+
+  const { data: challenges, error } = await supabase
+    .from("daily_challenges")
+    .select("id, goal_id, promise_time, leeway_expires_at, posted_at")
+    .eq("user_id", userId)
+    .eq("date", date)
+    .is("leeway_expires_at", null);
+
+  if (error) throw error;
+  if (!challenges?.length) return 0;
+
+  let updated = 0;
+  for (const row of challenges) {
+    const { data: goal } = await supabase
+      .from("goals")
+      .select("default_promise_time")
+      .eq("id", row.goal_id)
+      .single();
+
+    const defaultTime = goal?.default_promise_time ?? "20:00:00";
+    const [h, m] = defaultTime.split(":").map(Number);
+    const promiseLocal = `${date}T${String(h).padStart(2, "0")}:${String(m ?? 0).padStart(2, "0")}:00`;
+    const promiseTime = localPromiseToUtc(promiseLocal, timezone);
+    const leeway = computeLeewayExpires(promiseTime);
+
+    const { error: updateError } = await supabase
+      .from("daily_challenges")
+      .update({
+        promise_time: (row.promise_time as string | null) ?? promiseTime.toISOString(),
+        leeway_expires_at: leeway.toISOString(),
+      })
+      .eq("id", row.id);
+
+    if (!updateError) updated++;
+  }
+
+  return updated;
 }
 
 /**

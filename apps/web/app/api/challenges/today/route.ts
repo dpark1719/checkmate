@@ -1,6 +1,7 @@
 import { todayInTimezone } from "@checkmate/shared";
 import {
   applyHardDeadlines,
+  backfillDailyChallengeDeadlines,
   ensureDailyChallengesForUser,
   fireDueTriggers,
 } from "@checkmate/server";
@@ -25,6 +26,7 @@ export async function GET(request: NextRequest) {
 
   const timezone = profile.timezone;
   await ensureDailyChallengesForUser(user.id, timezone);
+  await backfillDailyChallengeDeadlines(user.id, timezone);
   await fireDueTriggers(user.id, timezone);
   await applyHardDeadlines(user.id, timezone);
 
