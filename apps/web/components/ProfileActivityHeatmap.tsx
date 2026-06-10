@@ -1,6 +1,7 @@
 "use client";
 
 import { ActivityDayModal } from "@/components/ActivityDayModal";
+import { AnimatePresence } from "framer-motion";
 import {
   ContributionHeatmap,
   type HeatmapDay,
@@ -352,13 +353,16 @@ export function ProfileActivityHeatmap({ username }: { username: string }) {
         </div>
       )}
 
-      {selectedDate && (
-        <ActivityDayModal
-          username={username}
-          date={selectedDate}
-          onClose={() => setSelectedDate(null)}
-        />
-      )}
+      <AnimatePresence>
+        {selectedDate && (
+          <ActivityDayModal
+            key={selectedDate}
+            username={username}
+            date={selectedDate}
+            onClose={() => setSelectedDate(null)}
+          />
+        )}
+      </AnimatePresence>
     </>
   );
 }

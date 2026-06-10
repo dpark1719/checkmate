@@ -1,6 +1,7 @@
 "use client";
 
 import { LocalDevAuthHint } from "@/components/auth/LocalDevAuthHint";
+import { MotionButton } from "@/components/motion/MotionButton";
 import { getOAuthCallbackUrl } from "@/lib/auth/oauth-redirect";
 import {
   readRememberMeFromClient,
@@ -168,14 +169,14 @@ export function AuthForm({
       <LocalDevAuthHint />
 
       <div className="space-y-4">
-        <button
+        <MotionButton
           type="button"
           onClick={signInWithGoogle}
           className="flex w-full items-center justify-center gap-3 rounded-xl border border-[var(--gp-border)] bg-[var(--gp-surface)] py-3 font-medium transition-colors hover:bg-[var(--gp-card)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--gp-card)]"
         >
           <GoogleIcon />
           Continue with Google
-        </button>
+        </MotionButton>
 
         <div className="flex items-center gap-3">
           <div className="h-px flex-1 bg-[var(--gp-border)]" />
@@ -206,13 +207,13 @@ export function AuthForm({
                 daily check-in reminders.
               </p>
             </div>
-            <button
+            <MotionButton
               type="submit"
               disabled={phoneLoading}
               className="w-full rounded-xl bg-accent text-accent-foreground py-3 font-semibold disabled:opacity-50"
             >
               {phoneLoading ? "Sending…" : "Send code"}
-            </button>
+            </MotionButton>
           </form>
         ) : (
           <form onSubmit={verifyPhoneCode} className="space-y-3">
@@ -239,13 +240,13 @@ export function AuthForm({
                 className="gp-input w-full mt-1 tracking-widest"
               />
             </div>
-            <button
+            <MotionButton
               type="submit"
               disabled={phoneLoading || otpCode.length < 4}
               className="w-full rounded-xl bg-accent text-accent-foreground py-3 font-semibold disabled:opacity-50"
             >
               {phoneLoading ? "Verifying…" : "Verify & continue"}
-            </button>
+            </MotionButton>
             <button
               type="button"
               onClick={resetPhoneFlow}

@@ -1,6 +1,7 @@
 "use client";
 
 import { UserAvatar } from "@/components/UserAvatar";
+import { motion, useReducedMotion } from "framer-motion";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -23,6 +24,7 @@ export function ProfileConnections({
   const [loading, setLoading] = useState(true);
   const [connectingId, setConnectingId] = useState<string | null>(null);
   const [expanded, setExpanded] = useState(false);
+  const reduced = useReducedMotion() ?? false;
 
   useEffect(() => {
     setLoading(true);
@@ -58,23 +60,25 @@ export function ProfileConnections({
 
   return (
     <section>
-      <button
+      <motion.button
         type="button"
         onClick={() => setExpanded((open) => !open)}
         aria-expanded={expanded}
+        whileTap={reduced ? undefined : { scale: 0.98 }}
         className="flex w-full items-center justify-between gap-2 text-left group"
       >
         <h2 className="text-lg font-semibold group-hover:text-accent transition-colors">
           Connections ({countLabel})
         </h2>
-        <span
-          className="text-sm gp-text-muted shrink-0 transition-transform duration-200"
+        <motion.span
+          className="text-sm gp-text-muted shrink-0"
           aria-hidden
-          style={{ transform: expanded ? "rotate(180deg)" : "rotate(0deg)" }}
+          animate={{ rotate: expanded ? 180 : 0 }}
+          transition={{ duration: reduced ? 0 : 0.2 }}
         >
           ▼
-        </span>
-      </button>
+        </motion.span>
+      </motion.button>
 
       {expanded && (
         <div className="mt-3">

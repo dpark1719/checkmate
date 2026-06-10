@@ -1,6 +1,8 @@
 "use client";
 
 import { PostDetailModal, type ThumbnailPost } from "@/components/PostDetailModal";
+import { StaggerItem, StaggerList } from "@/components/motion/StaggerList";
+import { AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
 
 export type { ThumbnailPost };
@@ -51,43 +53,47 @@ export function PostThumbnailGrid({
 
   return (
     <>
-      <div className="grid grid-cols-3 gap-1 sm:gap-1.5">
+      <StaggerList className="grid grid-cols-3 gap-1 sm:gap-1.5">
         {gridPosts.map((post) => (
-          <button
-            key={post.id}
-            type="button"
-            onClick={() => setSelectedPost(post)}
-            className="relative aspect-square overflow-hidden rounded-md bg-[var(--gp-card)] focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-            aria-label={
-              post.author
-                ? `View post by ${post.author.displayName}`
-                : "View post"
-            }
-          >
-            <img
-              src={post.photoUrl}
-              alt=""
-              className="w-full h-full object-cover"
-            />
-            {post.isLate && (
-              <span className="absolute top-1 right-1 rounded bg-black/60 px-1 py-0.5 text-[10px] font-medium text-amber-300">
-                Late
-              </span>
-            )}
-          </button>
+          <StaggerItem key={post.id}>
+            <button
+              type="button"
+              onClick={() => setSelectedPost(post)}
+              className="relative aspect-square w-full overflow-hidden rounded-md bg-[var(--gp-card)] focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+              aria-label={
+                post.author
+                  ? `View post by ${post.author.displayName}`
+                  : "View post"
+              }
+            >
+              <img
+                src={post.photoUrl}
+                alt=""
+                className="w-full h-full object-cover"
+              />
+              {post.isLate && (
+                <span className="absolute top-1 right-1 rounded bg-black/60 px-1 py-0.5 text-[10px] font-medium text-amber-300">
+                  Late
+                </span>
+              )}
+            </button>
+          </StaggerItem>
         ))}
-      </div>
+      </StaggerList>
 
-      {selectedPost && (
-        <PostDetailModal
-          post={selectedPost}
-          currentUserId={currentUserId}
-          canModeratePosts={canModeratePosts}
-          onClose={() => setSelectedPost(null)}
-          onUpdated={handleUpdated}
-          onRemoved={() => handleRemoved(selectedPost.id)}
-        />
-      )}
+      <AnimatePresence>
+        {selectedPost && (
+          <PostDetailModal
+            key={selectedPost.id}
+            post={selectedPost}
+            currentUserId={currentUserId}
+            canModeratePosts={canModeratePosts}
+            onClose={() => setSelectedPost(null)}
+            onUpdated={handleUpdated}
+            onRemoved={() => handleRemoved(selectedPost.id)}
+          />
+        )}
+      </AnimatePresence>
     </>
   );
 }

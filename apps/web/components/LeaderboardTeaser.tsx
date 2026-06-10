@@ -1,3 +1,6 @@
+"use client";
+
+import { StaggerItem, StaggerList } from "@/components/motion/StaggerList";
 import { UserAvatar } from "@/components/UserAvatar";
 import { goalCategoryEmoji } from "@/lib/goal-categories";
 import Link from "next/link";
@@ -68,7 +71,10 @@ export function LeaderboardTeaser({
         </h3>
       ) : null}
 
-      <ol className={compact ? "space-y-1.5" : "space-y-3"}>
+      <StaggerList
+        as="ol"
+        className={compact ? "space-y-1.5" : "space-y-3"}
+      >
         {entries.map((entry) => {
           const isFirst = entry.rank === 1;
           const emoji = goalCategoryEmoji(entry.goalCategory);
@@ -125,7 +131,10 @@ export function LeaderboardTeaser({
           );
 
           return (
-            <li key={`${entry.rank}-${entry.username ?? entry.displayName}`}>
+            <StaggerItem
+              key={`${entry.rank}-${entry.username ?? entry.displayName}`}
+              as="li"
+            >
               {profileHref ? (
                 <Link
                   href={profileHref}
@@ -137,10 +146,10 @@ export function LeaderboardTeaser({
               ) : (
                 <div className={rowClassName}>{rowContent}</div>
               )}
-            </li>
+            </StaggerItem>
           );
         })}
-      </ol>
+      </StaggerList>
 
       {showCta && (
         <p className={`text-center ${compact ? "pt-0" : "pt-2"}`}>

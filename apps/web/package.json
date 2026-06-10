@@ -14,6 +14,7 @@
     "@supabase/ssr": "^0.6.1",
     "@supabase/supabase-js": "^2.49.8",
     "city-timezones": "^1.3.4",
+    "framer-motion": "^12.40.0",
     "inngest": "^3.35.1",
     "lucide-react": "^0.511.0",
     "next": "15.5.18",

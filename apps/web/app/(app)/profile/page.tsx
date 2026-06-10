@@ -1,6 +1,7 @@
 "use client";
 
 import { AvatarUpload } from "@/components/AvatarUpload";
+import { ProfileOverviewSkeleton } from "@/components/PageSkeletons";
 import { CityTimezonePicker } from "@/components/CityTimezonePicker";
 import { ProfileTabs, type ProfileTabId } from "@/components/ProfileTabs";
 import { UserAvatar } from "@/components/UserAvatar";
@@ -179,7 +180,7 @@ function ProfilePageContent() {
   }
 
   if (!profile) {
-    return <p className="gp-text-muted">Loading profile…</p>;
+    return <ProfileOverviewSkeleton />;
   }
 
   return (
@@ -442,7 +443,7 @@ function ProfilePageContent() {
 
 export default function ProfilePage() {
   return (
-    <Suspense fallback={<p className="gp-text-muted">Loading profile…</p>}>
+    <Suspense fallback={<ProfileOverviewSkeleton />}>
       <ProfilePageContent />
     </Suspense>
   );

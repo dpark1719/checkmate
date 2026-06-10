@@ -6,6 +6,8 @@
 /* Dark (default) */
 :root,
 html.dark {
+  --gp-duration-fast: 150ms;
+  --gp-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --background: #09090b;
   --foreground: #f4f4f5;
   --gp-fg: #f4f4f5;
@@ -28,6 +30,8 @@ html.dark {
   --gp-heat-3: #15803d;
   --gp-heat-4: #16a34a;
   --gp-heat-5: #22c55e;
+  --gp-duration-fast: 150ms;
+  --gp-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 html.light {
@@ -123,18 +127,31 @@ select option {
     text-decoration: underline;
   }
   .gp-btn-primary {
-    @apply rounded-lg font-semibold px-6 py-2 transition-colors disabled:opacity-50;
+    @apply rounded-lg font-semibold px-6 py-2 disabled:opacity-50;
     background-color: var(--gp-accent);
     color: var(--gp-accent-fg);
+    transition:
+      transform var(--gp-duration-fast) var(--gp-ease-out),
+      background-color var(--gp-duration-fast) ease,
+      box-shadow var(--gp-duration-fast) ease;
+  }
+  .gp-btn-primary:active:not(:disabled) {
+    transform: scale(0.98);
   }
   .gp-btn-primary:hover:not(:disabled) {
     background-color: var(--gp-accent-hover);
   }
   .gp-btn-secondary {
-    @apply rounded-lg border px-6 py-2 transition-colors;
+    @apply rounded-lg border px-6 py-2;
     border-color: var(--gp-border);
     color: var(--gp-fg);
     background-color: transparent;
+    transition:
+      transform var(--gp-duration-fast) var(--gp-ease-out),
+      background-color var(--gp-duration-fast) ease;
+  }
+  .gp-btn-secondary:active:not(:disabled) {
+    transform: scale(0.98);
   }
   .gp-btn-secondary:hover {
     background-color: var(--gp-surface);
@@ -267,5 +284,9 @@ select option {
     opacity: 1;
     transform: none;
     transition: none;
+  }
+  .gp-btn-primary:active:not(:disabled),
+  .gp-btn-secondary:active:not(:disabled) {
+    transform: none;
   }
 }

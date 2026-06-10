@@ -10,6 +10,7 @@ import {
   userHasReaction,
 } from "@/lib/reactions";
 import { PostDetailModal } from "@/components/PostDetailModal";
+import { AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -289,18 +290,21 @@ export function FeedPostCard({
         )}
       </div>
       <CommentsSection postId={post.id} />
-      {detailOpen && (
-        <PostDetailModal
-          post={post}
-          currentUserId={currentUserId}
-          canModeratePosts={canModeratePosts}
-          onClose={() => setDetailOpen(false)}
-          onRemoved={() => {
-            setRemoved(true);
-            onDeleted?.(post.id);
-          }}
-        />
-      )}
+      <AnimatePresence>
+        {detailOpen && (
+          <PostDetailModal
+            key={post.id}
+            post={post}
+            currentUserId={currentUserId}
+            canModeratePosts={canModeratePosts}
+            onClose={() => setDetailOpen(false)}
+            onRemoved={() => {
+              setRemoved(true);
+              onDeleted?.(post.id);
+            }}
+          />
+        )}
+      </AnimatePresence>
     </article>
   );
 }

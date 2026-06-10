@@ -1,5 +1,6 @@
 "use client";
 
+import { MessagesSkeleton } from "@/components/PageSkeletons";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { formatMessageTime } from "@/lib/format-datetime";
@@ -118,7 +119,7 @@ export default function MessagesPage() {
       )}
 
       {loading ? (
-        <p className="gp-text-muted">Loading…</p>
+        <MessagesSkeleton />
       ) : loadError ? null : empty ? (
         <p className="gp-text-muted text-sm">
           No conversations yet.{" "}

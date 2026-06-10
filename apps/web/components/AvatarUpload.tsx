@@ -1,6 +1,7 @@
 "use client";
 
 import { AvatarCropModal } from "@/components/AvatarCropModal";
+import { AnimatePresence } from "framer-motion";
 import { UserAvatar } from "@/components/UserAvatar";
 import { compressImageForUpload } from "@/lib/compress-image";
 import { useEffect, useRef, useState } from "react";
@@ -116,16 +117,19 @@ export function AvatarUpload({
         </div>
       </div>
 
-      {pendingFile && (
-        <AvatarCropModal
-          file={pendingFile}
-          onClose={() => setPendingFile(null)}
-          onConfirm={(cropped) => {
-            setPendingFile(null);
-            void uploadFile(cropped);
-          }}
-        />
-      )}
+      <AnimatePresence>
+        {pendingFile && (
+          <AvatarCropModal
+            key={pendingFile.name}
+            file={pendingFile}
+            onClose={() => setPendingFile(null)}
+            onConfirm={(cropped) => {
+              setPendingFile(null);
+              void uploadFile(cropped);
+            }}
+          />
+        )}
+      </AnimatePresence>
     </>
   );
 }

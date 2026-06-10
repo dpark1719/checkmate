@@ -1,6 +1,7 @@
 "use client";
 
 import { JoinCommunityModal } from "@/components/JoinCommunityModal";
+import { DiscoverCategorySkeleton } from "@/components/PageSkeletons";
 import {
   LeaderboardTeaser,
   type LeaderboardTeaserEntry,
@@ -90,7 +91,7 @@ export default function DiscoverPage() {
       />
 
       {pageLoading ? (
-        <p className="gp-text-muted">Loading…</p>
+        <DiscoverCategorySkeleton />
       ) : (
       <div className="grid gap-3 sm:grid-cols-2">
         {communities.map((c) => {

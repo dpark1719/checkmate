@@ -1,6 +1,7 @@
 "use client";
 
 import { CommentsSection } from "@/components/CommentsSection";
+import { AnimatedModalRoot } from "@/components/motion/MotionModal";
 import { PostReactionButton } from "@/components/PostReactionButton";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -220,16 +221,11 @@ export function PostDetailModal({
   }
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/70"
-      role="dialog"
-      aria-modal="true"
-      onClick={onClose}
+    <AnimatedModalRoot
+      onClose={onClose}
+      align="bottom"
+      panelClassName="w-full sm:max-w-lg max-h-[90vh] overflow-y-auto rounded-t-2xl sm:rounded-2xl border border-[var(--gp-border)] bg-[var(--background)]"
     >
-      <div
-        className="w-full sm:max-w-lg max-h-[90vh] overflow-y-auto rounded-t-2xl sm:rounded-2xl border border-[var(--gp-border)] bg-[var(--background)]"
-        onClick={(e) => e.stopPropagation()}
-      >
         <div className="p-4 flex items-center justify-between gap-2 border-b border-[var(--gp-border)]">
           <div className="min-w-0">
             <Link
@@ -370,7 +366,6 @@ export function PostDetailModal({
             </div>
           )}
         </div>
-      </div>
-    </div>
+    </AnimatedModalRoot>
   );
 }

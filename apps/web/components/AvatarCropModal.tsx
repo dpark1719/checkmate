@@ -1,5 +1,6 @@
 "use client";
 
+import { AnimatedModalRoot } from "@/components/motion/MotionModal";
 import {
   clampPan,
   computeBaseCoverScale,
@@ -123,17 +124,12 @@ export function AvatarCropModal({ file, onClose, onConfirm }: AvatarCropModalPro
     : null;
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/70"
-      onClick={onClose}
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="avatar-crop-title"
+    <AnimatedModalRoot
+      onClose={onClose}
+      align="bottom"
+      ariaLabelledBy="avatar-crop-title"
+      panelClassName="w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl bg-[var(--background)] border border-[var(--gp-border)] shadow-xl"
     >
-      <div
-        className="w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl bg-[var(--background)] border border-[var(--gp-border)] shadow-xl"
-        onClick={(e) => e.stopPropagation()}
-      >
         <div className="flex items-center justify-between p-4 border-b border-[var(--gp-border)]">
           <h2 id="avatar-crop-title" className="text-lg font-semibold">
             Adjust profile photo
@@ -211,7 +207,6 @@ export function AvatarCropModal({ file, onClose, onConfirm }: AvatarCropModalPro
             {saving ? "Saving…" : "Use photo"}
           </button>
         </div>
-      </div>
-    </div>
+    </AnimatedModalRoot>
   );
 }

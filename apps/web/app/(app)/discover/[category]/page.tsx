@@ -1,6 +1,7 @@
 "use client";
 
 import { DiscoverPostGrid } from "@/components/DiscoverPostGrid";
+import { Skeleton } from "@/components/motion/Skeleton";
 import { goalCategorySchema } from "@checkmate/shared";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -118,7 +119,11 @@ export default function CommunityFeedPage() {
       {feedError && <p className="text-red-400 text-sm">{feedError}</p>}
 
       {loading ? (
-        <p className="gp-text-muted">Loading…</p>
+        <div className="grid grid-cols-3 gap-1 sm:gap-1.5">
+          {Array.from({ length: 9 }, (_, i) => (
+            <Skeleton key={i} className="aspect-square rounded-md" />
+          ))}
+        </div>
       ) : posts.length === 0 ? (
         <div className="gp-text-muted text-sm space-y-2">
           <p>No posts in this feed yet.</p>

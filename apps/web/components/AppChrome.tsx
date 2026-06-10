@@ -2,6 +2,8 @@
 
 import { AppBottomNav } from "@/components/AppBottomNav";
 import { AppNav } from "@/components/AppNav";
+import { MotionPage } from "@/components/motion/MotionPage";
+import { AnimatePresence } from "framer-motion";
 import { usePathname } from "next/navigation";
 
 const NO_CHROME_PREFIXES = ["/login", "/signup", "/auth/"];
@@ -33,7 +35,9 @@ export function AppChrome({ children }: { children: React.ReactNode }) {
           conversationDetail ? "pt-0" : "pt-6"
         }`}
       >
-        {children}
+        <AnimatePresence mode="wait">
+          <MotionPage key={pathname}>{children}</MotionPage>
+        </AnimatePresence>
       </main>
       <AppBottomNav />
     </>

@@ -1,9 +1,13 @@
 "use client";
 
 import { FeedPostCard } from "@/components/FeedPostCard";
+import { FeedPostSkeletonList } from "@/components/FeedPostSkeleton";
+import { MotionButton } from "@/components/motion/MotionButton";
+import { StaggerItem, StaggerList } from "@/components/motion/StaggerList";
 import { groupPostsByDay } from "@/lib/format-datetime";
 import { markFeedViewed, splitFeedPosts } from "@/lib/feed-client";
 import { markAllCommentsRead } from "@/lib/notifications-client";
+import { useReducedMotion } from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -27,6 +31,7 @@ interface FeedPost {
 
 export default function FeedPage() {
   const pathname = usePathname();
+  const reduced = useReducedMotion() ?? false;
   const [posts, setPosts] = useState<FeedPost[]>([]);
   const [feedLastViewedAt, setFeedLastViewedAt] = useState<string | null>(null);
   const [showAll, setShowAll] = useState(false);
@@ -129,7 +134,7 @@ export default function FeedPage() {
       </div>
 
       {loading ? (
-        <p className="gp-text-muted">Loading…</p>
+        <FeedPostSkeletonList count={3} />
       ) : error ? (
         <p className="text-sm text-red-400">{error}</p>
       ) : posts.length === 0 ? (
@@ -142,9 +147,10 @@ export default function FeedPage() {
           </Link>
         </div>
       ) : caughtUp ? (
-        <button
+        <MotionButton
           type="button"
           onClick={() => setShowAll(true)}
+          whileHover={reduced ? undefined : { scale: 1.01 }}
           className="w-full rounded-xl border border-dashed border-[var(--gp-border)] p-12 text-center space-y-2 transition-colors hover:bg-[var(--gp-card)] hover:border-accent/40"
         >
           <p className="text-lg font-semibold text-[var(--gp-fg)]">
@@ -153,7 +159,7 @@ export default function FeedPage() {
           <p className="text-sm gp-text-muted">
             Tap to see posts from earlier
           </p>
-        </button>
+        </MotionButton>
       ) : (
         <div className="space-y-8">
           {!showAll && feedLastViewedAt !== null && newPosts.length > 0 && (
@@ -171,18 +177,19 @@ export default function FeedPage() {
                   {group.label}
                 </h2>
               </div>
-              <div className="space-y-6">
+              <StaggerList className="space-y-6">
                 {group.posts.map((post) => (
-                  <FeedPostCard
-                    key={post.id}
-                    post={post}
-                    openMessagingOnClick
-                    onDeleted={(id) =>
-                      setPosts((prev) => prev.filter((p) => p.id !== id))
-                    }
-                  />
+                  <StaggerItem key={post.id}>
+                    <FeedPostCard
+                      post={post}
+                      openMessagingOnClick
+                      onDeleted={(id) =>
+                        setPosts((prev) => prev.filter((p) => p.id !== id))
+                      }
+                    />
+                  </StaggerItem>
                 ))}
-              </div>
+              </StaggerList>
             </section>
           ))}
 
@@ -200,14 +207,14 @@ export default function FeedPage() {
 
           {showAll && nextCursor && (
             <div className="flex justify-center pt-2 pb-4">
-              <button
+              <MotionButton
                 type="button"
                 onClick={() => void loadEarlier()}
                 disabled={loadingMore}
                 className="rounded-lg border border-[var(--gp-border)] px-4 py-2 text-sm font-medium hover:bg-[var(--gp-card)] disabled:opacity-50"
               >
                 {loadingMore ? "Loading…" : "Load earlier posts"}
-              </button>
+              </MotionButton>
             </div>
           )}
         </div>
