@@ -64,7 +64,9 @@ CRON_SECRET=<random-long-string>     # Vercel Cron auth
 
 ### Scheduler
 
-Hourly Vercel Cron hits `/api/cron/fire-triggers` (see `apps/web/vercel.json`), which runs `ensureAllUsersDailyChallenges()` and fires due triggers + SMS for users with a phone on file.
+Vercel Cron hits `/api/cron/fire-triggers` once daily (see `apps/web/vercel.json`). **Hobby plans only allow one cron run per day** — hourly schedules block deploys.
+
+For hourly trigger coverage on Hobby, use an external cron (e.g. [cron-job.org](https://cron-job.org)) to `GET` your production URL with header `Authorization: Bearer <CRON_SECRET>`.
 
 Without `CRON_SECRET`, cron returns 503. Without Twilio env, SMS is skipped (logged in dev).
 

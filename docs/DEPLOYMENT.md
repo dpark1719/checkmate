@@ -227,3 +227,4 @@ Production domain: **`https://lockinatcheckmate.app`** — see [CUSTOM_DOMAIN_lo
 | Jobs never run | Inngest serve URL + `INNGEST_*` keys on Vercel |
 | Email rate limit | Custom SMTP in Supabase |
 | **Pushes to `main` but no Vercel deploy** | Settings → **Environments** → **Production** → **Branch Tracking** = `main`. If repo was renamed (`GoalPost` → `checkmate`), reconnect under Settings → **Git**. Set local remote: `git remote set-url origin https://github.com/dpark1719/checkmate.git` |
+| **Deploy fails: Hobby cron limit** | `vercel.json` cron must run **once per day** on Hobby (e.g. `0 14 * * *`). Hourly `0 * * * *` rejects the whole deploy. Use external cron for hourly SMS triggers — see `ALERTS_SETUP.md`. |
