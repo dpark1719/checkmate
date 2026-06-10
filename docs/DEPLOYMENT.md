@@ -226,3 +226,4 @@ Production domain: **`https://lockinatcheckmate.app`** — see [CUSTOM_DOMAIN_lo
 | **Internal Server Error** on Google login | Fix: redeploy latest `auth/callback`; set `NEXT_PUBLIC_APP_URL` to Vercel URL; add `https://YOUR.vercel.app/auth/callback` in Supabase redirect URLs |
 | Jobs never run | Inngest serve URL + `INNGEST_*` keys on Vercel |
 | Email rate limit | Custom SMTP in Supabase |
+| **Pushes to `main` but no Vercel deploy** | Settings → **Environments** → **Production** → **Branch Tracking** = `main`. If repo was renamed (`GoalPost` → `checkmate`), reconnect under Settings → **Git**. Set local remote: `git remote set-url origin https://github.com/dpark1719/checkmate.git` |
