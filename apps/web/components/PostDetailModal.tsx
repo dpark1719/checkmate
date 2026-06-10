@@ -13,7 +13,11 @@ import {
   reactionMatches,
   userHasReaction,
 } from "@/lib/reactions";
-import { REACTION_TYPES, type ReactionType } from "@checkmate/shared";
+import {
+  POST_CAPTION_MAX_LENGTH,
+  REACTION_TYPES,
+  type ReactionType,
+} from "@checkmate/shared";
 
 export interface PostAuthor {
   displayName: string;
@@ -275,12 +279,14 @@ export function PostDetailModal({
             <textarea
               value={caption}
               onChange={(e) => setCaption(e.target.value)}
-              maxLength={280}
+              maxLength={POST_CAPTION_MAX_LENGTH}
               rows={3}
               placeholder="Caption (optional)"
               className="gp-input w-full resize-none"
             />
-            <p className="text-xs gp-text-muted text-right">{caption.length}/280</p>
+            <p className="text-xs gp-text-muted text-right">
+              {caption.length}/{POST_CAPTION_MAX_LENGTH}
+            </p>
           </div>
         ) : (
           <>

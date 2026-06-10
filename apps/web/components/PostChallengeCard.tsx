@@ -1,6 +1,7 @@
 "use client";
 
 import { PromiseCountdown } from "@/components/PromiseCountdown";
+import { POST_CAPTION_MAX_LENGTH } from "@checkmate/shared";
 import { compressImageForUpload } from "@/lib/compress-image";
 import { formatDefaultPromiseTime } from "@/lib/goal-titles";
 import { useEffect, useRef, useState } from "react";
@@ -284,7 +285,7 @@ export function PostChallengeCard({
             value={caption}
             onChange={(e) => setCaption(e.target.value)}
             placeholder="Caption (optional)"
-            maxLength={280}
+            maxLength={POST_CAPTION_MAX_LENGTH}
             className="w-full rounded-lg bg-[var(--gp-card)] border border-[var(--gp-border)] px-3 py-2 text-sm min-h-[72px]"
           />
           <button

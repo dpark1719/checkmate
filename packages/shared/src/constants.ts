@@ -28,6 +28,8 @@ export const LEADERBOARD_PERIODS = ["weekly", "all_time"] as const;
 
 export const MAX_ACTIVE_GOALS = 5;
 
+export const POST_CAPTION_MAX_LENGTH = 500;
+
 export const DEFAULT_PROMISE_TIME = "20:00:00";
 
 export const PROMISE_SET_WINDOW_HOURS = 2;
