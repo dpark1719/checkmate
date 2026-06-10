@@ -22,7 +22,6 @@ function ActivityCard({
   compact?: boolean;
   fill?: boolean;
 }) {
-  const padded = fill ? "p-3 sm:p-4" : compact ? "p-2 sm:p-2.5" : "p-4";
   const titleSize = fill
     ? "text-xs sm:text-sm"
     : compact
@@ -47,6 +46,17 @@ function ActivityCard({
     ? "text-[10px] sm:text-xs px-2 py-0.5"
     : "text-[9px] px-1.5 py-px";
 
+  const goalPadding = fill
+    ? "px-3 pt-3 sm:px-4 sm:pt-4 pb-2"
+    : compact
+      ? "px-2 pt-2 sm:px-2.5 sm:pt-2.5 pb-1.5"
+      : "px-4 pt-4 pb-3";
+  const footerPadding = fill
+    ? "px-3 pb-3 sm:px-4 sm:pb-4"
+    : compact
+      ? "px-2 pb-2 sm:px-2.5 sm:pb-2.5"
+      : "px-4 pb-4";
+
   return (
     <article
       className={`landing-fade-in rounded-lg border border-[var(--gp-border)] bg-[var(--gp-card)] shadow-sm min-h-0 overflow-hidden ${
@@ -58,6 +68,15 @@ function ActivityCard({
         borderTopColor: post.avatarColor,
       }}
     >
+      <div className={`shrink-0 ${goalPadding}`}>
+        <p
+          className={`font-semibold leading-snug truncate ${titleSize}`}
+          title={`${post.goalEmoji} ${post.goalTitle}`}
+        >
+          <span aria-hidden>{post.goalEmoji}</span> {post.goalTitle}
+        </p>
+      </div>
+
       {post.imageUrl && (
         <div
           className={`relative w-full shrink-0 bg-[var(--gp-surface)] ${
@@ -72,36 +91,31 @@ function ActivityCard({
         </div>
       )}
 
-      <div className={`flex flex-col flex-1 min-h-0 ${padded}`}>
+      <div className={`flex flex-col flex-1 min-h-0 ${footerPadding}`}>
         <div
-          className={`shrink-0 ${fill ? "mb-1.5 sm:mb-2" : compact ? "mb-1" : "mb-2"}`}
-        >
-          <p
-            className={`font-semibold leading-snug truncate ${titleSize}`}
-            title={`${post.goalEmoji} ${post.goalTitle}`}
-          >
-            <span aria-hidden>{post.goalEmoji}</span> {post.goalTitle}
-          </p>
-        </div>
-
-        <div
-          className={`flex items-center gap-1.5 shrink-0 ${
+          className={`flex items-center justify-between gap-2 shrink-0 ${
             fill ? "mb-1.5" : compact ? "mb-1" : "mb-2"
           }`}
         >
-          <span
-            className={`flex shrink-0 items-center justify-center rounded-full font-bold text-white ${avatarSize}`}
-            style={{ backgroundColor: post.avatarColor }}
-            aria-hidden
-          >
-            {post.avatarInitials}
-          </span>
-          <p className={`${metaSize} gp-text-muted truncate min-w-0`}>
-            <span className="font-medium text-[var(--gp-fg)]">
+          <div className="flex min-w-0 items-center gap-1.5">
+            <span
+              className={`flex shrink-0 items-center justify-center rounded-full font-bold text-white ${avatarSize}`}
+              style={{ backgroundColor: post.avatarColor }}
+              aria-hidden
+            >
+              {post.avatarInitials}
+            </span>
+            <p
+              className={`${metaSize} font-medium text-[var(--gp-fg)] truncate min-w-0`}
+            >
               {post.username}
-            </span>{" "}
-            · {post.timeAgo}
-          </p>
+            </p>
+          </div>
+          <span
+            className={`shrink-0 rounded-full bg-[var(--gp-accent-subtle)] font-medium text-accent ${streakSize}`}
+          >
+            {post.streakDays}🔥
+          </span>
         </div>
 
         <p
@@ -109,20 +123,12 @@ function ActivityCard({
             fill
               ? "line-clamp-2 flex-1 min-h-0"
               : compact
-                ? "line-clamp-2 mb-1"
-                : "line-clamp-3 mb-2"
+                ? "line-clamp-2"
+                : "line-clamp-3"
           }`}
         >
           &ldquo;{post.caption}&rdquo;
         </p>
-
-        <span
-          className={`shrink-0 rounded-full bg-[var(--gp-accent-subtle)] font-medium text-accent w-fit ${streakSize} ${
-            fill ? "mt-auto" : compact ? "mt-1" : "mt-2"
-          }`}
-        >
-          {post.streakDays}🔥
-        </span>
 
         {!compact && !fill && (
           <p className="text-xs gp-text-subtle mt-2">
