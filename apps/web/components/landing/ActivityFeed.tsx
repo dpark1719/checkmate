@@ -23,7 +23,7 @@ function ActivityCard({
   fill?: boolean;
 }) {
   const titleSize = fill
-    ? "text-xs sm:text-sm"
+    ? "text-base"
     : compact
       ? "text-[10px] sm:text-[11px]"
       : "text-sm";
