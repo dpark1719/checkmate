@@ -49,7 +49,7 @@ function ActivityCard({
 
   return (
     <article
-      className={`landing-fade-in rounded-lg border border-[var(--gp-border)] bg-[var(--gp-card)] shadow-sm min-h-0 ${padded} ${
+      className={`landing-fade-in rounded-lg border border-[var(--gp-border)] bg-[var(--gp-card)] shadow-sm min-h-0 overflow-hidden ${
         fill ? "h-full flex flex-col" : ""
       } ${visible ? "landing-fade-in-visible" : ""}`}
       style={{
@@ -58,59 +58,79 @@ function ActivityCard({
         borderTopColor: post.avatarColor,
       }}
     >
-      <div
-        className={`shrink-0 ${fill ? "mb-2 sm:mb-2.5" : compact ? "mb-1.5" : "mb-3"}`}
-      >
-        <p
-          className={`font-semibold leading-snug truncate ${titleSize}`}
-          title={`${post.goalEmoji} ${post.goalTitle}`}
+      {post.imageUrl && (
+        <div
+          className={`relative w-full shrink-0 bg-[var(--gp-surface)] ${
+            fill ? "aspect-[4/3]" : compact ? "aspect-square" : "aspect-[4/3]"
+          }`}
         >
-          <span aria-hidden>{post.goalEmoji}</span> {post.goalTitle}
-        </p>
-      </div>
-
-      <div
-        className={`flex items-center gap-1.5 shrink-0 ${
-          fill ? "mb-2" : compact ? "mb-1" : "mb-3"
-        }`}
-      >
-        <span
-          className={`flex shrink-0 items-center justify-center rounded-full font-bold text-white ${avatarSize}`}
-          style={{ backgroundColor: post.avatarColor }}
-          aria-hidden
-        >
-          {post.avatarInitials}
-        </span>
-        <p className={`${metaSize} gp-text-muted truncate min-w-0`}>
-          <span className="font-medium text-[var(--gp-fg)]">
-            {post.username}
-          </span>{" "}
-          · {post.timeAgo}
-        </p>
-      </div>
-
-      <p
-        className={`gp-text-muted italic leading-snug line-clamp-3 sm:line-clamp-4 ${captionSize} ${
-          fill ? "" : compact ? "mb-1" : "mb-3 line-clamp-3"
-        }`}
-      >
-        &ldquo;{post.caption}&rdquo;
-      </p>
-
-      <span
-        className={`shrink-0 rounded-full bg-[var(--gp-accent-subtle)] font-medium text-accent w-fit ${streakSize} ${
-          fill ? "mt-auto" : compact ? "mt-1" : "mt-2"
-        }`}
-      >
-        {post.streakDays}🔥
-      </span>
-
-      {!compact && !fill && (
-        <p className="text-xs gp-text-subtle">
-          🔥{post.reactions.fire}{" "}
-          <span className="ml-2">👏{post.reactions.clap}</span>
-        </p>
+          <img
+            src={post.imageUrl}
+            alt=""
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+        </div>
       )}
+
+      <div className={`flex flex-col flex-1 min-h-0 ${padded}`}>
+        <div
+          className={`shrink-0 ${fill ? "mb-1.5 sm:mb-2" : compact ? "mb-1" : "mb-2"}`}
+        >
+          <p
+            className={`font-semibold leading-snug truncate ${titleSize}`}
+            title={`${post.goalEmoji} ${post.goalTitle}`}
+          >
+            <span aria-hidden>{post.goalEmoji}</span> {post.goalTitle}
+          </p>
+        </div>
+
+        <div
+          className={`flex items-center gap-1.5 shrink-0 ${
+            fill ? "mb-1.5" : compact ? "mb-1" : "mb-2"
+          }`}
+        >
+          <span
+            className={`flex shrink-0 items-center justify-center rounded-full font-bold text-white ${avatarSize}`}
+            style={{ backgroundColor: post.avatarColor }}
+            aria-hidden
+          >
+            {post.avatarInitials}
+          </span>
+          <p className={`${metaSize} gp-text-muted truncate min-w-0`}>
+            <span className="font-medium text-[var(--gp-fg)]">
+              {post.username}
+            </span>{" "}
+            · {post.timeAgo}
+          </p>
+        </div>
+
+        <p
+          className={`gp-text-muted italic leading-snug ${captionSize} ${
+            fill
+              ? "line-clamp-2 flex-1 min-h-0"
+              : compact
+                ? "line-clamp-2 mb-1"
+                : "line-clamp-3 mb-2"
+          }`}
+        >
+          &ldquo;{post.caption}&rdquo;
+        </p>
+
+        <span
+          className={`shrink-0 rounded-full bg-[var(--gp-accent-subtle)] font-medium text-accent w-fit ${streakSize} ${
+            fill ? "mt-auto" : compact ? "mt-1" : "mt-2"
+          }`}
+        >
+          {post.streakDays}🔥
+        </span>
+
+        {!compact && !fill && (
+          <p className="text-xs gp-text-subtle mt-2">
+            🔥{post.reactions.fire}{" "}
+            <span className="ml-2">👏{post.reactions.clap}</span>
+          </p>
+        )}
+      </div>
     </article>
   );
 }

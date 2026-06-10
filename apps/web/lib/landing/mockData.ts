@@ -10,6 +10,7 @@ export interface MockPost {
   timeAgo: string;
   reactions: { fire: number; clap: number };
   streakDays: number;
+  imageUrl: string;
 }
 
 export interface MockLeaderboardEntry {
@@ -46,6 +47,7 @@ export const MOCK_POSTS: MockPost[] = [
     timeAgo: "4 min ago",
     reactions: { fire: 12, clap: 8 },
     streakDays: 23,
+    imageUrl: "/landing/post-1.png",
   },
   {
     id: 2,
@@ -59,6 +61,7 @@ export const MOCK_POSTS: MockPost[] = [
     timeAgo: "11 min ago",
     reactions: { fire: 6, clap: 19 },
     streakDays: 41,
+    imageUrl: "/landing/post-2.png",
   },
   {
     id: 3,
@@ -72,6 +75,7 @@ export const MOCK_POSTS: MockPost[] = [
     timeAgo: "18 min ago",
     reactions: { fire: 31, clap: 14 },
     streakDays: 7,
+    imageUrl: "/landing/post-3.png",
   },
   {
     id: 4,
@@ -85,6 +89,7 @@ export const MOCK_POSTS: MockPost[] = [
     timeAgo: "26 min ago",
     reactions: { fire: 9, clap: 22 },
     streakDays: 15,
+    imageUrl: "/landing/post-4.png",
   },
   {
     id: 5,
@@ -98,6 +103,7 @@ export const MOCK_POSTS: MockPost[] = [
     timeAgo: "33 min ago",
     reactions: { fire: 44, clap: 7 },
     streakDays: 60,
+    imageUrl: "/landing/post-5.png",
   },
   {
     id: 7,
@@ -111,6 +117,7 @@ export const MOCK_POSTS: MockPost[] = [
     timeAgo: "52 min ago",
     reactions: { fire: 8, clap: 11 },
     streakDays: 19,
+    imageUrl: "/landing/post-6.png",
   },
   {
     id: 8,
@@ -124,6 +131,7 @@ export const MOCK_POSTS: MockPost[] = [
     timeAgo: "1 hr ago",
     reactions: { fire: 55, clap: 28 },
     streakDays: 8,
+    imageUrl: "/landing/post-7.png",
   },
   {
     id: 9,
@@ -137,6 +145,7 @@ export const MOCK_POSTS: MockPost[] = [
     timeAgo: "1 hr ago",
     reactions: { fire: 21, clap: 16 },
     streakDays: 34,
+    imageUrl: "/landing/post-8.png",
   },
 ];
 
